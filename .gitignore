@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+*.class
+
+# Logs
+*.log
+
+# OS/Editor
+Thumbs.db
+.vscode/
+*.swp
+
+# Ignore environment config files (optional)
+.env
+.env.*
+
+# Git files
+*.orig
