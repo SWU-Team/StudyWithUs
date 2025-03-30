@@ -1,9 +1,38 @@
-.App {
+.div {
   display: flex;
-  /* justify-content: center; */
-  /* align-items: center; */
-  padding: 0.375rem 0.75rem;
-  background-color: gray;
-  font-size: 1rem;
-  line-height: 1.5;
+
+  align-items: center;
+  margin-top: 5%;
+}
+
+.left {
+  justify-content: center;
+  text-align: center;
+  width: 50%;
+  height: 100%;
+}
+
+.right {
+  margin-left: 3%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  display: grid;
+
+  width: 50%;
+  height: 100%;
+}
+
+.IDbox {
+  width: 400px;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+.PSbox {
+  width: 400px;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+.ok {
+  width: 100px;
 }
