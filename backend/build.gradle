@@ -48,6 +48,9 @@ dependencies {
 	// JUnit 5
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+	// AssertJ
+	testImplementation 'org.assertj:assertj-core:3.25.1'
+
 	// Validation API
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
