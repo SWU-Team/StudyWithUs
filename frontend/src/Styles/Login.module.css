@@ -1,15 +1,25 @@
 .div {
   display: flex;
-
   align-items: center;
+  justify-content: center;
   margin-top: 5%;
+  flex-wrap: wrap; /* 반응형 대응 */
+}
+.image {
+  width: 80%;
+  max-width: 400px;
+  height: auto;
+  margin-top: 20px;
+  border-radius: 10px; /* 둥근 모서리 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 살짝 그림자 */
 }
 
 .left {
   justify-content: center;
   text-align: center;
   width: 50%;
-  height: 100%;
+  min-width: 300px;
+  padding: 20px;
 }
 
 .right {
@@ -18,28 +28,38 @@
   align-items: center;
   text-align: center;
   display: grid;
-
-  width: 50%;
-  height: 100%;
+  width: 40%;
+  min-width: 300px;
+  padding: 20px;
 }
 
 .IDbox {
-  width: 400px;
+  width: 100%;
+  border-radius: 10px; /* 둥근 모서리 */
+  max-width: 400px;
   margin-bottom: 10px;
   padding: 10px;
 }
+
 .PSbox {
-  width: 400px;
+  width: 100%;
+  border-radius: 10px; /* 둥근 모서리 */
+  max-width: 400px;
   margin-bottom: 10px;
   padding: 10px;
 }
+
 .ok {
   width: 100px;
+  border-radius: 10px; /* 둥근 모서리 */
 }
+
 .OAuth {
   margin-top: 10px;
+  border-radius: 10px; /* 둥근 모서리 */
   text-align: center;
   height: 50px;
   width: 100%;
+  max-width: 400px;
   border: 1px solid black;
 }
