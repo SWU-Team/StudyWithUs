@@ -51,6 +51,9 @@ dependencies {
 	// AssertJ
 	testImplementation 'org.assertj:assertj-core:3.25.1'
 
+	// Springdoc OpenAPI
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
 	// Validation API
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
