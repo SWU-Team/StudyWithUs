@@ -2,10 +2,13 @@ import "./App.css";
 import Login from "./pages/Login";
 import Startpage from "./pages/Startpage";
 import Mypage from "./pages/Mypage";
+import SearchID from "./pages/SearchID";
+import SearchPW from "./pages/SearchPW";
 import { BrowserRouter, Routes, Route } from "react-router-dom"; // BrowserRouter 추가
 import Diary from "./pages/Diary";
 import Planer from "./pages/Planer";
 import StudyRoomList from "./pages/StudyRoomList";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
@@ -13,6 +16,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Startpage />} />
         <Route path="/Login" element={<Login />} />
+        <Route path="/SearchID" element={<SearchID />} />
+        <Route path="/SearchPW" element={<SearchPW />} />
+        <Route path="/Signup" element={<Signup />} />
         <Route path="/Mypage" element={<Mypage />} />
         <Route path="/Diary" element={<Diary />} />
         <Route path="/Planer" element={<Planer />} />

@@ -27,11 +27,27 @@
   flex-direction: column;
   gap: 15px; /* input 사이 여백 */
 }
-
-/* ============================ */
-/*        입력 박스 (ID, PW)     */
-/* ============================ */
-
+.IDfind {
+  text-decoration: inherit;
+  color: black; /* 글씨를 검정색으로 */
+  font-size: 10px;
+  margin-right: 10px;
+}
+.search {
+  width: 100%;
+  max-width: 600px; /* 로그인 박스랑 맞추고 싶으면 */
+  display: flex; /* flex로 양쪽 정렬 */
+  justify-content: space-between; /* 좌우로 쫙 벌림 */
+  align-items: center;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+.Signup {
+  text-decoration: inherit;
+  color: black; /* 글씨를 검정색으로 */
+  font-size: 10px;
+  margin-right: 10px;
+}
 .IDbox,
 .PSbox {
   width: 100%;

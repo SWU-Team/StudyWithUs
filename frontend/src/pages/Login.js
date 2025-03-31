@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "../Styles/Login.module.css";
 import googleLogo from "../assets/googlelogo.png";
 import kakaoLogo from "../assets/kakaologo.png";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google"; // Google OAuth Login 컴포넌트 import
 import { jwtDecode } from "jwt-decode"; // JWT 토큰 디코딩용 라이브러리 import
@@ -37,7 +38,7 @@ function Login() {
         />
         <input
           className={styles.IDbox}
-          placeholder="passward"
+          placeholder="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)} // 입력 값 상태에 저장
@@ -46,6 +47,19 @@ function Login() {
       <button className={styles.ok} onClick={handleLogin}>
         Login now
       </button>
+      <div className={styles.search}>
+        <Link to="/Signup" className={styles.Signup}>
+          회원가입
+        </Link>
+        <div className={styles.rightLinks}>
+          <Link to="/SearchID" className={styles.IDfind}>
+            아이디 찾기
+          </Link>
+          <Link to="/SearchPW" className={styles.IDfind}>
+            비밀번호 찾기
+          </Link>
+        </div>
+      </div>
       <div className={styles.divider}></div>
       <h2>Login with Others</h2>
       <div className={styles.Loginbox}>
