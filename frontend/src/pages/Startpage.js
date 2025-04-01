@@ -1,13 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import logoImage from "../assets/Study with us Logo.png";
+import logoImage from "../assets/images/StudywithusLogo.png";
 import styles from "../Styles/Startpage.module.css";
+import { useNavigate } from "react-router-dom";
 
 function Startpage() {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate("/Login");
+  };
   return (
-    <div>
-      <img src={logoImage} alt="Study with us Logo" className={styles.image} />
-      <Link to="/Login">로그인</Link>
+    <div className={styles.div}>
+      <img src={logoImage} alt="StudywithusLogo" className={styles.image} />
+      <button onClick={handleClick} className={styles.btn}>
+        study now
+      </button>
     </div>
   );
 }

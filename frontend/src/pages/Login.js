@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "../Styles/Login.module.css";
-import googleLogo from "../assets/googlelogo.png";
-import kakaoLogo from "../assets/kakaologo.png";
+import googleLogo from "../assets/images/googlelogo.png";
+import kakaoLogo from "../assets/images/kakaologo.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google"; // Google OAuth Login 컴포넌트 import
