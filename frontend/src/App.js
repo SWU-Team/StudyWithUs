@@ -1,14 +1,14 @@
 import "./App.css";
-import Login from "./pages/Login";
-import Startpage from "./pages/Startpage";
-import Mypage from "./pages/Mypage";
-import SearchID from "./pages/SearchID";
-import SearchPW from "./pages/SearchPW";
+import Login from "./pages/login/Login";
+import Mypage from "./pages/mypage/Mypage";
+import SearchID from "./pages/searchid/SearchID";
+import SearchPW from "./pages/searchpw/SearchPW";
 import { BrowserRouter, Routes, Route } from "react-router-dom"; // BrowserRouter 추가
-import Diary from "./pages/Diary";
-import Planer from "./pages/Planer";
-import StudyRoomList from "./pages/StudyRoomList";
-import Signup from "./pages/Signup";
+import Diary from "./pages/diary/Diary";
+import Planer from "./pages/planer/Planer";
+import StudyRoomList from "./pages/rooms/StudyRoomList";
+import Signup from "./pages/sighup/Signup";
+import Startpage from "./pages/startpage/Startpage";
 
 function App() {
   return (

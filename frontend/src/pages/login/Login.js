@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import styles from "../Styles/Login.module.css";
-import googleLogo from "../assets/images/googlelogo.png";
-import kakaoLogo from "../assets/images/kakaologo.png";
+import styles from "./Login.module.css";
+import googleLogo from "../../assets/images/googlelogo.png";
+import kakaoLogo from "../../assets/images/kakaologo.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google"; // Google OAuth Login 컴포넌트 import
-import { jwtDecode } from "jwt-decode"; // JWT 토큰 디코딩용 라이브러리 import
 
 function Login() {
   const [id, setId] = useState(""); // 아이디 값 저장

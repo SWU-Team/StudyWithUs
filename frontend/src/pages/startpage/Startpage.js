@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import logoImage from "../assets/images/StudywithusLogo.png";
-import styles from "../Styles/Startpage.module.css";
+import logoImage from "../../assets/images/StudywithusLogo.png";
+import styles from "./Startpage.module.css";
 import { useNavigate } from "react-router-dom";
 
 function Startpage() {
