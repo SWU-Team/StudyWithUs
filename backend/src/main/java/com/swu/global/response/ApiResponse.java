@@ -29,4 +29,9 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> error(HttpStatus status, String message) {
         return new ApiResponse<>(status.value(), message, null);
     }
+
+    public static <T> ApiResponse<T> unauthorized(String message) {
+        return new ApiResponse<>(401, message, null);
+    }
+
 }
