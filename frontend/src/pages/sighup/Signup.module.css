@@ -1,80 +1,188 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
+
+/* 기본 설정 */
 * {
-  box-sizing: border-box; /* padding, border 포함한 box 크기 계산 */
-  font-family: "SUIT-Medium", sans-serif; /* 전체 폰트 설정 */
+  box-sizing: border-box;
+  font-family: "Noto Sans KR", sans-serif;
 }
 
+/* 메인 컨테이너 */
 .wrapper {
-  display: flex; /* flexbox 사용 */
-  flex-direction: column; /* 세로 정렬 */
-  align-items: center; /* 가로 가운데 정렬 */
-  justify-content: center; /* 세로 가운데 정렬 */
-  padding: 50px 20px; /* 위아래 50px, 좌우 20px 패딩 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5%;
+  padding: 20px;
 }
 
+/* 제목 스타일 */
 .title {
-  color: #666; /* 제목 글자색 */
-  margin-bottom: 30px; /* 아래쪽 여백 */
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 40px;
+  text-align: center;
 }
 
+/* 폼 컨테이너 */
 .form {
-  display: flex; /* flexbox 사용 */
-  flex-direction: column; /* 세로로 배치 */
-  gap: 20px; /* 항목 간 간격 */
-  width: 100%; /* 부모 기준 너비 100% */
-  max-width: 400px; /* 최대 너비 400px */
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  animation: fadeUp 0.6s ease-out;
 }
 
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 입력 그룹 */
 .inputGroup {
-  display: flex; /* flexbox 사용 */
-  flex-direction: column; /* 세로로 배치 */
-  gap: 8px; /* label과 input 사이 간격 */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.inputGroup label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
 }
 
 .inputRow {
-  display: flex; /* flexbox 사용 */
-  gap: 8px; /* 입력창과 버튼 사이 간격 */
+  display: flex;
+  gap: 10px;
 }
 
-input {
-  width: 100%; /* 너비 100% */
-  height: 40px; /* 높이 40px */
-  border: 1px solid #ccc; /* 테두리 색상 */
-  border-radius: 8px; /* 둥근 테두리 */
-  padding: 0 12px; /* 좌우 패딩 */
-  font-size: 14px; /* 글자 크기 */
-  transition: border 0.2s; /* 테두리 변화 애니메이션 */
+/* 링크 영역 */
+.linkContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-left: 10px;
 }
 
-input:focus {
-  border: 1px solid #888; /* 포커스 시 테두리 색상 변경 */
-  outline: none; /* 기본 outline 제거 */
+.link {
+  text-decoration: inherit;
+  color: black;
+  font-size: 10px;
+  margin-right: 10px;
 }
 
-button {
-  height: 40px; /* 버튼 높이 */
-  background-color: #888; /* 버튼 배경색 */
-  color: white; /* 버튼 글자색 */
-  border: none; /* 테두리 제거 */
-  border-radius: 8px; /* 둥근 테두리 */
-  cursor: pointer; /* 마우스 오버 시 포인터로 변경 */
-  transition: all 0.2s; /* 모든 변화에 0.2초 애니메이션 */
+.link:hover {
+  color: #555;
+  text-decoration: underline;
 }
 
-button:hover {
-  background-color: #666; /* 마우스 오버 시 배경색 변경 */
+/* 입력 필드 */
+.inputGroup input {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+  background: linear-gradient(to right, #ffffff, #f1f1f1);
+  box-sizing: border-box;
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border: 1.5px solid #666;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.inputGroup input::placeholder {
+  color: #999;
+  font-weight: 300;
+}
+
+/* 버튼 스타일 */
+.checkbtn {
+  flex-shrink: 0;
+  height: 45px;
+  padding: 0 15px;
+  background: linear-gradient(to right, #ffffff, #f1f1f1);
+  color: #444;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 90px;
+  text-align: center;
+}
+
+.checkbtn:hover {
+  background: linear-gradient(to right, #f0f0f0, #e0e0e0);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.checkbtn:active {
+  background: linear-gradient(to right, #e8e8e8, #d8d8d8);
+  transform: translateY(0);
 }
 
 .submitBtn {
-  margin-top: 20px; /* 위쪽 여백 */
-  height: 48px; /* 높이 48px */
-  font-size: 16px; /* 글자 크기 */
-  font-weight: bold; /* 글자 두껍게 */
-  background-color: #555; /* 배경색 */
+  width: 100%;
+  height: 45px;
+  margin-top: 10px;
+  background: linear-gradient(to right, #ffffff, #dcdcdc);
+  color: #333;
+  border: 1px solid #999;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.submitBtn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: all 0.5s;
 }
 
 .submitBtn:hover {
-  background-color: #444; /* 마우스 오버 시 배경색 변경 */
+  background: linear-gradient(to right, #f0f0f0, #bbbbbb);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
-.checkbtn {
-  width: 90px;
+
+.submitBtn:hover::before {
+  left: 100%;
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
