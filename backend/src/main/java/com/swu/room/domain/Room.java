@@ -40,4 +40,9 @@ public class Room {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bgm_id")
     private Bgm bgm;
+
+    public void addMember(RoomMember member) {
+        members.add(member);
+        member.setRoom(this);
+    }
 }
