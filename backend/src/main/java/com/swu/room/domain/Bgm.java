@@ -1,9 +1,11 @@
 package com.swu.room.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.Immutable;
 
 @Entity
+@Getter
 @Immutable
 public class Bgm {
 
@@ -16,4 +18,5 @@ public class Bgm {
 
     @Column(nullable = false, length = 255)
     private String audioUrl;
+
 }

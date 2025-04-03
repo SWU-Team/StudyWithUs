@@ -33,4 +33,8 @@ public class RoomMember {
     private LocalDateTime exitedAt;
 
     private boolean isHost;
+
+    void setRoom(Room room) {
+        this.room = room;
+    }
 }
