@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import styles from "./Sidebar.module.css";
 
 const Sidebar = () => {
-  const [location] = useLocation();
+  const location = useLocation();
 
   // 현재 페이지에 따라 액티브 클래스 부여
   const isActive = (path: string) => {
@@ -33,15 +33,15 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <Link href="/diary">
-              <a className={`${styles.navLink} ${isActive("/diary")}`}>
+            <Link href="/Diary">
+              <a className={`${styles.navLink} ${isActive("/Diary")}`}>
                 다이어리
               </a>
             </Link>
           </li>
           <li>
-            <Link href="/mypage">
-              <a className={`${styles.navLink} ${isActive("/mypage")}`}>
+            <Link href="/Mypage">
+              <a className={`${styles.navLink} ${isActive("/Mypage")}`}>
                 마이페이지
               </a>
             </Link>
