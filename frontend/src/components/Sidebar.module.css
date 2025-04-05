@@ -1,0 +1,130 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 170px;
+  height: 100vh;
+  background: linear-gradient(to bottom, #f9f9f9, #e9e9e9);
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  z-index: 1000; /* 헤더보다 높은 z-index 값 */
+}
+
+.logo {
+  text-align: center;
+  padding: 15px 0 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.logoLink {
+  font-size: 18px;
+  font-weight: 800;
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 10px;
+  transition: color 0.3s;
+}
+
+.logoLink:hover {
+  color: #555;
+}
+
+.navigation {
+  flex: 1;
+  margin-top: 20px;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navList li {
+  margin: 10px 0;
+  width: 100%;
+  text-align: center;
+}
+
+.navLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 5px;
+  text-decoration: none;
+  color: #444;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+  width: 90%;
+  cursor: pointer;
+}
+
+.iconBox {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+}
+
+.linkLabel {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.navLink:hover {
+  background: linear-gradient(to right, #f0f0f0, #e6e6e6);
+  color: #222;
+}
+
+.active {
+  background: linear-gradient(to right, #e0e0e0, #d6d6d6);
+  color: #000 !important;
+  font-weight: 600;
+  border-left: 4px solid #999;
+}
+
+.authLinks {
+  padding: 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.authLink {
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.authLink:hover {
+  background-color: #e9e9e9;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 220px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .hamburger {
+    display: block;
+  }
+}

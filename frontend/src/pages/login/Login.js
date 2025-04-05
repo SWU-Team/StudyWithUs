@@ -4,6 +4,8 @@ import googleLogo from "../../assets/images/googlelogo.png";
 import kakaoLogo from "../../assets/images/kakaologo.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../../components/Sidebar";
+import Header from "../../components/Header";
 
 function Login() {
   const [id, setId] = useState(""); // 아이디 값 저장

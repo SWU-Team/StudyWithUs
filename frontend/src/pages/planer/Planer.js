@@ -1,8 +1,10 @@
+import Layout from "../../components/Layout";
+
 function Planer() {
   return (
-    <div>
+    <Layout>
       <h1>Planer</h1>
-    </div>
+    </Layout>
   );
 }
 
