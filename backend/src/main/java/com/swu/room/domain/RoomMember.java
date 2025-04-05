@@ -37,4 +37,12 @@ public class RoomMember {
     void setRoom(Room room) {
         this.room = room;
     }
+
+    public void exit() {
+        this.exitedAt = LocalDateTime.now();
+    }
+
+    public void setHost(boolean isHost) {
+        this.isHost = isHost;
+    }
 }

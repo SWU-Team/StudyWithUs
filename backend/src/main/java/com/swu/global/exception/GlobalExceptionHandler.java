@@ -1,6 +1,9 @@
 package com.swu.global.exception;
 
 import com.swu.global.response.ApiResponse;
+import com.swu.room.exception.AlreadyJoinedRoomException;
+import com.swu.room.exception.NotJoinedRoomException;
+import com.swu.room.exception.RoomFullException;
 import com.swu.room.exception.RoomNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,31 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
     }
+
+    @ExceptionHandler(AlreadyJoinedRoomException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAlreadyJoinedRoomException(AlreadyJoinedRoomException e) {
+        log.warn("AlreadyJoinedRoomException: {}", e.getMessage()); //
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(RoomFullException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRoomFullException(RoomFullException e) {
+        log.warn("RoomFullException: {}", e.getMessage()); //
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(NotJoinedRoomException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotJoinedRoomException(NotJoinedRoomException e) {
+        log.warn("NotJoinedRoomException: {}", e.getMessage()); //
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception e) {

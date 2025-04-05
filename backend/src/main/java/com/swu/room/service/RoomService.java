@@ -1,10 +1,13 @@
 package com.swu.room.service;
 
 import com.swu.room.domain.Room;
+import com.swu.room.domain.RoomMember;
 import com.swu.room.dto.request.RoomRequest;
 import com.swu.room.dto.response.RoomResponse;
 import com.swu.room.exception.RoomNotFoundException;
+import com.swu.room.repository.RoomMemberRepository;
 import com.swu.room.repository.RoomRepository;
+import com.swu.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +20,10 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final RoomMemberRepository roomMemberRepository;
 
     @Transactional
-    public void createRoom(RoomRequest request) {
+    public void createRoom(RoomRequest request, User user) {
         Room room = Room.builder()
                 .title(request.title())
                 .maxCapacity(request.maxCapacity())
@@ -28,30 +32,40 @@ public class RoomService {
                 .build();
 
         roomRepository.save(room);
+
+        RoomMember roomMember = RoomMember.builder()
+                .room(room)
+                .user(user)
+                .isHost(true)
+                .build();
+
+        roomMemberRepository.save(roomMember);
     }
 
     @Transactional
     public List<RoomResponse> getAllRooms() {
-        return roomRepository.findAll().stream()
+        return roomRepository.findByIsDeletedFalse().stream()
                 .map(this::toRoomResponse)
                 .toList();
     }
 
     @Transactional
     public RoomResponse getRoom(Long roomId) {
-        Room room = roomRepository.findById(roomId)
+        Room room = roomRepository.findByIdAndIsDeletedFalse(roomId)
                 .orElseThrow(() -> new RoomNotFoundException("해당 방이 존재하지 않습니다."));
         return toRoomResponse(room);
     }
 
     private RoomResponse toRoomResponse(Room room) {
+        int currentMembers = roomMemberRepository.countByRoomAndExitedAtIsNull(room);
+
         return new RoomResponse(
                 room.getId(),
                 room.getTitle(),
                 room.getMaxCapacity(),
                 room.getFocusMinute(),
                 room.getBreakMinute(),
-                room.getMembers().size(),
+                currentMembers,
                 room.getCreatedAt(),
                 room.getBgm() != null ? room.getBgm().getTitle() : null
         );
