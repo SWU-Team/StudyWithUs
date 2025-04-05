@@ -1,0 +1,14 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f8f8;
+}
+
+.content {
+  margin-left: 250px; /* 사이드바 너비만큼 여백 */
+  margin-top: 70px; /* 헤더 높이만큼 여백 */
+  width: calc(100% - 250px);
+  padding: 30px;
+  box-sizing: border-box;
+  min-height: calc(100vh - 70px);
+}

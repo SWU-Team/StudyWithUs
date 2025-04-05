@@ -1,13 +1,10 @@
-import Header from "../../components/Header";
-import Sidebar from "../../components/Sidebar";
+import Layout from "../../components/Layout";
 
 function Planer() {
   return (
-    <div>
-      <Sidebar />
-      <Header />
+    <Layout>
       <h1>Planer</h1>
-    </div>
+    </Layout>
   );
 }
 

@@ -4,46 +4,50 @@ import styles from "./Sidebar.module.css";
 const Sidebar = () => {
   const location = useLocation();
 
-  // 현재 페이지에 따라 액티브 클래스 부여
   const isActive = (path: string) => {
-    return location === path ? styles.active : "";
-  };
+    return location.pathname === path ? styles.active : "";
+  }; //주소가 같으면 스타일을 active로로
+
   return (
     <div className={styles.sidebar}>
       <div className={styles.logo}>
-        <Link href="/">
-          <a className={styles.logoLink}>Study Planner</a>
+        <Link to="/" className={styles.logoLink}>
+          Study Planner
         </Link>
       </div>
 
       <nav className={styles.navigation}>
         <ul className={styles.navList}>
           <li>
-            <Link href="/StudyRoomList">
-              <a className={`${styles.navLink} ${isActive("/StudyRoomList")}`}>
-                스터디룸
-              </a>
+            <Link
+              to="/StudyRoomList"
+              className={`${styles.navLink} ${isActive("/StudyRoomList")}`}
+            >
+              스터디룸
             </Link>
           </li>
           <li>
-            <Link href="/Planer">
-              <a className={`${styles.navLink} ${isActive("/Planer")}`}>
-                플래너
-              </a>
+            <Link
+              to="/Planer"
+              className={`${styles.navLink} ${isActive("/Planer")}`}
+            >
+              플래너
             </Link>
           </li>
           <li>
-            <Link href="/Diary">
-              <a className={`${styles.navLink} ${isActive("/Diary")}`}>
-                다이어리
-              </a>
+            <Link
+              to="/Diary"
+              className={`${styles.navLink} ${isActive("/Diary")}`}
+            >
+              다이어리
             </Link>
           </li>
           <li>
-            <Link href="/Mypage">
-              <a className={`${styles.navLink} ${isActive("/Mypage")}`}>
-                마이페이지
-              </a>
+            <Link
+              to="/Mypage"
+              className={`${styles.navLink} ${isActive("/Mypage")}`}
+            >
+              마이페이지
             </Link>
           </li>
         </ul>
