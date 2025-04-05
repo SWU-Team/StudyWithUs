@@ -26,8 +26,6 @@ function Login() {
 
   return (
     <div className={styles.div}>
-      <Sidebar />
-      <Header />
       <div>
         <h1 className={styles.LoginText}>Login</h1>
       </div>

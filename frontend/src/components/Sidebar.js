@@ -1,4 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import {
+  FaChalkboardTeacher,
+  FaCalendarAlt,
+  FaBookOpen,
+  FaUserCircle,
+} from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 
 const Sidebar = () => {
@@ -6,7 +12,18 @@ const Sidebar = () => {
 
   const isActive = (path: string) => {
     return location.pathname === path ? styles.active : "";
-  }; //주소가 같으면 스타일을 active로로
+  };
+
+  const menuLinks = [
+    {
+      path: "/StudyRoomList",
+      label: "스터디룸",
+      icon: <FaChalkboardTeacher size={28} />,
+    },
+    { path: "/Planer", label: "플래너", icon: <FaCalendarAlt size={28} /> },
+    { path: "/Diary", label: "다이어리", icon: <FaBookOpen size={28} /> },
+    { path: "/Mypage", label: "마이페이지", icon: <FaUserCircle size={28} /> },
+  ];
 
   return (
     <div className={styles.sidebar}>
@@ -18,38 +35,17 @@ const Sidebar = () => {
 
       <nav className={styles.navigation}>
         <ul className={styles.navList}>
-          <li>
-            <Link
-              to="/StudyRoomList"
-              className={`${styles.navLink} ${isActive("/StudyRoomList")}`}
-            >
-              스터디룸
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/Planer"
-              className={`${styles.navLink} ${isActive("/Planer")}`}
-            >
-              플래너
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/Diary"
-              className={`${styles.navLink} ${isActive("/Diary")}`}
-            >
-              다이어리
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/Mypage"
-              className={`${styles.navLink} ${isActive("/Mypage")}`}
-            >
-              마이페이지
-            </Link>
-          </li>
+          {menuLinks.map((menu) => (
+            <li key={menu.path}>
+              <Link
+                to={menu.path}
+                className={`${styles.navLink} ${isActive(menu.path)}`}
+              >
+                <div className={styles.iconBox}>{menu.icon}</div>
+                <span className={styles.linkLabel}>{menu.label}</span>
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>

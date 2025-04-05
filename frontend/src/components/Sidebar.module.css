@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 250px;
+  width: 170px;
   height: 100vh;
   background: linear-gradient(to bottom, #f9f9f9, #e9e9e9);
   border-right: 1px solid #e0e0e0;
@@ -15,13 +15,13 @@
 
 .logo {
   text-align: center;
-  padding: 20px 0 30px;
+  padding: 15px 0 20px;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .logoLink {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   color: #333;
   text-decoration: none;
   display: block;
@@ -42,21 +42,42 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .navList li {
-  margin: 5px 0;
+  margin: 10px 0;
+  width: 100%;
+  text-align: center;
 }
 
 .navLink {
-  display: block;
-  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 5px;
   text-decoration: none;
   color: #444;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.3s;
-  position: relative;
+  width: 90%;
+  cursor: pointer;
+}
+
+.iconBox {
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+}
+
+.linkLabel {
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .navLink:hover {
@@ -89,4 +110,21 @@
 
 .authLink:hover {
   background-color: #e9e9e9;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 220px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .hamburger {
+    display: block;
+  }
 }
