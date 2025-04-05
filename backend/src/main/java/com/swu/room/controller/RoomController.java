@@ -29,7 +29,7 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponse.ok("방 생성 성공", null));
     }
 
-    @Operation(summary = "전체 방 목록 조회", description = "현재 존재하는 모든 스터디 방 목록을 조회합니다.")
+    @Operation(summary = "전체 방 목록 조회", description = "활성화된 모든 방 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<ApiResponse<List<RoomResponse>>> getAllRooms() {
         List<RoomResponse> rooms = roomService.getAllRooms();
@@ -37,7 +37,7 @@ public class RoomController {
     }
 
 
-    @Operation(summary = "단일 방 조회", description = "roomId로 특정 방 정보를 조회합니다.")
+    @Operation(summary = "단일 방 조회", description = "roomId로 활성화된 특정 방 정보를 조회합니다.")
     @GetMapping("/{roomId}")
     public ResponseEntity<ApiResponse<RoomResponse>> getRoom(@PathVariable Long roomId) {
         RoomResponse room = roomService.getRoom(roomId);

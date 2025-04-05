@@ -34,15 +34,15 @@ public class Room {
     @Column(nullable = false)
     private int breakMinute;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoomMember> members = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bgm_id")
     private Bgm bgm;
 
-    public void addMember(RoomMember member) {
-        members.add(member);
-        member.setRoom(this);
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isDeleted = false;
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

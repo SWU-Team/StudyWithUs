@@ -44,14 +44,14 @@ public class RoomService {
 
     @Transactional
     public List<RoomResponse> getAllRooms() {
-        return roomRepository.findAll().stream()
+        return roomRepository.findByIsDeletedFalse().stream()
                 .map(this::toRoomResponse)
                 .toList();
     }
 
     @Transactional
     public RoomResponse getRoom(Long roomId) {
-        Room room = roomRepository.findById(roomId)
+        Room room = roomRepository.findByIdAndIsDeletedFalse(roomId)
                 .orElseThrow(() -> new RoomNotFoundException("해당 방이 존재하지 않습니다."));
         return toRoomResponse(room);
     }
