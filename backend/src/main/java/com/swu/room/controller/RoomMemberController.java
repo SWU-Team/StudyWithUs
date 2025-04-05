@@ -3,16 +3,16 @@ package com.swu.room.controller;
 
 import com.swu.auth.domain.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
+import com.swu.room.dto.response.RoomMemberResponse;
 import com.swu.room.service.RoomMemberService;
 import com.swu.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/room")
@@ -40,5 +40,14 @@ public class RoomMemberController {
 
         roomMemberService.exitRoom(roomId, userDetails.getUser());
         return ResponseEntity.ok(ApiResponse.ok("방 나가기 성공.", null));
+    }
+
+    @Operation(summary = "방 참여자 목록 조회", description = "특정 스터디 방의 참여자 목록을 조회합니다.")
+    @GetMapping("/{roomId}/members")
+    public ResponseEntity<ApiResponse<List<RoomMemberResponse>>> getMembers(
+            @PathVariable Long roomId) {
+
+        List<RoomMemberResponse> members = roomMemberService.getMembers(roomId);
+        return ResponseEntity.ok(ApiResponse.ok("참여자 목록 조회 성공", members));
     }
 }

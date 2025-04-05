@@ -2,6 +2,7 @@ package com.swu.room.service;
 
 import com.swu.room.domain.Room;
 import com.swu.room.domain.RoomMember;
+import com.swu.room.dto.response.RoomMemberResponse;
 import com.swu.room.exception.AlreadyJoinedRoomException;
 import com.swu.room.exception.NotJoinedRoomException;
 import com.swu.room.exception.RoomFullException;
@@ -65,8 +66,24 @@ public class RoomMemberService {
         roomMemberRepository.save(roomMember);
 
         if (isHost) delegateHost(room);
+    }
 
-}
+    @Transactional(readOnly = true)
+    public List<RoomMemberResponse> getMembers(Long roomId) {
+        Room room = roomRepository.findByIdAndIsDeletedFalse(roomId)
+                .orElseThrow(() -> new RoomNotFoundException("해당 방이 존재하지 않습니다."));
+
+        List<RoomMember> members = roomMemberRepository.findByRoomAndExitedAtIsNull(room);
+
+        return members.stream()
+                .map(m -> new RoomMemberResponse(
+                        m.getUser().getId(),
+                        m.getUser().getNickname(),
+                        m.isHost(),
+                        m.getJoinedAt()
+                ))
+                .toList();
+    }
 
     private void delegateHost(Room room) {
         List<RoomMember> others = roomMemberRepository.findByRoomAndExitedAtIsNull(room);
