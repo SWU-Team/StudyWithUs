@@ -23,7 +23,7 @@ public class RoomService {
     private final RoomMemberRepository roomMemberRepository;
 
     @Transactional
-    public void createRoom(RoomRequest request) {
+    public void createRoom(RoomRequest request, User user) {
         Room room = Room.builder()
                 .title(request.title())
                 .maxCapacity(request.maxCapacity())
@@ -32,6 +32,14 @@ public class RoomService {
                 .build();
 
         roomRepository.save(room);
+
+        RoomMember roomMember = RoomMember.builder()
+                .room(room)
+                .user(user)
+                .isHost(true)
+                .build();
+
+        roomMemberRepository.save(roomMember);
     }
 
     @Transactional
