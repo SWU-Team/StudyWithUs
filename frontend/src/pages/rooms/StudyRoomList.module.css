@@ -1,0 +1,74 @@
+.wrapper {
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.createBtn {
+  background-color: #666;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.createBtn:hover {
+  background-color: #444;
+}
+
+.roomList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.roomCard {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roomTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+}
+
+.roomInfo {
+  font-size: 14px;
+  color: #666;
+}
+
+.enterBtn {
+  margin-top: auto;
+  padding: 8px 12px;
+  background-color: #888;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.enterBtn:hover {
+  background-color: #555;
+}
