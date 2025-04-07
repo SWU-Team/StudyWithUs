@@ -107,7 +107,7 @@ function SearchPW() {
         <a href="/login" className={styles.link}>
           로그인
         </a>
-        <a href="/find-id" className={styles.link}>
+        <a href="/SearchID" className={styles.link}>
           아이디 찾기
         </a>
         <a href="/signup" className={styles.link}>

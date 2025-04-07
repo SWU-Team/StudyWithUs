@@ -70,7 +70,7 @@ function SearchID() {
             <a href="/login" className={styles.link}>
               로그인
             </a>
-            <a href="/find-password" className={styles.link}>
+            <a href="/SearchPW" className={styles.link}>
               비밀번호 찾기
             </a>
             <a href="/signup" className={styles.link}>
