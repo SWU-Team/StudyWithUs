@@ -6,6 +6,7 @@ import {
   FaUserCircle,
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
+import logoImage from "../assets/images/StudywithusLogo.png";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -28,9 +29,11 @@ const Sidebar = () => {
   return (
     <div className={styles.sidebar}>
       <div className={styles.logo}>
-        <Link to="/" className={styles.logoLink}>
-          Study Planner
-        </Link>
+        <img
+          src={logoImage}
+          alt="Study Planner Logo"
+          className={styles.logoImg}
+        />
       </div>
 
       <nav className={styles.navigation}>
