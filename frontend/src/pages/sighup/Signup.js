@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styles from "./Signup.module.css";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const [form, setForm] = useState({
@@ -8,6 +9,8 @@ function Signup() {
     passwordCheck: "",
     nickname: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,6 +49,7 @@ function Signup() {
 
       if (res.ok && result.status === 200) {
         alert("🎉 " + result.message);
+        navigate("/login");
       } else {
         alert("회원가입 실패: " + result.message);
       }
