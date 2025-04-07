@@ -93,7 +93,7 @@ function SearchID() {
             <a href="/login" className={styles.loginLink}>
               로그인하기
             </a>
-            <a href="/find-password" className={styles.findPasswordLink}>
+            <a href="/SearchPW" className={styles.findPasswordLink}>
               비밀번호 찾기
             </a>
           </div>
