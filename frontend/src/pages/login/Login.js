@@ -4,8 +4,6 @@ import googleLogo from "../../assets/images/googlelogo.png";
 import kakaoLogo from "../../assets/images/kakaologo.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
 
 function Login() {
   const [id, setId] = useState(""); // 아이디 값 저장
@@ -14,13 +12,38 @@ function Login() {
   const navigate = useNavigate();
 
   // 일반 로그인 (아이디, 비밀번호 입력 후 확인 버튼)
-  const handleLogin = () => {
-    if (id && password) {
-      // 아이디와 비밀번호가 입력되었을 경우
-      alert("로그인 성공!");
-      navigate("/StudyRoomList"); // StudyRoomList 페이지로 이동
-    } else {
+  const handleLogin = async () => {
+    if (!id || !password) {
       alert("아이디와 비밀번호를 입력해주세요");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/auth/login", {
+        method: "POST", //데이터를 서버에 전달할때 사용용
+        headers: {
+          "Content-Type": "application/json", //json형식으로
+        },
+        body: JSON.stringify({
+          //문자열로 바꿔서 서버에 보냄냄
+          email: id,
+          password: password,
+        }),
+      });
+
+      const result = await res.json();
+      console.log("로그인 응답:", result);
+
+      if (res.ok && result.status === 200) {
+        alert("로그인 성공!");
+        setIsLoggedIn(true);
+        navigate("/StudyRoomList");
+      } else {
+        alert("로그인 실패: " + result.message);
+      }
+    } catch (error) {
+      console.error("서버 오류:", error);
+      alert("서버 오류: " + error.message);
     }
   };
 
