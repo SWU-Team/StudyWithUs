@@ -1,32 +1,32 @@
 package com.swu.room.dto.message;
 
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-@Getter
-@Setter
-public class ChatMessage {
+@Schema(description = "채팅 메시지 DTO")
+public record ChatMessage(
 
+    @NotNull(message = "메시지 타입은 필수입니다.")
+    MessageType type,
+
+    @NotNull(message = "방 ID는 필수입니다.")
+    @Positive(message = "방 ID는 양수여야 합니다.")
+    Long roomId,
+
+    @NotNull(message = "발신자 ID는 필수입니다.")
+    @Positive(message = "발신자 ID는 양수여야 합니다.")
+    Long senderId,
+
+    @NotBlank(message = "발신자 닉네임은 필수입니다.")
+    String senderNickname,
+
+    @NotBlank(message = "메시지 내용은 필수입니다.")
+    String message
+
+) {
     public enum MessageType {
-        ENTER, // 입장
-        TALK,  // 채팅
-        EXIT   // 퇴장
-    }
-
-    private MessageType type;
-    private Long roomId;
-    private Long senderId;
-    private String senderNickname;
-    private String message;
-
-    @Override
-    public String toString() {
-        return "ChatMessage{" +
-                "type=" + type +
-                ", roomId=" + roomId +
-                ", senderId=" + senderId +
-                ", senderNickname='" + senderNickname + '\'' +
-                ", message='" + message + '\'' +
-                '}';
+        ENTER, TALK, EXIT
     }
 }
