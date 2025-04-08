@@ -2,10 +2,12 @@ package com.swu.room.dto.message;
 
 import java.util.Set;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+@Schema(description = "WebRTC 시그널링 메시지 DTO")
 public record SignalingMessage(
     @NotBlank(message = "메시지 타입은 필수입니다.")
     String type,
