@@ -1,11 +1,12 @@
-package com.swu.chat.controller;
+package com.swu.room.controller;
 
-import com.swu.chat.dto.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import com.swu.room.dto.message.ChatMessage;
 
 @Slf4j
 @Controller

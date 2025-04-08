@@ -1,4 +1,4 @@
-package com.swu.chat.dto;
+package com.swu.room.dto.message;
 
 import lombok.Getter;
 import lombok.Setter;
