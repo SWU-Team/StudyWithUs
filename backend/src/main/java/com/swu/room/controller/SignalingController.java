@@ -46,7 +46,16 @@ public class SignalingController {
 
             String destination = "/sub/room/" + message.roomId();
             messagingTemplate.convertAndSend(destination, message);
+        } catch (SecurityException se) {
+            log.warn("시큐리티 예외 발생: {}", se.getMessage());
 
+            SignalingMessage errorMessage = SignalingMessage.createError(
+                message.roomId(),
+                message.senderId(),
+                message.senderNickname(),
+                se.getMessage()
+            );
+            messagingTemplate.convertAndSend("/sub/room/" + message.roomId(), errorMessage);
         } catch (Exception e) {
             log.error("시그널 처리 중 오류 발생: {}", e.getMessage());
             SignalingMessage errorMessage = SignalingMessage.createError(
@@ -58,5 +67,4 @@ public class SignalingController {
             messagingTemplate.convertAndSend("/sub/room/" + message.roomId(), errorMessage);
         }
     }
-
 }
