@@ -1,8 +1,10 @@
+import Layout from "../../components/Layout";
+
 function Diary() {
   return (
-    <div>
+    <Layout>
       <h1>Diary</h1>
-    </div>
+    </Layout>
   );
 }
 

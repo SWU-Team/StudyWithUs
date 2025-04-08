@@ -3,11 +3,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import styles from "./Layout.module.css";
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+function Layout({ children }: { children: ReactNode }) {
   return (
     <div className={styles.layout}>
       <Sidebar />
@@ -15,6 +11,6 @@ const Layout = ({ children }: LayoutProps) => {
       <main className={styles.content}>{children}</main>
     </div>
   );
-};
+}
 
 export default Layout;
