@@ -36,6 +36,8 @@ function Login() {
 
       if (res.ok && result.status === 200) {
         alert("로그인 성공!");
+        // ✅ 토큰을 localStorage에 저장
+        localStorage.setItem("token", result.token);
         setIsLoggedIn(true);
         navigate("/StudyRoomList");
       } else {
