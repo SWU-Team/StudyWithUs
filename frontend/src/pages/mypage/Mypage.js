@@ -47,6 +47,29 @@ function Mypage() {
     setShowEditModal(false);
     alert("프로필이 수정되었습니다.");
   };
+  const dummyFriends = [
+    {
+      id: 1,
+      name: "효서기",
+      email: "hyoseok@naver.com",
+      image: StudywithusLogo,
+      status: "오늘도 파이팅 ✨",
+    },
+    {
+      id: 2,
+      name: "태비니",
+      email: "taebin@naver.com",
+      image: StudywithusLogo,
+      status: "열공 중입니다 👨‍💻",
+    },
+    {
+      id: 3,
+      name: "열공핑",
+      email: "yeongho@naver.com",
+      image: StudywithusLogo,
+      status: "컴포넌트 분해 중 🧩",
+    },
+  ];
 
   return (
     <Layout>
@@ -97,7 +120,19 @@ function Mypage() {
             className={styles.inputField}
           />
           <div className={styles.friendList}>
-            <p>친구 목록이 여기에 표시됩니다.</p>
+            {dummyFriends.map((friend) => (
+              <div key={friend.id} className={styles.friendItem}>
+                <img
+                  src={friend.image}
+                  alt="profile"
+                  className={styles.friendAvatar}
+                />
+                <div className={styles.friendInfo}>
+                  <strong>{friend.name}</strong>
+                  <p>{friend.status}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
