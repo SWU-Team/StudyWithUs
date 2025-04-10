@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "../../components/Layout";
 import styles from "./Mypage.module.css";
 import StudywithusLogo from "../../assets/images/StudywithusLogo.png";
@@ -23,6 +23,31 @@ const studyData = [
 ];
 
 function Mypage() {
+  const [nickname, setNickname] = useState("닉네임");
+  const [email] = useState("user@email.com");
+  const [profileImage, setProfileImage] = useState(StudywithusLogo);
+  const [previewImage, setPreviewImage] = useState(StudywithusLogo); // 미리보기 용도
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newNickname, setNewNickname] = useState(nickname);
+  const [newImageFile, setNewImageFile] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewImageFile(file);
+      setPreviewImage(URL.createObjectURL(file)); // 미리보기
+    }
+  };
+
+  const handleSaveProfile = () => {
+    setNickname(newNickname);
+    if (previewImage) {
+      setProfileImage(previewImage); // ✅ 저장 눌렀을 때만 반영
+    }
+    setShowEditModal(false);
+    alert("프로필이 수정되었습니다.");
+  };
+
   return (
     <Layout>
       <div className={styles.wrapper}>
@@ -31,15 +56,20 @@ function Mypage() {
         {/* 프로필 */}
         <div className={`${styles.section} ${styles.profileSection}`}>
           <img
-            src={StudywithusLogo}
-            alt="StudywithusLogo"
+            src={profileImage}
+            alt="Profile"
             className={styles.profileImage}
           />
           <div className={styles.profileInfo}>
-            <h3>닉네임</h3>
-            <p>user@email.com</p>
+            <h3>{nickname}</h3>
+            <p>{email}</p>
           </div>
-          <button className={styles.editButton}>수정</button>
+          <button
+            className={styles.editButton}
+            onClick={() => setShowEditModal(true)}
+          >
+            수정
+          </button>
         </div>
 
         {/* 일간 목표율 (그래프) */}
@@ -83,6 +113,42 @@ function Mypage() {
             <div style={{ backgroundColor: "#ddd", height: "100px" }}></div>
           </div>
         </div>
+
+        {/* ✅ 수정 모달 */}
+        {showEditModal && (
+          <div className={styles.modalOverlay}>
+            <div className={styles.modal}>
+              <h3>프로필 수정</h3>
+              <input
+                type="text"
+                placeholder="새 닉네임"
+                value={newNickname}
+                onChange={(e) => setNewNickname(e.target.value)}
+                className={styles.inputField}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className={styles.inputField}
+              />
+              <div className={styles.modalButtons}>
+                <button
+                  onClick={handleSaveProfile}
+                  className={styles.submitBtn}
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className={styles.cancelBtn}
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

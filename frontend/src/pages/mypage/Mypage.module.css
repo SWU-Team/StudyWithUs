@@ -1,6 +1,6 @@
 .wrapper {
   padding: 40px;
-  background-color: #f9f9f9;
+  background-color: #f4f6f8;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
@@ -8,19 +8,23 @@
 }
 
 .title {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 700;
   margin-bottom: 30px;
   color: #333;
   grid-column: 1 / -1;
 }
 
 .section {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+  background-color: #ffffff;
+  padding: 30px 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+}
+
+.section:hover {
+  transform: translateY(-3px);
 }
 
 .chartContainer {
@@ -33,8 +37,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 20px;
+  background: linear-gradient(to bottom right, #f0f4ff, #ffffff);
+  gap: 12px;
 }
 
 .profileImage {
@@ -42,45 +46,46 @@
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ccc;
-  margin-bottom: 10px;
+  border: 3px solid #8884d8;
+  box-shadow: 0 0 8px rgba(136, 132, 216, 0.3);
 }
 
 .profileInfo {
-  margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 .profileInfo h3 {
-  margin: 0;
+  margin: 5px 0;
   font-size: 20px;
   color: #333;
 }
 
 .profileInfo p {
-  margin: 5px 0;
   color: #666;
+  font-size: 14px;
 }
 
 .editButton {
-  background-color: #8884d8;
+  background-color: #555ac0;
   color: #fff;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 8px;
+  font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
-  width: 100%;
 }
 
 .editButton:hover {
-  background-color: #6a6dd1;
+  background-color: #3e45a0;
 }
 
 .friendSection {
-  background-color: #ddd;
-  padding: 20px;
-  border-radius: 8px;
-  height: 100%;
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .friendSection h4 {
@@ -90,20 +95,25 @@
 }
 
 .friendList {
-  background-color: #fff;
+  background-color: #f8f8f8;
   height: 200px;
   border-radius: 8px;
   margin-top: 10px;
   padding: 10px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: #444;
 }
 
 .inputField {
   width: 100%;
-  height: 30px;
+  height: 35px;
   margin-bottom: 10px;
-  padding: 0 10px;
-  border-radius: 6px;
+  padding: 0 12px;
+  border-radius: 8px;
   border: 1px solid #ccc;
 }
 
@@ -118,6 +128,57 @@
 .subSection {
   background-color: #fff;
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.subSection h4 {
+  margin-bottom: 10px;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  width: 400px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.submitBtn,
+.cancelBtn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submitBtn {
+  background-color: #8884d8;
+  color: white;
+}
+
+.cancelBtn {
+  background-color: #ccc;
+  color: black;
 }
