@@ -36,8 +36,11 @@ function Login() {
 
       if (res.ok && result.status === 200) {
         alert("로그인 성공!");
+        // Authorization 헤더에서 토큰 추출
+        const authHeader = res.headers.get("Authorization");
+        const token = authHeader ? authHeader.split(" ")[1] : null;
         // ✅ 토큰을 localStorage에 저장
-        localStorage.setItem("token", result.token);
+        localStorage.setItem("token", token);
         setIsLoggedIn(true);
         navigate("/StudyRoomList");
       } else {
