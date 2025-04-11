@@ -47,6 +47,7 @@ function Mypage() {
     setShowEditModal(false);
     alert("프로필이 수정되었습니다.");
   };
+
   const dummyFriends = [
     {
       id: 1,
@@ -54,6 +55,7 @@ function Mypage() {
       email: "hyoseok@naver.com",
       image: StudywithusLogo,
       status: "오늘도 파이팅 ✨",
+      studyHours: 40,
     },
     {
       id: 2,
@@ -61,6 +63,7 @@ function Mypage() {
       email: "taebin@naver.com",
       image: StudywithusLogo,
       status: "열공 중입니다 👨‍💻",
+      studyHours: 25,
     },
     {
       id: 3,
@@ -68,8 +71,13 @@ function Mypage() {
       email: "yeongho@naver.com",
       image: StudywithusLogo,
       status: "컴포넌트 분해 중 🧩",
+      studyHours: 32,
     },
   ];
+
+  const sortedRanking = [...dummyFriends].sort(
+    (a, b) => b.studyHours - a.studyHours
+  );
 
   return (
     <Layout>
@@ -95,9 +103,9 @@ function Mypage() {
           </button>
         </div>
 
-        {/* 일간 목표율 (그래프) */}
+        {/* 월간 공부 시간 (그래프) */}
         <div className={styles.section}>
-          <h3>일간 목표율</h3>
+          <h3>월간 공부 시간</h3>
           <div className={styles.chartContainer}>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={studyData}>
@@ -140,8 +148,15 @@ function Mypage() {
         <div className={styles.subGrid}>
           <div className={styles.subSection}>
             <h4>랭킹</h4>
-            <p>Study Time</p>
-            <div style={{ backgroundColor: "#ddd", height: "100px" }}></div>
+            {sortedRanking.map((friend, index) => (
+              <div key={friend.id} className={styles.rankItem}>
+                <span className={styles.rankNum}>{index + 1}위</span>
+                <span className={styles.rankName}>{friend.name}</span>
+                <span className={styles.rankHours}>
+                  {friend.studyHours}시간
+                </span>
+              </div>
+            ))}
           </div>
           <div className={styles.subSection}>
             <h4>월간 목표율</h4>
