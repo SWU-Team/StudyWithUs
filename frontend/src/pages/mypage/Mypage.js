@@ -13,7 +13,19 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const studyData = [
+// 📊 일별 공부 시간 (예: 이번 주 기준)
+const dailyStudyData = [
+  { day: "월", hours: 2 },
+  { day: "화", hours: 3 },
+  { day: "수", hours: 1.5 },
+  { day: "목", hours: 4 },
+  { day: "금", hours: 2 },
+  { day: "토", hours: 5 },
+  { day: "일", hours: 3 },
+];
+
+// 📊 월별 공부 시간 (올해 기준)
+const monthlyStudyData = [
   { month: "1월", hours: 10 },
   { month: "2월", hours: 25 },
   { month: "3월", hours: 15 },
@@ -26,10 +38,11 @@ function Mypage() {
   const [nickname, setNickname] = useState("닉네임");
   const [email] = useState("user@email.com");
   const [profileImage, setProfileImage] = useState(StudywithusLogo);
-  const [previewImage, setPreviewImage] = useState(StudywithusLogo); // 미리보기 용도
+  const [previewImage, setPreviewImage] = useState(StudywithusLogo);
   const [showEditModal, setShowEditModal] = useState(false);
   const [newNickname, setNewNickname] = useState(nickname);
   const [newImageFile, setNewImageFile] = useState(null);
+  const [rankMode, setRankMode] = useState("daily"); // "daily" or "monthly"
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -42,7 +55,7 @@ function Mypage() {
   const handleSaveProfile = () => {
     setNickname(newNickname);
     if (previewImage) {
-      setProfileImage(previewImage); // ✅ 저장 눌렀을 때만 반영
+      setProfileImage(previewImage);
     }
     setShowEditModal(false);
     alert("프로필이 수정되었습니다.");
@@ -55,7 +68,8 @@ function Mypage() {
       email: "hyoseok@naver.com",
       image: StudywithusLogo,
       status: "오늘도 파이팅 ✨",
-      studyHours: 40,
+      dailyHours: 5,
+      monthlyHours: 45,
     },
     {
       id: 2,
@@ -63,7 +77,8 @@ function Mypage() {
       email: "taebin@naver.com",
       image: StudywithusLogo,
       status: "열공 중입니다 👨‍💻",
-      studyHours: 25,
+      dailyHours: 4,
+      monthlyHours: 38,
     },
     {
       id: 3,
@@ -71,13 +86,16 @@ function Mypage() {
       email: "yeongho@naver.com",
       image: StudywithusLogo,
       status: "컴포넌트 분해 중 🧩",
-      studyHours: 32,
+      dailyHours: 2,
+      monthlyHours: 20,
     },
   ];
 
-  const sortedRanking = [...dummyFriends].sort(
-    (a, b) => b.studyHours - a.studyHours
-  );
+  const sortedRanking = [...dummyFriends].sort((a, b) => {
+    return rankMode === "daily"
+      ? b.dailyHours - a.dailyHours
+      : b.monthlyHours - a.monthlyHours;
+  });
 
   return (
     <Layout>
@@ -103,20 +121,34 @@ function Mypage() {
           </button>
         </div>
 
-        {/* 월간 공부 시간 (그래프) */}
+        {/* 📌 스터디 랭킹 */}
         <div className={styles.section}>
-          <h3>월간 공부 시간</h3>
-          <div className={styles.chartContainer}>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={studyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis unit="시간" />
-                <Tooltip />
-                <Bar dataKey="hours" fill="#8884d8" radius={[5, 5, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <h3>스터디 랭킹</h3>
+          <div className={styles.rankButtons}>
+            <button
+              className={rankMode === "daily" ? styles.activeBtn : ""}
+              onClick={() => setRankMode("daily")}
+            >
+              일간
+            </button>
+            <button
+              className={rankMode === "monthly" ? styles.activeBtn : ""}
+              onClick={() => setRankMode("monthly")}
+            >
+              월간
+            </button>
           </div>
+          {sortedRanking.map((friend, index) => (
+            <div key={friend.id} className={styles.rankItem}>
+              <span className={styles.rankNum}>{index + 1}위</span>
+              <span className={styles.rankName}>{friend.name}</span>
+              <span className={styles.rankHours}>
+                {rankMode === "daily"
+                  ? `${friend.dailyHours}시간`
+                  : `${friend.monthlyHours}시간`}
+              </span>
+            </div>
+          ))}
         </div>
 
         {/* 친구 */}
@@ -144,27 +176,35 @@ function Mypage() {
           </div>
         </div>
 
-        {/* 하단 랭킹 및 월간 목표율 */}
+        {/* 하단 일간/월간 공부 시간 */}
         <div className={styles.subGrid}>
           <div className={styles.subSection}>
-            <h4>랭킹</h4>
-            {sortedRanking.map((friend, index) => (
-              <div key={friend.id} className={styles.rankItem}>
-                <span className={styles.rankNum}>{index + 1}위</span>
-                <span className={styles.rankName}>{friend.name}</span>
-                <span className={styles.rankHours}>
-                  {friend.studyHours}시간
-                </span>
-              </div>
-            ))}
+            <h4>일별 공부 시간</h4>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={dailyStudyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis unit="시간" />
+                <Tooltip />
+                <Bar dataKey="hours" fill="#82ca9d" radius={[5, 5, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
           <div className={styles.subSection}>
-            <h4>월간 목표율</h4>
-            <div style={{ backgroundColor: "#ddd", height: "100px" }}></div>
+            <h4>월별 공부 시간</h4>
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={monthlyStudyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis unit="시간" />
+                <Tooltip />
+                <Bar dataKey="hours" fill="#8884d8" radius={[5, 5, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* ✅ 수정 모달 */}
+        {/* 수정 모달 */}
         {showEditModal && (
           <div className={styles.modalOverlay}>
             <div className={styles.modal}>
