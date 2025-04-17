@@ -11,6 +11,8 @@ import com.swu.user.dto.request.SignupRequest;
 import com.swu.user.dto.request.UserUpdateRequests;
 import com.swu.user.dto.response.UserInfoResponse;
 import com.swu.user.service.UserService;
+import com.swu.user.util.S3Uploader;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,37 +20,52 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @WebMvcTest(UserController.class)
 @Import(TestSecurityConfig.class)
 public class UserControllerTest {
-    
+
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
+    private S3Uploader s3Uploader;
+
+    @MockBean
     private UserService userService;
-    
+
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("회원가입 - 정상 케이스")
     void signup_정상케이스() throws Exception {
+        // given
         SignupRequest request = new SignupRequest("test@example.com", "1234", "닉네임", null);
 
-        mockMvc.perform(post("/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("회원가입 성공"));
+        MockMultipartFile userPart = new MockMultipartFile("user", "", "application/json",
+                objectMapper.writeValueAsBytes(request));
+
+        MockMultipartFile imagePart = new MockMultipartFile("profileImage", "image.jpg", "image/jpeg",
+                "이미지바이트".getBytes());
+
+        given(s3Uploader.upload(any())).willReturn("https://dummy.com/profile.jpg");
+
+        // when & then
+        mockMvc.perform(multipart("/auth/signup")
+                .file(userPart)
+                .file(imagePart)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("회원가입 성공"));
     }
 
     @Test
@@ -67,7 +84,7 @@ public class UserControllerTest {
                 .createdAt("2024-01-01 00:00:00")
                 .build();
 
-        when(userService.getUserInfo(1L)).thenReturn(response);
+        given(userService.getUserInfo(1L)).willReturn(response);
 
         // when & then
         mockMvc.perform(get("/users/me"))
@@ -89,7 +106,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("닉네임 변경 성공"));     
+                .andExpect(jsonPath("$.message").value("닉네임 변경 성공"));
     }
 
     @Test
@@ -97,13 +114,17 @@ public class UserControllerTest {
     @DisplayName("프로필 이미지 변경 - 정상 케이스")
     void updateProfileImg_정상케이스() throws Exception {
         // given
-        UserUpdateRequests.ProfileImg request = new UserUpdateRequests.ProfileImg();
-        ReflectionTestUtils.setField(request, "profileImg", "https://image.com/profile.jpg");
+        MockMultipartFile imagePart = new MockMultipartFile("profileImage", "profile.jpg", "image/jpeg",
+                "바이트데이터".getBytes());
+        given(s3Uploader.upload(any())).willReturn("https://dummy.com/new-profile.jpg");
 
         // when & then
-        mockMvc.perform(patch("/users/me/profileImg")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        mockMvc.perform(multipart("/users/me/profileImg")
+                .file(imagePart)
+                .with(request -> {
+                    request.setMethod("PATCH");
+                    return request;
+                }))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("프로필 이미지 변경 성공"));
     }
