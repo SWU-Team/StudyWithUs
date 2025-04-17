@@ -2,28 +2,48 @@ package com.swu.user.controller;
 
 import com.swu.auth.domain.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
+import com.swu.global.util.S3Uploader;
 import com.swu.user.domain.User;
 import com.swu.user.dto.request.PasswordChangeRequest;
 import com.swu.user.dto.request.SignupRequest;
 import com.swu.user.dto.request.UserUpdateRequests;
 import com.swu.user.dto.response.UserInfoResponse;
+import com.swu.user.exception.ImageUploadFailedException;
 import com.swu.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+    private final S3Uploader s3Uploader; 
 
     @Operation(summary = "회원가입", description = "이메일, 비밀번호, 닉네임을 통해 회원가입을 수행합니다.")
     @PostMapping("/auth/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(@RequestBody @Valid SignupRequest request) {
+    public ResponseEntity<ApiResponse<Void>> signup(
+        @RequestPart("user") @Valid SignupRequest request,
+        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        String profileImgUrl = null;
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                profileImgUrl = s3Uploader.upload(profileImage);
+                request.setProfileImg(profileImgUrl);
+            } catch (IOException e) {
+                throw new ImageUploadFailedException("이미지 업로드 중 오류 발생");
+            }
+        }
+
         userService.signup(request);
         return ResponseEntity.ok(ApiResponse.ok("회원가입 성공", null));
     }
