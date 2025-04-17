@@ -5,6 +5,8 @@ import com.swu.user.domain.LoginType;
 import com.swu.user.domain.Role;
 import com.swu.user.domain.User;
 import com.swu.user.dto.request.SignupRequest;
+import com.swu.user.dto.response.UserInfoResponse;
+import com.swu.user.exception.UserNotFoundException;
 import com.swu.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,5 +39,38 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserInfoResponse getUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+
+        return UserInfoResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .role(user.getRole())
+                .loginType(user.getLoginType())
+                .grade(user.getGrade())
+                .profileImg(user.getProfileImg())
+                .createdAt(user.getCreatedAt().toString())
+                .build();
+    }
+
+    @Transactional
+    public void updateNickname(Long userId, String nickname) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+
+        user.updateNickname(nickname);
+    }
+
+    @Transactional
+    public void updateProfileImg(Long userId, String profileImg) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+
+        user.updateProfileImg(profileImg);
     }
 }

@@ -1,12 +1,17 @@
 package com.swu.user.controller;
 
+import com.swu.auth.domain.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
+import com.swu.user.domain.User;
 import com.swu.user.dto.request.SignupRequest;
+import com.swu.user.dto.request.UserUpdateRequests;
+import com.swu.user.dto.response.UserInfoResponse;
 import com.swu.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,5 +25,33 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> signup(@RequestBody @Valid SignupRequest request) {
         userService.signup(request);
         return ResponseEntity.ok(ApiResponse.ok("회원가입 성공", null));
+    }
+
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
+    @GetMapping("/users/me")
+    public ResponseEntity<ApiResponse<UserInfoResponse>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+        UserInfoResponse response = userService.getUserInfo(user.getId());
+        return ResponseEntity.ok(ApiResponse.ok("내 정보 조회 성공", response));
+    }
+
+    @Operation(summary = "내 닉네임 수정", description = "현재 로그인한 사용자의 닉네임을 수정합니다.")
+    @PatchMapping("/users/me/nickname")
+    public ResponseEntity<ApiResponse<Void>> updateNickname(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid UserUpdateRequests.Nickname request) {
+        User user = userDetails.getUser();
+        userService.updateNickname(user.getId(), request.getNickname());
+        return ResponseEntity.ok(ApiResponse.ok("닉네임 변경 성공", null));
+    }
+
+    @Operation(summary = "내 닉네임 수정", description = "현재 로그인한 사용자의 닉네임을 수정합니다.")
+    @PatchMapping("/users/me/profileImg")
+    public ResponseEntity<ApiResponse<Void>> updateProfileImg(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid UserUpdateRequests.ProfileImg request) {
+        User user = userDetails.getUser();
+        userService.updateProfileImg(user.getId(), request.getProfileImg());
+        return ResponseEntity.ok(ApiResponse.ok("프로필 이미지 변경 성공", null));
     }
 }

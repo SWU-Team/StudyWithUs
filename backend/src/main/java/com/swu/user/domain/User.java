@@ -43,4 +43,12 @@ public class User {
 
     @CreationTimestamp
     private Timestamp createdAt;
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImg(String profileImg) {
+        this.profileImg = profileImg;
+    }
 }
