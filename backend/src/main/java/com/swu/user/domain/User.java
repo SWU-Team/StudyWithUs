@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -26,21 +27,48 @@ public class User {
     @Column(nullable = false, length = 30)
     private String nickname;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Role role;
+    private Role role = Role.USER;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private LoginType loginType;
+    private LoginType loginType = LoginType.LOCAL;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Grade grade;
+    private Grade grade = Grade.BRONZE;
 
     @Column(nullable = true, length = 255)
     private String profileImg;
 
     @CreationTimestamp
     private Timestamp createdAt;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImg(String profileImg) {
+        this.profileImg = profileImg;
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void withdraw() {
+        this.isDeleted = true;
+        this.email = "deleted_" + UUID.randomUUID() + "@deleted.com";
+        this.password = null;
+        this.nickname = "탈퇴한 사용자";
+        this.profileImg = null;
+    }
 }

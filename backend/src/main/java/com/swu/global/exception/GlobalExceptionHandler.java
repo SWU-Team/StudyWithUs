@@ -5,6 +5,11 @@ import com.swu.room.exception.AlreadyJoinedRoomException;
 import com.swu.room.exception.NotJoinedRoomException;
 import com.swu.room.exception.RoomFullException;
 import com.swu.room.exception.RoomNotFoundException;
+import com.swu.user.exception.EmailAlreadyExistsException;
+import com.swu.user.exception.InvalidCurrentPasswordException;
+import com.swu.user.exception.PasswordRedundancyException;
+import com.swu.user.exception.UserNotFoundException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +64,38 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotJoinedRoomException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotJoinedRoomException(NotJoinedRoomException e) {
         log.warn("NotJoinedRoomException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException e) {
+        log.warn("UserNotFoundException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEmailAlreadyExistsException(EmailAlreadyExistsException e) {
+        log.warn("EmailAlreadyExistsException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCurrentPasswordException(InvalidCurrentPasswordException e) {
+        log.warn("InvalidCurrentPasswordException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(PasswordRedundancyException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePasswordRedundancyException(PasswordRedundancyException e) {
+        log.warn("PasswordRedundancyException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
