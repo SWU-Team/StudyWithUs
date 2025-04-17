@@ -1,4 +1,4 @@
-package com.swu.global.config;
+package com.swu.user.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

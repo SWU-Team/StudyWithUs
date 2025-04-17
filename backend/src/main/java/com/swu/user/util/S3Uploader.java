@@ -1,4 +1,4 @@
-package com.swu.global.util;
+package com.swu.user.util;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.swu.user.exception.InvalidFileException;
 
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -27,7 +29,11 @@ public class S3Uploader {
     public String upload(MultipartFile file) throws IOException {
         
         if (file == null || file.getOriginalFilename() == null) {
-            throw new IllegalArgumentException("파일이 없습니다.");
+            throw new InvalidFileException("파일이 없습니다.");
+        }
+
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new InvalidFileException("파일 크기가 너무 큽니다.");
         }
 
         String originalFilename = file.getOriginalFilename();
