@@ -8,6 +8,7 @@ import com.swu.room.exception.RoomNotFoundException;
 import com.swu.user.exception.EmailAlreadyExistsException;
 import com.swu.user.exception.ImageUploadFailedException;
 import com.swu.user.exception.InvalidCurrentPasswordException;
+import com.swu.user.exception.InvalidFileException;
 import com.swu.user.exception.PasswordRedundancyException;
 import com.swu.user.exception.UserNotFoundException;
 
@@ -108,6 +109,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidFileException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidFileException(InvalidFileException e) {
+        log.warn("InvalidFileException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
