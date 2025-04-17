@@ -2,7 +2,6 @@ package com.swu.user.controller;
 
 import com.swu.auth.domain.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
-import com.swu.global.util.S3Uploader;
 import com.swu.user.domain.User;
 import com.swu.user.dto.request.PasswordChangeRequest;
 import com.swu.user.dto.request.SignupRequest;
@@ -10,6 +9,8 @@ import com.swu.user.dto.request.UserUpdateRequests;
 import com.swu.user.dto.response.UserInfoResponse;
 import com.swu.user.exception.ImageUploadFailedException;
 import com.swu.user.service.UserService;
+import com.swu.user.util.S3Uploader;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,15 +36,13 @@ public class UserController {
         @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         String profileImgUrl = null;
 
-        if (profileImage != null && !profileImage.isEmpty()) {
-            try {
-                profileImgUrl = s3Uploader.upload(profileImage);
-                request.setProfileImg(profileImgUrl);
-            } catch (IOException e) {
-                throw new ImageUploadFailedException("이미지 업로드 중 오류 발생");
-            }
+        try {
+            profileImgUrl = s3Uploader.upload(profileImage);
+            request.setProfileImg(profileImgUrl);
+        } catch (IOException e) {
+            throw new ImageUploadFailedException("이미지 업로드 중 오류 발생");
         }
-
+        
         userService.signup(request);
         return ResponseEntity.ok(ApiResponse.ok("회원가입 성공", null));
     }
@@ -66,16 +65,24 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok("닉네임 변경 성공", null));
     }
 
+    
     @Operation(summary = "프로필 이미지 수정", description = "현재 로그인한 사용자의 프로필을 수정합니다.")
     @PatchMapping("/users/me/profileImg")
     public ResponseEntity<ApiResponse<Void>> updateProfileImg(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody @Valid UserUpdateRequests.ProfileImg request) {
-        User user = userDetails.getUser();
-        userService.updateProfileImg(user.getId(), request.getProfileImg());
+            @RequestPart(value = "profileImage") MultipartFile profileImage) {
+        
+        try {
+            String uploadedUrl = s3Uploader.upload(profileImage);
+            userService.updateProfileImg(userDetails.getUser().getId(), uploadedUrl);
+        } catch (IOException e) {
+            throw new ImageUploadFailedException("이미지 업로드 중 오류 발생");
+        }
+
         return ResponseEntity.ok(ApiResponse.ok("프로필 이미지 변경 성공", null));
     }
 
+    
     @Operation(summary = "비밀번호 변경", description = "현재 로그인한 사용자의 비밀번호를 변경합니다.")
     @PatchMapping("/users/me/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
