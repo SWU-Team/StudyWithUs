@@ -5,6 +5,8 @@ import com.swu.room.exception.AlreadyJoinedRoomException;
 import com.swu.room.exception.NotJoinedRoomException;
 import com.swu.room.exception.RoomFullException;
 import com.swu.room.exception.RoomNotFoundException;
+import com.swu.user.exception.UserNotFoundException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +64,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException e) {
+        log.warn("UserNotFoundException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
