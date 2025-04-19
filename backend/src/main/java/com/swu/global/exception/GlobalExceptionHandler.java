@@ -1,5 +1,8 @@
 package com.swu.global.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.swu.diary.exception.DiaryAlreadyExistsException;
+import com.swu.diary.exception.DiaryNotFoundException;
 import com.swu.global.response.ApiResponse;
 import com.swu.room.exception.AlreadyJoinedRoomException;
 import com.swu.room.exception.NotJoinedRoomException;
@@ -13,8 +16,10 @@ import com.swu.user.exception.PasswordRedundancyException;
 import com.swu.user.exception.UserNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -125,6 +130,39 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage()));
+    }
+
+    @ExceptionHandler(DiaryNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDiaryNotFoundException(DiaryNotFoundException e) {
+        log.warn("DiaryNotFoundException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
+    }
+
+    @ExceptionHandler(DiaryAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDiaryAlreadyExistsException(DiaryAlreadyExistsException e) {
+        log.warn("DiaryAlreadyExistsException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof InvalidFormatException ife) {
+            if ("java.time.LocalDate".equals(ife.getTargetType().getName())) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "날짜 형식이 잘못되었습니다. yyyy-MM-dd 형식이어야 합니다."));
+            }
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "요청 본문(JSON)의 형식이 잘못되었습니다."));
     }
 
     @ExceptionHandler(SecurityException.class)
