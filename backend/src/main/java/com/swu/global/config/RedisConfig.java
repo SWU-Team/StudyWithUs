@@ -11,7 +11,6 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
  import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swu.room.listener.RedisMessageSubscriber;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -33,10 +32,6 @@ public class RedisConfig {
     @Value("${spring.data.redis.password}")
     private String password;
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
     /**
      * Redis 연결 팩토리 빈 등록
      * - Lettuce 클라이언트를 사용하여 Redis에 연결함
