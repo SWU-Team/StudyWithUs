@@ -179,7 +179,7 @@ function Mypage() {
         {/* 하단 일간/월간 공부 시간 */}
         <div className={styles.subGrid}>
           <div className={styles.subSection}>
-            <h4>일별 공부 시간</h4>
+            <h4>일별 공부시간</h4>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={dailyStudyData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -191,7 +191,7 @@ function Mypage() {
             </ResponsiveContainer>
           </div>
           <div className={styles.subSection}>
-            <h4>월별 공부 시간</h4>
+            <h4>월별 공부시간</h4>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={monthlyStudyData}>
                 <CartesianGrid strokeDasharray="3 3" />
