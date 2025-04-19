@@ -36,15 +36,12 @@ public class Diary {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // 하루에 한 번 작성
     @Column(name = "diary_date", nullable = false)
     private LocalDate diaryDate;
 
-    // 생성 시점 자동 저장
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    // 챗봇 피드백 (선택사항)
     @Lob
     private String feedback;
 }
