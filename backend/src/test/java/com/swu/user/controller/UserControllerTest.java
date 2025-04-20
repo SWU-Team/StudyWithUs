@@ -60,7 +60,7 @@ public class UserControllerTest {
         given(s3Uploader.upload(any())).willReturn("https://dummy.com/profile.jpg");
 
         // when & then
-        mockMvc.perform(multipart("/auth/signup")
+        mockMvc.perform(multipart("/api/auth/signup")
                 .file(userPart)
                 .file(imagePart)
                 .contentType(MediaType.MULTIPART_FORM_DATA))
@@ -87,7 +87,7 @@ public class UserControllerTest {
         given(userService.getUserInfo(1L)).willReturn(response);
 
         // when & then
-        mockMvc.perform(get("/users/me"))
+        mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("내 정보 조회 성공"))
                 .andExpect(jsonPath("$.data.email").value("test@example.com"));
@@ -102,7 +102,7 @@ public class UserControllerTest {
         ReflectionTestUtils.setField(request, "nickname", "새닉네임");
 
         // when & then
-        mockMvc.perform(patch("/users/me/nickname")
+        mockMvc.perform(patch("/api/users/me/nickname")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -119,7 +119,7 @@ public class UserControllerTest {
         given(s3Uploader.upload(any())).willReturn("https://dummy.com/new-profile.jpg");
 
         // when & then
-        mockMvc.perform(multipart("/users/me/profileImg")
+        mockMvc.perform(multipart("/api/users/me/profileImg")
                 .file(imagePart)
                 .with(request -> {
                     request.setMethod("PATCH");
@@ -139,7 +139,7 @@ public class UserControllerTest {
         ReflectionTestUtils.setField(request, "newPassword", "abcd");
 
         // when & then
-        mockMvc.perform(patch("/users/me/password")
+        mockMvc.perform(patch("/api/users/me/password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())

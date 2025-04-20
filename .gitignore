@@ -20,3 +20,7 @@ Thumbs.db
 
 # Git files
 *.orig
+
+# Docker files
+docker-compose.yml
+!docker-compose.prod.yml
