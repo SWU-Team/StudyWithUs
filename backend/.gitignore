@@ -244,3 +244,6 @@ application-dev.yml
 imgs/
 
 .env
+.env.dev
+.env.prod
+!.env.example
