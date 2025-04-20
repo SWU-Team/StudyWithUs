@@ -19,7 +19,7 @@ function Login() {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/auth/login", {
+      const res = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST", //데이터를 서버에 전달할때 사용용
         headers: {
           "Content-Type": "application/json", //json형식으로

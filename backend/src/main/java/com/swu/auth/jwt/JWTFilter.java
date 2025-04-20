@@ -34,7 +34,7 @@ public class JWTFilter extends OncePerRequestFilter{
             throws ServletException, IOException {
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth")
+        if (path.startsWith("/api/auth")
                 || path.startsWith("/ws")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")) {

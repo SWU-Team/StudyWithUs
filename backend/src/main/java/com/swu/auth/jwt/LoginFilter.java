@@ -42,7 +42,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
 
-        setFilterProcessesUrl("/auth/login");
+        setFilterProcessesUrl("/api/auth/login");
     }
 
     // 로그인 요청을 처리하는 메소드
