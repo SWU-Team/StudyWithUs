@@ -7,23 +7,25 @@ import {
 } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import logoImage from "../assets/images/StudywithusLogo.png";
+import { removeToken } from "../utils/auth";
 
 const Sidebar = () => {
   const location = useLocation();
 
-  const isActive = (path: string) => {
+  const isActive = (path) => {
     return location.pathname === path ? styles.active : "";
   };
 
+  const handleLogout = () => {
+    removeToken();
+    window.location.href = "/";
+  };
+  
   const menuLinks = [
-    {
-      path: "/StudyRoomList",
-      label: "스터디룸",
-      icon: <FaChalkboardTeacher size={28} />,
-    },
-    { path: "/Planer", label: "플래너", icon: <FaCalendarAlt size={28} /> },
-    { path: "/Diary", label: "다이어리", icon: <FaBookOpen size={28} /> },
-    { path: "/Mypage", label: "마이페이지", icon: <FaUserCircle size={28} /> },
+    { path: "/rooms",label: "스터디룸", icon: <FaChalkboardTeacher size={28} />},
+    { path: "/planer", label: "플래너", icon: <FaCalendarAlt size={28} /> },
+    { path: "/diary", label: "다이어리", icon: <FaBookOpen size={28} /> },
+    { path: "/mypage", label: "마이페이지", icon: <FaUserCircle size={28} /> },
   ];
 
   return (
@@ -51,6 +53,11 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
+      <div className={styles.authLinks}>
+        <button className={styles.authLink} onClick={handleLogout}>
+          로그아웃
+        </button>
+      </div>
     </div>
   );
 };
