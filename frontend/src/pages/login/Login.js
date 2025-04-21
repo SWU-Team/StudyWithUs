@@ -4,11 +4,11 @@ import googleLogo from "../../assets/images/googlelogo.png";
 import kakaoLogo from "../../assets/images/kakaologo.png";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { setToken, extractTokenFromHeader } from "../../utils/auth";
 
 function Login() {
   const [id, setId] = useState(""); // 아이디 값 저장
   const [password, setPassword] = useState(""); // 비밀번호 값 저장
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 여부 상태
   const navigate = useNavigate();
 
   // 일반 로그인 (아이디, 비밀번호 입력 후 확인 버튼)
@@ -21,12 +21,11 @@ function Login() {
     try {
       console.log("ENV:", process.env.REACT_APP_API_BASE_URL);
       const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
-        method: "POST", //데이터를 서버에 전달할때 사용용
+        method: "POST",
         headers: {
-          "Content-Type": "application/json", //json형식으로
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          //문자열로 바꿔서 서버에 보냄냄
           email: id,
           password: password,
         }),
@@ -37,13 +36,14 @@ function Login() {
 
       if (res.ok && result.status === 200) {
         alert("로그인 성공!");
-        // Authorization 헤더에서 토큰 추출
-        const authHeader = res.headers.get("Authorization");
-        const token = authHeader ? authHeader.split(" ")[1] : null;
-        // ✅ 토큰을 localStorage에 저장
-        localStorage.setItem("token", token);
-        setIsLoggedIn(true);
-        navigate("/StudyRoomList");
+        const token = extractTokenFromHeader(res);
+        
+        if (token) {
+          setToken(token);
+          navigate("/rooms");
+        } else {
+          alert("토큰이 없습니다.");
+        }
       } else {
         alert("로그인 실패: " + result.message);
       }
