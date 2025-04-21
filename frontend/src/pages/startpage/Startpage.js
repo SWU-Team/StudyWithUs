@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import logoImage from "../../assets/images/StudywithusLogo.png";
 import styles from "./Startpage.module.css";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 function Startpage() {
   const navigate = useNavigate();
   const handleClick = () => {
-    navigate("/Login");
+    navigate("/login");
   };
   return (
     <div className={styles.div}>

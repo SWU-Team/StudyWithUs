@@ -1,16 +1,24 @@
-import { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import styles from "./Layout.module.css";
 
-function Layout({ children }: { children: ReactNode }) {
+const Layout = () => {
   return (
     <div className={styles.layout}>
-      <Sidebar />
-      <Header />
-      <main className={styles.content}>{children}</main>
+      <div className={styles.sidebar}>
+        <Sidebar />
+      </div>
+      <div className={styles.mainSection}>
+        <div className={styles.header}>
+          <Header />
+        </div>
+        <main className={styles.content}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
-}
+};
 
 export default Layout;
