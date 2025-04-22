@@ -11,7 +11,7 @@ import Diary from "./pages/diary/Diary";
 import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import Startpage from "./pages/startpage/Startpage";
-import StudyRoom from "./pages/rooms/StudyRoom";
+// import StudyRoom from "./pages/rooms/StudyRoom";
 import { isAuthenticated } from "./utils/auth";
 
 // 인증이 필요한 페이지들을 감싸는 컴포넌트
@@ -39,7 +39,7 @@ function App() {
           <Route path="/diary" element={<Diary />} />
           <Route path="/planer" element={<Planer />} />
           <Route path="/rooms" element={<StudyRoomList />} />
-          <Route path="/rooms/:roomId" element={<StudyRoom />} />
+          {/* <Route path="/rooms/:roomId" element={<StudyRoom />} /> */}
         </Route>
 
         {/* 404 페이지 */}
