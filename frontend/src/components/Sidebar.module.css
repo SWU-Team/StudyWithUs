@@ -1,21 +1,24 @@
 .sidebar {
-  width: 100%;
-  height: 100%;
+  width: 100px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(to bottom, #f9f9f9, #e9e9e9);
   border-right: 1px solid #e0e0e0;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
 .logo {
   text-align: center;
   padding: 15px 0 15px;
-  border-bottom: 1px solid #e0e0e0;
 }
 
 .logoImg {
-  width: 140px;
+  width: 95px;
   height: auto;
   object-fit: contain;
 }
@@ -68,11 +71,13 @@
 }
 
 .navLink:hover {
+  width: 100%;
   background: linear-gradient(to right, #f0f0f0, #e6e6e6);
   color: #222;
 }
 
 .active {
+  width: 100%;
   background: linear-gradient(to right, #e0e0e0, #d6d6d6);
   color: #000 !important;
   font-weight: 600;
@@ -81,28 +86,36 @@
 
 .authLinks {
   padding: 20px;
-  border-top: 1px solid #e0e0e0;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 .authLink {
-  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* gap: 6px; */
+  background: none;
+  border: none;
+  cursor: pointer;
   color: #555;
   font-size: 14px;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: all 0.3s;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background-color 0.3s;
 }
 
 .authLink:hover {
   background-color: #e9e9e9;
 }
 
-/* 모바일 반응형 */
-/* @media (max-width: 768px) {
+.logoutIcon {
+  width: 30x;
+  height: 30px;
+}
+@media (max-width: 768px) {
   .sidebar {
-    width: 220px;
+    width: 180px;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
@@ -110,4 +123,4 @@
   .sidebar.open {
     transform: translateX(0);
   }
-} */
+}
