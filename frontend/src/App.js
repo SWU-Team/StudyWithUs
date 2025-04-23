@@ -1,6 +1,7 @@
 import "./App.css";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+
 import Layout from "./components/Layout";
 import Signup from "./pages/signup/Signup";
 import Login from "./pages/login/Login";
@@ -11,41 +12,46 @@ import Diary from "./pages/diary/Diary";
 import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import Startpage from "./pages/startpage/Startpage";
-// import StudyRoom from "./pages/rooms/StudyRoom";
+import StudyRoom from "./pages/rooms/StudyRoom";
+
 import { isAuthenticated } from "./utils/auth";
 
-// 인증이 필요한 페이지들을 감싸는 컴포넌트
-const ProtectedRoute = ({ children }) => {
+// ✅ 인증이 필요한 라우트 래퍼
+const ProtectedRoute = () => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
-  return <Layout>{children}</Layout>;
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  );
 };
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
-        {/* 시작 페이지와 인증 관련 페이지는 레이아웃 없이 렌더링 */}
+        {/* 🔓 인증 없이 접근 가능한 페이지 */}
         <Route path="/" element={<Startpage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/searchid" element={<SearchID />} />
         <Route path="/searchpw" element={<SearchPW />} />
 
-        {/* 레이아웃이 필요한 페이지들 - 인증 필요 */}
+        {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/diary" element={<Diary />} />
           <Route path="/planer" element={<Planer />} />
           <Route path="/rooms" element={<StudyRoomList />} />
-          {/* <Route path="/rooms/:roomId" element={<StudyRoom />} /> */}
+          <Route path="/rooms/:roomId" element={<StudyRoom />} />
         </Route>
 
-        {/* 404 페이지 */}
+        {/* 🔁 잘못된 경로 → 홈으로 리다이렉트 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

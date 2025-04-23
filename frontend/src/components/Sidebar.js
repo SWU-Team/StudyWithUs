@@ -1,13 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import {
-  FaChalkboardTeacher,
-  FaCalendarAlt,
-  FaBookOpen,
-  FaUserCircle,
-} from "react-icons/fa";
+import { FaChalkboardTeacher, FaCalendarAlt, FaBookOpen, FaUserCircle } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import logoImage from "../assets/images/StudywithusLogo.png";
 import { removeToken } from "../utils/auth";
+import logoutImage from "../assets/images/logout.png";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -20,9 +16,9 @@ const Sidebar = () => {
     removeToken();
     window.location.href = "/";
   };
-  
+
   const menuLinks = [
-    { path: "/rooms",label: "스터디룸", icon: <FaChalkboardTeacher size={28} />},
+    { path: "/rooms", label: "스터디룸", icon: <FaChalkboardTeacher size={28} /> },
     { path: "/planer", label: "플래너", icon: <FaCalendarAlt size={28} /> },
     { path: "/diary", label: "다이어리", icon: <FaBookOpen size={28} /> },
     { path: "/mypage", label: "마이페이지", icon: <FaUserCircle size={28} /> },
@@ -31,21 +27,14 @@ const Sidebar = () => {
   return (
     <div className={styles.sidebar}>
       <div className={styles.logo}>
-        <img
-          src={logoImage}
-          alt="Study Planner Logo"
-          className={styles.logoImg}
-        />
+        <img src={logoImage} alt="Study Planner Logo" className={styles.logoImg} />
       </div>
 
       <nav className={styles.navigation}>
         <ul className={styles.navList}>
           {menuLinks.map((menu) => (
             <li key={menu.path}>
-              <Link
-                to={menu.path}
-                className={`${styles.navLink} ${isActive(menu.path)}`}
-              >
+              <Link to={menu.path} className={`${styles.navLink} ${isActive(menu.path)}`}>
                 <div className={styles.iconBox}>{menu.icon}</div>
                 <span className={styles.linkLabel}>{menu.label}</span>
               </Link>
@@ -55,7 +44,8 @@ const Sidebar = () => {
       </nav>
       <div className={styles.authLinks}>
         <button className={styles.authLink} onClick={handleLogout}>
-          로그아웃
+          <img src={logoutImage} alt="로그아웃" className={styles.logoutIcon} />
+          <span className={styles.linkLabel}>로그아웃</span>
         </button>
       </div>
     </div>
