@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WebRTC STOMP Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+  <h2>JWT 로그인</h2>
+  <input id="email" placeholder="email" value="test@example.com">
+  <input id="password" placeholder="password" value="password123">
+  <button id="loginBtn">로그인</button>
+
+  <h2>방 입장</h2>
+  <input id="roomId" placeholder="roomId" value="1">
+  <button id="joinBtn">방 입장</button>
+
+  <h2>WebRTC 제어</h2>
+  <button id="startBtn">Start</button>
+  <button id="callBtn">Call</button>
+  <button id="hangupBtn">Hangup</button>
+
+  <h3>Local</h3>
+  <video id="localVideo" autoplay playsinline muted></video>
+
+  <h3>Remote</h3>
+  <video id="remoteVideo" autoplay playsinline></video>
+
+  <pre id="log" style="background:#eee; padding:10px;"></pre>
+
+  <script>
+    const log = (msg) => document.getElementById('log').textContent += msg + '\n';
+    const $ = id => document.getElementById(id);
+
+    let jwtToken, userId, userNickname, stompClient;
+    let localStream, peerConnection;
+    let roomId = 1;
+
+    $('loginBtn').onclick = async () => {
+      const res = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: $('email').value,
+          password: $('password').value
+        })
+      });
+      const data = await res.json();
+      jwtToken = res.headers.get('Authorization')?.replace('Bearer ', '');
+      userId = data.data.id;
+      userNickname = data.data.nickname || data.data.email.split('@')[0];
+      log('로그인 성공: ' + userNickname);
+    };
+
+    $('joinBtn').onclick = async () => {
+      roomId = $('roomId').value;
+      await fetch(`http://localhost:8080/room/${roomId}/join`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${jwtToken}` }
+      });
+      connectWebSocket();
+      log('방 입장 및 WebSocket 연결');
+    };
+
+    function connectWebSocket() {
+      const socket = new SockJS('http://localhost:8080/ws');
+      stompClient = Stomp.over(socket);
+      stompClient.connect({ 'Authorization': `Bearer ${jwtToken}` }, () => {
+        stompClient.subscribe(`/sub/room/${roomId}`, onMessage);
+        log('STOMP 연결됨');
+      });
+    }
+
+    function sendSignal(msg) {
+      stompClient.send("/pub/signal", { 'Authorization': `Bearer ${jwtToken}` }, JSON.stringify(msg));
+      log('보냄: ' + msg.type);
+    }
+
+    $('startBtn').onclick = async () => {
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      $('localVideo').srcObject = localStream;
+      log('Local Media Started');
+    };
+
+    $('callBtn').onclick = () => {
+      createPeerConnection();
+      localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+      peerConnection.createOffer().then(offer => {
+        peerConnection.setLocalDescription(offer);
+        sendSignal({
+          type: 'offer',
+          roomId, senderId: userId, senderNickname: userNickname,
+          data: offer
+        });
+      });
+    };
+
+    $('hangupBtn').onclick = () => {
+      peerConnection?.close();
+      peerConnection = null;
+      log('통화 종료');
+    };
+
+    function createPeerConnection() {
+      peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+
+      peerConnection.onicecandidate = e => {
+        if (e.candidate) {
+          sendSignal({
+            type: 'ice',
+            roomId, senderId: userId, senderNickname: userNickname,
+            data: e.candidate
+          });
+        }
+      };
+
+      peerConnection.ontrack = e => {
+        $('remoteVideo').srcObject = e.streams[0];
+        log('Remote track 수신');
+      };
+    }
+
+    function onMessage(payload) {
+      const msg = JSON.parse(payload.body);
+      if (msg.senderId === userId) return;  // 내가 보낸 메시지는 무시
+      log('수신: ' + msg.type);
+
+      if (msg.type === 'offer') {
+        if (!peerConnection) createPeerConnection();
+        peerConnection.setRemoteDescription(new RTCSessionDescription(msg.data)).then(() =>
+          peerConnection.createAnswer()
+        ).then(answer => {
+          peerConnection.setLocalDescription(answer);
+          sendSignal({
+            type: 'answer',
+            roomId, senderId: userId, senderNickname: userNickname,
+            data: answer
+          });
+        });
+      }
+
+      if (msg.type === 'answer') {
+        peerConnection.setRemoteDescription(new RTCSessionDescription(msg.data));
+      }
+
+      if (msg.type === 'ice') {
+        peerConnection.addIceCandidate(new RTCIceCandidate(msg.data));
+      }
+    }
+  </script>
+</body>
+</html>

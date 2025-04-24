@@ -1,17 +1,18 @@
 package com.swu.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swu.controller.UserController;
+import com.swu.domain.user.dto.request.PasswordChangeRequest;
+import com.swu.domain.user.dto.request.SignupRequest;
+import com.swu.domain.user.dto.request.UserUpdateRequests;
+import com.swu.domain.user.dto.response.UserInfoResponse;
+import com.swu.domain.user.entity.Grade;
+import com.swu.domain.user.entity.LoginType;
+import com.swu.domain.user.entity.Role;
+import com.swu.domain.user.service.UserService;
 import com.swu.testconfig.TestSecurityConfig;
 import com.swu.testconfig.WithMockCustomUser;
-import com.swu.user.domain.Grade;
-import com.swu.user.domain.LoginType;
-import com.swu.user.domain.Role;
-import com.swu.user.dto.request.PasswordChangeRequest;
-import com.swu.user.dto.request.SignupRequest;
-import com.swu.user.dto.request.UserUpdateRequests;
-import com.swu.user.dto.response.UserInfoResponse;
-import com.swu.user.service.UserService;
-import com.swu.user.util.S3Uploader;
+import com.swu.util.S3Uploader;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

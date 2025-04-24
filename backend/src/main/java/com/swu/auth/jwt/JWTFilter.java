@@ -3,10 +3,11 @@ package com.swu.auth.jwt;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swu.auth.domain.CustomUserDetails;
+import com.swu.auth.entity.CustomUserDetails;
+import com.swu.domain.user.entity.Role;
+import com.swu.domain.user.entity.User;
 import com.swu.global.response.ApiResponse;
-import com.swu.user.domain.Role;
-import com.swu.user.domain.User;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -101,7 +102,7 @@ public class JWTFilter extends OncePerRequestFilter{
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        ApiResponse<Void> apiResponse = ApiResponse.unauthorized(message);  // ApiResponse에 해당 메서드가 있다고 가정
+        ApiResponse<Void> apiResponse = ApiResponse.failure(message);  // ApiResponse에 해당 메서드가 있다고 가정
         ObjectMapper objectMapper = new ObjectMapper();
         String responseBody = objectMapper.writeValueAsString(apiResponse);
 

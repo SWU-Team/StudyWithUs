@@ -1,19 +1,19 @@
 package com.swu.global.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.swu.diary.exception.DiaryAlreadyExistsException;
-import com.swu.diary.exception.DiaryNotFoundException;
+import com.swu.domain.diary.exception.DiaryAlreadyExistsException;
+import com.swu.domain.diary.exception.DiaryNotFoundException;
+import com.swu.domain.room.exception.AlreadyJoinedRoomException;
+import com.swu.domain.room.exception.NotJoinedRoomException;
+import com.swu.domain.room.exception.RoomFullException;
+import com.swu.domain.room.exception.RoomNotFoundException;
+import com.swu.domain.user.exception.EmailAlreadyExistsException;
+import com.swu.domain.user.exception.ImageUploadFailedException;
+import com.swu.domain.user.exception.InvalidCurrentPasswordException;
+import com.swu.domain.user.exception.InvalidFileException;
+import com.swu.domain.user.exception.PasswordRedundancyException;
+import com.swu.domain.user.exception.UserNotFoundException;
 import com.swu.global.response.ApiResponse;
-import com.swu.room.exception.AlreadyJoinedRoomException;
-import com.swu.room.exception.NotJoinedRoomException;
-import com.swu.room.exception.RoomFullException;
-import com.swu.room.exception.RoomNotFoundException;
-import com.swu.user.exception.EmailAlreadyExistsException;
-import com.swu.user.exception.ImageUploadFailedException;
-import com.swu.user.exception.InvalidCurrentPasswordException;
-import com.swu.user.exception.InvalidFileException;
-import com.swu.user.exception.PasswordRedundancyException;
-import com.swu.user.exception.UserNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,11 +37,11 @@ public class GlobalExceptionHandler {
             .findFirst()
             .map(FieldError::getDefaultMessage)
             .orElse("유효성 검사에 실패했습니다.");
-        
+
         log.warn("Validation error: {}", errorMessage);
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
-            .body(ApiResponse.error(HttpStatus.BAD_REQUEST, errorMessage));
+            .body(ApiResponse.failure(errorMessage));
     }
 
     @ExceptionHandler(RoomNotFoundException.class)
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
         log.warn("RoomNotFoundException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(AlreadyJoinedRoomException.class)
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
         log.warn("AlreadyJoinedRoomException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(RoomFullException.class)
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         log.warn("RoomFullException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(NotJoinedRoomException.class)
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
         log.warn("NotJoinedRoomException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
         log.warn("UserNotFoundException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
@@ -89,7 +89,7 @@ public class GlobalExceptionHandler {
         log.warn("EmailAlreadyExistsException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(InvalidCurrentPasswordException.class)
@@ -97,7 +97,7 @@ public class GlobalExceptionHandler {
         log.warn("InvalidCurrentPasswordException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(PasswordRedundancyException.class)
@@ -105,7 +105,7 @@ public class GlobalExceptionHandler {
         log.warn("PasswordRedundancyException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(ImageUploadFailedException.class)
@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
         log.warn("ImageUploadFailedException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(InvalidFileException.class)
@@ -121,7 +121,7 @@ public class GlobalExceptionHandler {
         log.warn("InvalidFileException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler {
         log.warn("IllegalArgumentException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(DiaryNotFoundException.class)
@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
         log.warn("DiaryNotFoundException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(HttpStatus.NOT_FOUND, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(DiaryAlreadyExistsException.class)
@@ -145,7 +145,7 @@ public class GlobalExceptionHandler {
         log.warn("DiaryAlreadyExistsException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -156,13 +156,13 @@ public class GlobalExceptionHandler {
             if ("java.time.LocalDate".equals(ife.getTargetType().getName())) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
-                        .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "날짜 형식이 잘못되었습니다. yyyy-MM-dd 형식이어야 합니다."));
+                        .body(ApiResponse.failure("날짜 형식이 잘못되었습니다. yyyy-MM-dd 형식이어야 합니다."));
             }
         }
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "요청 본문(JSON)의 형식이 잘못되었습니다."));
+                .body(ApiResponse.failure("요청 본문(JSON)의 형식이 잘못되었습니다."));
     }
 
     @ExceptionHandler(SecurityException.class)
@@ -170,7 +170,7 @@ public class GlobalExceptionHandler {
         log.warn("SecurityException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(HttpStatus.FORBIDDEN, e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -178,6 +178,6 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred", e);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다."));
+                .body(ApiResponse.failure("서버 내부 오류가 발생했습니다."));
     }
 }

@@ -4,8 +4,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
-import com.swu.user.domain.User;
-import com.swu.auth.domain.CustomUserDetails;
+
+import com.swu.auth.entity.CustomUserDetails;
+import com.swu.domain.user.entity.User;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 public class WithMockCustomUserSecurityContextFactory implements WithSecurityContextFactory<WithMockCustomUser> {
 

@@ -1,10 +1,5 @@
 package com.swu.user.service;
 
-import com.swu.user.domain.*;
-import com.swu.user.dto.request.SignupRequest;
-import com.swu.user.dto.response.UserInfoResponse;
-import com.swu.user.exception.*;
-import com.swu.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.swu.domain.user.dto.request.SignupRequest;
+import com.swu.domain.user.dto.response.UserInfoResponse;
+import com.swu.domain.user.entity.*;
+import com.swu.domain.user.exception.*;
+import com.swu.domain.user.repository.UserRepository;
+import com.swu.domain.user.service.UserService;
 
 import java.sql.Timestamp;
 import java.util.Optional;
