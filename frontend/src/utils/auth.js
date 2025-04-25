@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'study_with_us_token';
+const TOKEN_KEY = "study_with_us_token";
 
 export const getToken = () => {
   return localStorage.getItem(TOKEN_KEY);
@@ -18,8 +18,8 @@ export const isAuthenticated = () => {
 
 export const getAuthHeader = () => {
   const token = getToken();
-  return token ? `Bearer ${token}` : '';
-}; 
+  return token ? `Bearer ${token}` : "";
+};
 
 export const extractTokenFromHeader = (res) => {
   const authHeader = res.headers.get("Authorization");
