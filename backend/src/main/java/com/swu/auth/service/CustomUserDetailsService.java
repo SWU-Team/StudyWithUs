@@ -1,8 +1,9 @@
 package com.swu.auth.service;
 
-import com.swu.auth.domain.CustomUserDetails;
-import com.swu.user.domain.User;
-import com.swu.user.repository.UserRepository;
+import com.swu.auth.entity.CustomUserDetails;
+import com.swu.domain.user.entity.User;
+import com.swu.domain.user.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

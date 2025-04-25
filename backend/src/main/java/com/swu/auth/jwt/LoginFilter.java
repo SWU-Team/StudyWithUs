@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.swu.auth.domain.CustomUserDetails;
 import com.swu.auth.dto.request.LoginRequest;
+import com.swu.auth.entity.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
@@ -93,7 +93,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
         data.put("id", id);
         data.put("email", username);
 
-        ApiResponse<Map<String, Object>> apiResponse = ApiResponse.ok("로그인 성공", data);
+        ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success("로그인 성공", data);
 
         ObjectMapper objectMapper = new ObjectMapper();
         try{
