@@ -1,6 +1,6 @@
 import "./App.css";
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
 import Layout from "./components/Layout";
 import Signup from "./pages/signup/Signup";
@@ -12,7 +12,7 @@ import Diary from "./pages/diary/Diary";
 import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import Startpage from "./pages/startpage/Startpage";
-import StudyRoom from "./pages/rooms/StudyRoom";
+// import StudyRoom from "./pages/rooms/StudyRoom";
 
 import { isAuthenticated } from "./utils/auth";
 
@@ -30,28 +30,26 @@ const ProtectedRoute = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* 🔓 인증 없이 접근 가능한 페이지 */}
-        <Route path="/" element={<Startpage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/searchid" element={<SearchID />} />
-        <Route path="/searchpw" element={<SearchPW />} />
+    <Routes>
+      {/* 🔓 인증 없이 접근 가능한 페이지 */}
+      <Route path="/" element={<Startpage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/searchid" element={<SearchID />} />
+      <Route path="/searchpw" element={<SearchPW />} />
 
-        {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/mypage" element={<Mypage />} />
-          <Route path="/diary" element={<Diary />} />
-          <Route path="/planer" element={<Planer />} />
-          <Route path="/rooms" element={<StudyRoomList />} />
-          <Route path="/rooms/:roomId" element={<StudyRoom />} />
-        </Route>
+      {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/mypage" element={<Mypage />} />
+        <Route path="/diary" element={<Diary />} />
+        <Route path="/planer" element={<Planer />} />
+        <Route path="/rooms" element={<StudyRoomList />} />
+        {/* <Route path="/rooms/:roomId" element={<StudyRoom />} /> */}
+      </Route>
 
-        {/* 🔁 잘못된 경로 → 홈으로 리다이렉트 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+      {/* 🔁 잘못된 경로 → 홈으로 리다이렉트 */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
