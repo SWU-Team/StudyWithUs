@@ -1,6 +1,7 @@
 import "./App.css";
 import React from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 import Layout from "./components/Layout";
 import Signup from "./pages/signup/Signup";
@@ -30,26 +31,36 @@ const ProtectedRoute = () => {
 
 function App() {
   return (
-    <Routes>
-      {/* 🔓 인증 없이 접근 가능한 페이지 */}
-      <Route path="/" element={<Startpage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/searchid" element={<SearchID />} />
-      <Route path="/searchpw" element={<SearchPW />} />
+    <>
+      <ToastContainer
+        position="top-right" // or "bottom-center", "top-center" 등
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
+      <Routes>
+        {/* 🔓 인증 없이 접근 가능한 페이지 */}
+        <Route path="/" element={<Startpage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/searchid" element={<SearchID />} />
+        <Route path="/searchpw" element={<SearchPW />} />
 
-      {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/mypage" element={<Mypage />} />
-        <Route path="/diary" element={<Diary />} />
-        <Route path="/planer" element={<Planer />} />
-        <Route path="/rooms" element={<StudyRoomList />} />
-        {/* <Route path="/rooms/:roomId" element={<StudyRoom />} /> */}
-      </Route>
+        {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/mypage" element={<Mypage />} />
+          <Route path="/diary" element={<Diary />} />
+          <Route path="/planer" element={<Planer />} />
+          <Route path="/rooms" element={<StudyRoomList />} />
+          {/* <Route path="/rooms/:roomId" element={<StudyRoom />} /> */}
+        </Route>
 
-      {/* 🔁 잘못된 경로 → 홈으로 리다이렉트 */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* 🔁 잘못된 경로 → 홈으로 리다이렉트 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
 
