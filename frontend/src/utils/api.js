@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 import { getAuthHeader } from "./auth";
 
 const apiClient = axios.create({
@@ -17,15 +18,23 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// 응답 인터셉터 (에러 핸들링)
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+
+    if (status >= 500) {
+      toast.error("서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 // 응답 핸들링
 const handleResponse = (response) => {
-  const { code, message, data } = response.data;
-
-  if (code !== 0) {
-    throw new Error(message || "알 수 없는 에러 발생");
-  }
-
-  return data;
+  return response.data.data;
 };
 
 export const apiGet = async (url) => {
@@ -51,4 +60,11 @@ export const apiPatch = async (url, body) => {
 export const apiDelete = async (url) => {
   const response = await apiClient.delete(url);
   return handleResponse(response);
+};
+
+export const extractErrorInfo = (error) => {
+  return {
+    status: error.response?.status,
+    message: error.response?.data?.message || "알 수 없는 오류입니다.",
+  };
 };
