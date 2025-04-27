@@ -1,18 +1,20 @@
 .layout {
   width: 100vw;
   height: 100vh;
+  display: flex;
 }
 
 .mainSection {
+  flex: 1;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  margin-left: 100px;
   overflow: hidden;
+  background-color: #e2d1c3;
 }
 
 .content {
   flex: 1;
   overflow-y: auto;
-  margin-top: 70px;
+  padding: 1rem 1.5rem;
 }

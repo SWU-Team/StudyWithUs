@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "react-toastify";
 import { getAuthHeader } from "./auth";
 
 const apiClient = axios.create({
@@ -24,8 +23,12 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    if (status >= 500) {
-      toast.error("서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    console.log("API 에러 발생", error);
+    if (status === 401) {
+      alert("로그인이 필요합니다. 다시 로그인 해주세요.");
+      window.location.href = "/login";
+    } else if (status >= 500) {
+      alert("서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
 
     return Promise.reject(error);
@@ -34,6 +37,7 @@ apiClient.interceptors.response.use(
 
 // 응답 핸들링
 const handleResponse = (response) => {
+  console.log("API 응답", response);
   return response.data.data;
 };
 
