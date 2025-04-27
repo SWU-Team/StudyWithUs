@@ -71,8 +71,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
         Long  id = customUserDetails.getUser().getId();
+        String nickname = customUserDetails.getUser().getNickname();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -80,7 +80,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, id, 10 * 60 * 60 * 1000L); // 10시간 설정
+        String token = jwtUtil.createJwt(nickname, role, id, 10 * 60 * 60 * 1000L); // 10시간 설정
 
         // 헤더에 토큰 설정
         response.setHeader("Authorization", "Bearer " + token);
@@ -91,7 +91,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
 
         Map<String, Object> data = new HashMap<>();
         data.put("id", id);
-        data.put("email", username);
+        data.put("nickname", nickname);
 
         ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success("로그인 성공", data);
 
@@ -104,15 +104,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-
-        log.info("User {} login success", username);
+        log.info("로그인 성공: " + nickname);
     }
 
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        response.setStatus(401);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
-        log.info("User login failed");
+        ApiResponse<Void> apiResponse = ApiResponse.failure("이메일 또는 비밀번호가 올바르지 않습니다.");
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String responseBody = objectMapper.writeValueAsString(apiResponse);
+            response.getWriter().write(responseBody);
+        } catch (IOException e) {
+            log.error("JSON 직렬화 중 오류 발생", e);
+        }
+
+        log.warn("로그인 실패");
     }
 }

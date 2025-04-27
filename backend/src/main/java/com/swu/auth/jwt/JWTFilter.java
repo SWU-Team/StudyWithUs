@@ -2,11 +2,9 @@ package com.swu.auth.jwt;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swu.auth.entity.CustomUserDetails;
 import com.swu.domain.user.entity.Role;
 import com.swu.domain.user.entity.User;
-import com.swu.global.response.ApiResponse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,7 +32,7 @@ public class JWTFilter extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String path = request.getRequestURI();
-
+        
         if (path.startsWith("/api/auth")
                 || path.startsWith("/ws")
                 || path.startsWith("/v3/api-docs")
@@ -46,10 +44,8 @@ public class JWTFilter extends OncePerRequestFilter{
         String authorization = request.getHeader("Authorization");
 
         if (authorization == null || !authorization.startsWith("Bearer")) {
-
             log.warn("토큰이 없거나 Bearer로 시작하지 않음");
-            sendUnauthorizedResponse(response, "토큰이 없거나 형식이 올바르지 않습니다.");
-
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -60,18 +56,14 @@ public class JWTFilter extends OncePerRequestFilter{
 
         // 토큰 소멸 시간 검증
         if (jwtUtil.isExpired(token)) {
-
             log.warn("토큰 만료됨");
-            sendUnauthorizedResponse(response, "토큰이 만료되었습니다.");
-
+            filterChain.doFilter(request, response);
             return;
         }
 
-        String username = jwtUtil.getUsername(token);
+        String nickname = jwtUtil.getNickname(token);
         String role = jwtUtil.getRole(token);
         Integer id = jwtUtil.getId(token);
-
-        log.info("토큰 추출 - email: {}, role: {}, id: {}", username, role, id);
 
         Role roleType;
         roleType = Role.valueOf(role);
@@ -79,7 +71,7 @@ public class JWTFilter extends OncePerRequestFilter{
         //userEntity를 생성하여 값 set
         User user = User.builder()
                 .id((long) id)
-                .email(username)
+                .nickname(nickname)
                 .password("temppassword")
                 .role(roleType)
                 .build();
@@ -92,22 +84,8 @@ public class JWTFilter extends OncePerRequestFilter{
 
         //세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
-        log.info("User added to SecurityContextHolder");
 
+        log.info(id + "번 유저 인증 완료");
         filterChain.doFilter(request, response);
     }
-
-    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        ApiResponse<Void> apiResponse = ApiResponse.failure(message);  // ApiResponse에 해당 메서드가 있다고 가정
-        ObjectMapper objectMapper = new ObjectMapper();
-        String responseBody = objectMapper.writeValueAsString(apiResponse);
-
-        response.getWriter().write(responseBody);
-    }
-
-
 }
