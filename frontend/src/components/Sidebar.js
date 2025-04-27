@@ -2,19 +2,12 @@ import { Link, useLocation } from "react-router-dom";
 import { FaChalkboardTeacher, FaCalendarAlt, FaBookOpen, FaUserCircle } from "react-icons/fa";
 import styles from "./Sidebar.module.css";
 import logoImage from "../assets/images/StudywithusLogo.png";
-import { removeToken } from "../utils/auth";
-import logoutImage from "../assets/images/logout.png";
 
 const Sidebar = () => {
   const location = useLocation();
 
   const isActive = (path) => {
     return location.pathname === path ? styles.active : "";
-  };
-
-  const handleLogout = () => {
-    removeToken();
-    window.location.href = "/";
   };
 
   const menuLinks = [
@@ -26,28 +19,20 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.logo}>
-        <img src={logoImage} alt="Study Planner Logo" className={styles.logoImg} />
-      </div>
+      <img src={logoImage} alt="Study_With_Us_Logo" className={styles.logo} />
 
-      <nav className={styles.navigation}>
-        <ul className={styles.navList}>
+      <nav>
+        <ul className={styles.menuList}>
           {menuLinks.map((menu) => (
             <li key={menu.path}>
-              <Link to={menu.path} className={`${styles.navLink} ${isActive(menu.path)}`}>
-                <div className={styles.iconBox}>{menu.icon}</div>
-                <span className={styles.linkLabel}>{menu.label}</span>
+              <Link to={menu.path} className={`${styles.menuLink} ${isActive(menu.path)}`}>
+                <div className={styles.icon}>{menu.icon}</div>
+                <span className={styles.label}>{menu.label}</span>
               </Link>
             </li>
           ))}
         </ul>
       </nav>
-      <div className={styles.authLinks}>
-        <button className={styles.authLink} onClick={handleLogout}>
-          <img src={logoutImage} alt="로그아웃" className={styles.logoutIcon} />
-          <span className={styles.linkLabel}>로그아웃</span>
-        </button>
-      </div>
     </div>
   );
 };
