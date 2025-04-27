@@ -1,8 +1,12 @@
 package com.swu.config;
 
+import com.swu.auth.handler.CustomAuthenticationEntryPoint;
 import com.swu.auth.jwt.JWTFilter;
 import com.swu.auth.jwt.JWTUtil;
 import com.swu.auth.jwt.LoginFilter;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -14,15 +18,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; 
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,7 +48,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/ws/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 );
-
+        http
+                .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(customAuthenticationEntryPoint) 
+                );       
         http
                 .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class);
