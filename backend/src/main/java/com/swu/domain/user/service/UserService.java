@@ -7,9 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.swu.domain.user.dto.request.SignupRequest;
 import com.swu.domain.user.dto.response.UserInfoResponse;
-import com.swu.domain.user.entity.Grade;
-import com.swu.domain.user.entity.LoginType;
-import com.swu.domain.user.entity.Role;
 import com.swu.domain.user.entity.User;
 import com.swu.domain.user.exception.EmailAlreadyExistsException;
 import com.swu.domain.user.exception.InvalidCurrentPasswordException;
