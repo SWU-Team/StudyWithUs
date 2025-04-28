@@ -1,0 +1,98 @@
+.landing {
+  display: flex;
+  width: 100vw;
+  background: linear-gradient(to left, #f0f4f8, #e2d1c3);
+  min-height: 100vh;
+}
+
+.leftSection,
+.rightSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 50%;
+}
+
+.leftSection {
+  flex: 1;
+}
+
+.rightSection {
+  flex: 1;
+}
+
+.siteName {
+  font-size: 3rem; /* 기존 2.5rem에서 약간 키움 */
+  font-weight: bold;
+  color: #b96852;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.subTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #555;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.description {
+  font-size: 1rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
+/* 반응형 - 모바일 (스크린 너비 768px 이하) */
+@media (max-width: 768px) {
+  .landing {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    background: linear-gradient(to bottom, #f0f4f8, #e2d1c3);
+  }
+
+  .title2 {
+    display: none;
+  }
+
+  .leftSection {
+    display: none;
+  }
+
+  .rightSection {
+    flex: 1;
+    max-width: 100%;
+    justify-content: start;
+  }
+}

@@ -32,7 +32,7 @@ public class S3Uploader {
             throw new InvalidFileException("파일이 없습니다.");
         }
 
-        if (file.getSize() > 10 * 1024 * 1024) {
+        if (file.getSize() > 1 * 1024 * 1024) {
             throw new InvalidFileException("파일 크기가 너무 큽니다.");
         }
 
