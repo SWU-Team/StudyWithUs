@@ -23,10 +23,10 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    console.log("API 에러 발생", error);
+    console.error("API 에러 발생", error);
     if (status === 401) {
       alert("로그인이 필요합니다. 다시 로그인 해주세요.");
-      window.location.href = "/login";
+      window.location.href = "/";
     } else if (status >= 500) {
       alert("서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
