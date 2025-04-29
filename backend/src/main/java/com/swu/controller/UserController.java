@@ -38,12 +38,14 @@ public class UserController {
         @RequestPart("user") @Valid SignupRequest request,
         @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         String profileImgUrl = null;
-
-        try {
-            profileImgUrl = s3Uploader.upload(profileImage);
-            request.setProfileImg(profileImgUrl);
-        } catch (IOException e) {
-            throw new ImageUploadFailedException("이미지 업로드 중 오류 발생");
+        
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                profileImgUrl = s3Uploader.upload(profileImage);
+                request.setProfileImg(profileImgUrl);
+            } catch (IOException e) {
+                throw new ImageUploadFailedException("이미지 업로드 중 오류 발생");
+            }
         }
         
         userService.signup(request);
