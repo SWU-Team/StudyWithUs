@@ -23,6 +23,9 @@ public record SignalingMessage(
     @NotBlank(message = "발신자 닉네임은 필수입니다.")
     String senderNickname,
     
+    @Schema(description = "수신자 ID (필요 시)")
+    Long targetId,
+
     @NotNull(message = "데이터는 필수입니다.")
     Object data
 ) {
@@ -34,7 +37,7 @@ public record SignalingMessage(
         }
     }
     
-    public static SignalingMessage createError(Long roomId, Long senderId, String senderNickname, String errorMessage) {
-        return new SignalingMessage("error", roomId, senderId, senderNickname, errorMessage);
+   public static SignalingMessage createError(Long roomId, Long senderId, String senderNickname, String errorMessage) {
+        return new SignalingMessage("error", roomId, senderId, senderNickname, null, errorMessage);
     }
 } 
