@@ -1,0 +1,11 @@
+.roomLayout {
+  display: flex;
+  height: 100%;
+  gap: 20px;
+}
+
+@media (max-width: 1000px) {
+  .roomLayout {
+    flex-direction: column;
+  }
+}

@@ -9,7 +9,7 @@ import Diary from "./pages/diary/Diary";
 import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import LandingPage from "./pages/landing/LandingPage";
-// import StudyRoom from "./pages/rooms/StudyRoom";
+import StudyRoom from "./pages/rooms/StudyRoom";
 
 import { isAuthenticated } from "./utils/auth";
 
@@ -47,7 +47,7 @@ function App() {
           <Route path="/diary" element={<Diary />} />
           <Route path="/planer" element={<Planer />} />
           <Route path="/rooms" element={<StudyRoomList />} />
-          {/* <Route path="/rooms/:roomId" element={<StudyRoom />} /> */}
+          <Route path="/rooms/:roomId" element={<StudyRoom />} />
         </Route>
 
         {/* 🔁 잘못된 경로 → 홈으로 리다이렉트 */}
