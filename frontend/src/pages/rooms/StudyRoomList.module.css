@@ -1,16 +1,45 @@
 .wrapper {
   padding: 20px;
   width: 100%;
-  height: 100%;
+  min-height: calc(100vh - 110px);
   margin: 0 auto;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 10px;
 }
 
-.header {
+.searchContainer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  position: relative;
+  max-width: 100%;
+  margin: 0 20px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 40px 12px 12px;
+  font-size: 14px;
+  border: 2px solid #1c4454;
+  border-radius: 4px;
+  outline: none;
+  color: #333;
+}
+
+.searchInput::placeholder {
+  color: #aaa;
+}
+
+.searchBtn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .title {
@@ -20,40 +49,101 @@
 }
 
 .createBtn {
-  background-color: #666;
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background-color: #b96852;
   color: white;
-  padding: 10px 20px;
+  padding: 14px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  transition: background-color 0.2s;
 }
 
 .createBtn:hover {
-  background-color: #444;
+  background-color: #d4431b;
 }
 
 .roomList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  /* gap: 10px; */
+  margin-top: 20px;
+  margin: 20px;
+}
+
+.roomListHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  font-weight: bold;
+  /* background-color: #f0f8ff; */
+  border-bottom: 1px solid #ddd;
+}
+
+.roomListRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 0;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.roomInfoWrapper {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  justify-content: flex-end; /* 우측 정렬 */
+  flex: 1;
+  padding: 0 10px;
+}
+
+.roomListRow:hover {
+  background-color: #f2f2f2;
+}
+
+/* 칸들 스타일 */
+.roomTitleCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 제목은 왼쪽 정렬 */
+  padding: 0 10px;
+}
+
+.roomTimeCell,
+.roomInfoCell {
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  align-items: center;
 }
 
 .roomCard {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 30px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  padding: 15px 10px;
+  /* border: 1px solid #ddd; */
+  border-bottom: 1px solid #ddd;
+
+  /* border-radius: 10px; */
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+  /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); */
   transition: all 0.2s ease;
 }
 
 .roomCard:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  background-color: #e8f5ff;
 }
 
 /* 제목+인원 묶기 */
@@ -156,7 +246,7 @@
 
 .modal {
   background: white;
-  padding: 30px;
+  padding: 20px;
   border-radius: 10px;
   width: 320px;
   display: flex;
@@ -175,16 +265,17 @@
 }
 
 .modalTitle {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: 700;
   margin-bottom: 10px;
-  color: #222;
+
+  color: skyblue;
   text-align: center;
 }
 
 .label {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 800;
   margin: 5px 0;
   color: #444;
 }
@@ -224,4 +315,54 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
+}
+
+.loadingWrapper {
+  width: 100%;
+  height: 400px; /* 또는 화면 높이에 맞춰도 되고 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  gap: 8px;
+}
+
+.pageBtn,
+.pageNumber {
+  all: unset; /* 버튼 기본 스타일 제거 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  background-color: #f1f3f5;
+}
+
+.pageBtn:hover {
+  background-color: #dbe2e8;
+}
+
+.pageNumber {
+  background-color: #f8f9fa;
+}
+
+.pageNumber:hover {
+  background-color: #e2e6ea;
+}
+
+.pageNumber.active {
+  background-color: #b96852;
+  color: white;
 }
