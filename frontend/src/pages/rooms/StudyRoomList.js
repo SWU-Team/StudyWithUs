@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./StudyRoomList.module.css";
-import { getAuthHeader } from "../../utils/auth";
+import { apiGet, apiPost, extractErrorInfo } from "../../utils/api";
+import { toast } from "react-toastify";
+import Loading from "../../components/Loading";
 
 function StudyRoomList() {
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
   const [rooms, setRooms] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [newRoom, setNewRoom] = useState({
     title: "",
@@ -20,16 +24,14 @@ function StudyRoomList() {
 
   const fetchRooms = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/rooms`, {
-        headers: {
-          Authorization: getAuthHeader(),
-        },
-      });
-      if (!response.ok) throw new Error("Failed to fetch rooms");
-      const data = await response.json();
-      setRooms(data.data);
+      setIsLoading(true);
+      const data = await apiGet("/rooms");
+      setRooms(data);
     } catch (error) {
-      console.error("Error fetching rooms:", error);
+      console.error("방 목록 가져오기 실패: ", error);
+      toast.error("방 목록을 가져오는 데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,47 +50,60 @@ function StudyRoomList() {
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/rooms`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: getAuthHeader(),
-        },
-        body: JSON.stringify(newRoom),
-      });
-
-      if (!response.ok) throw new Error("Failed to create room");
-
-      const data = await response.json();
-      if (data.status === 200) {
-        alert("방이 생성되었습니다!");
-        navigate(`/rooms/${data.id}`);
-      } else {
-        throw new Error(data.message || "방 생성에 실패했습니다.");
-      }
+      const data = await apiPost("/rooms", newRoom);
+      alert("방이 생성되었습니다!");
+      navigate(`/rooms/${data.id}`);
     } catch (error) {
-      console.error("Error creating room:", error);
+      console.error("방 생성 실패: ", error);
       alert(error.message || "방 생성에 실패했습니다.");
     }
   };
 
-  const handleJoinRoom = (roomId) => {
-    navigate(`/rooms/${roomId}`);
+  const handleJoinRoom = async (roomId) => {
+    try {
+      await apiPost(`/rooms/${roomId}/join`, {});
+      navigate(`/rooms/${roomId}`);
+    } catch (error) {
+      const { status, data } = extractErrorInfo(error);
+
+      if (status === 409) {
+        toast.error("방에 이미 참여 중입니다.");
+      }
+    }
   };
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <h2 className={styles.title}>📋 스터디룸 목록</h2>
-        <button className={styles.createBtn} onClick={() => setShowModal(true)}>
-          + 방 만들기
+      <div className={styles.searchContainer}>
+        <input
+          type="text"
+          placeholder="검색어를 입력하세요."
+          className={styles.searchInput}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button className={styles.searchBtn}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            fill="none"
+            stroke="#1c4454"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="feather feather-search"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
         </button>
       </div>
 
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h3 className={styles.modalTitle}>📌 새 스터디룸 생성</h3>
+            <h3 className={styles.modalTitle}>StudyRoom</h3>
             <label className={styles.label}>방 이름</label>
             <input
               type="text"
@@ -133,7 +148,6 @@ function StudyRoomList() {
                 </option>
               ))}
             </select>
-
             <div className={styles.formButtons}>
               <button onClick={handleCreateRoom} className={styles.submitBtn}>
                 생성
@@ -145,25 +159,49 @@ function StudyRoomList() {
           </div>
         </div>
       )}
-
-      <div className={styles.roomList}>
-        {rooms.map((room) => (
-          <div key={room.id} className={styles.roomCard}>
-            <div className={styles.roomInfoBox}>
-              <div className={styles.roomTitle}>📝 {room.title}</div>
-              <div className={styles.roomInfo}>
-                👥 {room.currentMemberCount} / {room.maxCapacity}
-              </div>
-              <div className={styles.roomTime}>
-                ⏱️ {room.focusMinute}분 집중 / {room.breakMinute}분 휴식
+      {isLoading ? (
+        <div className={styles.loadingWrapper}>
+          <Loading />
+        </div>
+      ) : (
+        <>
+          <div className={styles.roomList}>
+            <div className={styles.roomListHeader}>
+              <div className={styles.roomTitleCell}>방 제목</div>
+              <div className={styles.roomInfoWrapper}>
+                <div className={styles.roomTimeCell}>집중/휴식</div>
+                <div className={styles.roomInfoCell}>인원</div>
               </div>
             </div>
-            <button className={styles.enterBtn} onClick={() => handleJoinRoom(room.id)}>
-              입장
-            </button>
+
+            {rooms.map((room) => (
+              <div
+                key={room.id}
+                className={styles.roomListRow}
+                onClick={() => handleJoinRoom(room.id)}
+              >
+                <div className={styles.roomTitleCell}>{room.title}</div>
+                <div className={styles.roomInfoWrapper}>
+                  <div className={styles.roomTimeCell}>
+                    {room.focusMinute}분 / {room.breakMinute}분
+                  </div>
+                  <div className={styles.roomInfoCell}>
+                    {room.currentMemberCount} / {room.maxCapacity}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+          <div className={styles.pagination}>
+            <button className={styles.pageBtn}>◀</button>
+            <div className={`${styles.pageNumber} ${styles.active}`}>1</div>
+            <button className={styles.pageBtn}>▶</button>
+          </div>
+        </>
+      )}
+      <button className={styles.createBtn} onClick={() => setShowModal(true)}>
+        + 방 만들기
+      </button>
     </div>
   );
 }
