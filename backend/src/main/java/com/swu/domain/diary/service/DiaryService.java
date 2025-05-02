@@ -27,7 +27,7 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
 
     @Transactional
-    public void createDiary(Long userId, DiaryRequest request) {
+    public DiaryResponse createDiary(Long userId, DiaryRequest request) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalStateException("인증된 유저가 DB에 존재하지 않음"));
 
@@ -43,11 +43,13 @@ public class DiaryService {
             .user(user)
             .title(request.title())
             .content(request.content())
+            .score(request.score())
             .diaryDate(request.diaryDate())
             .feedback(dummyFeedBack)
             .build();
 
         diaryRepository.save(diary);
+        return DiaryResponse.from(diary);
     }
 
     @Transactional(readOnly = true)
