@@ -10,6 +10,7 @@ import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import LandingPage from "./pages/landing/LandingPage";
 import StudyRoom from "./pages/rooms/StudyRoom";
+import DiaryWrite from "./pages/diary/DiaryWrite";
 
 import { isAuthenticated } from "./utils/auth";
 
@@ -45,6 +46,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/diary" element={<Diary />} />
+          <Route path="/diary/write" element={<DiaryWrite />} />
           <Route path="/planer" element={<Planer />} />
           <Route path="/rooms" element={<StudyRoomList />} />
           <Route path="/rooms/:roomId" element={<StudyRoom />} />
