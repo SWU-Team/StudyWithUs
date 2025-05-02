@@ -24,9 +24,8 @@ const StudyRoom = () => {
 
   const { stompClientRef, isConnected } = useStompClient();
 
-
   useEffect(() => {
-    if (!roomId) return; 
+    if (!roomId || !isConnected) return;
 
     apiGet(`/rooms/${roomId}`)
       .then(setRoom)
@@ -35,14 +34,14 @@ const StudyRoom = () => {
         toast.error("방 정보 조회 실패");
         navigate("/rooms");
       });
-  }, []);
+  }, [isConnected]);
 
   useEffect(() => {
     return () => {
-      if (!roomId) return;
+      if (!roomId || !isConnected) return;
 
       apiPost(`rooms/${roomId}/exit`).catch((err) => {
-         const { status, data } = extractErrorInfo(err);
+        const { status, data } = extractErrorInfo(err);
         if (status === 409) {
           console.warn("이미 퇴장된 사용자여서 무시.", data);
         } else {
@@ -76,11 +75,12 @@ const StudyRoom = () => {
     isConnected
   );
 
-  const {
-    chatMessages,
-    chatInputRef,
-    handleSendChat
-  } = useChat(roomId, user, stompClientRef, isConnected );
+  const { chatMessages, chatInputRef, handleSendChat } = useChat(
+    roomId,
+    user,
+    stompClientRef,
+    isConnected
+  );
 
   return (
     <div className={styles.roomLayout}>
