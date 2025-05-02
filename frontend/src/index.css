@@ -21,3 +21,10 @@ body,
 *::after {
   box-sizing: inherit;
 }
+
+.toastui-editor-contents {
+  font-size: 1.15rem !important;
+  line-height: 2 !important;
+  font-family: "Pretendard", "Noto Sans KR", sans-serif !important;
+  color: #333 !important;
+}
