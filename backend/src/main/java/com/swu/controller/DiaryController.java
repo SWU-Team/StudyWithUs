@@ -36,13 +36,12 @@ public class DiaryController {
 
     @PostMapping
     @Operation(summary = "일기 생성", description = "일기를 새로 생성합니다.")
-    public ResponseEntity<ApiResponse<Void>> createDiary(
+    public ResponseEntity<ApiResponse<DiaryResponse>> createDiary(
         @RequestBody @Valid DiaryRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        diaryService.createDiary(userDetails.getUser().getId(), request);
-
-        return ResponseEntity.ok(ApiResponse.success("일기 생성 성공", null));
+        DiaryResponse response = diaryService.createDiary(userDetails.getUser().getId(), request);
+        return ResponseEntity.ok(ApiResponse.success("일기 생성 성공", response));
     }
 
     @GetMapping("/{id}")

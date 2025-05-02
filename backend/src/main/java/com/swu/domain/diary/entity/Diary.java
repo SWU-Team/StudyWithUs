@@ -37,6 +37,9 @@ public class Diary {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
+    private int score;
+
     @Column(name = "diary_date", nullable = false)
     private LocalDate diaryDate;
 
