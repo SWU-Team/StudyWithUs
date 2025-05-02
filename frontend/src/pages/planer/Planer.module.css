@@ -1,13 +1,14 @@
 .wrapper {
-  max-width: 75rem; /* 1200px */
+  max-width: 75rem;
   height: 70rem;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   gap: 1.5rem;
 }
+
 .plantoday {
-  display: flex; /* 박스 1,2 가로 정렬 */
+  display: flex;
   gap: 10px;
 }
 
@@ -16,7 +17,15 @@
   font-size: 1.75rem;
   font-weight: bold;
   margin-bottom: 1.25rem;
-  color: #333333;
+  color: #333;
+}
+
+.calendarContainer {
+  width: 35rem;
+  height: 30rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+  padding: 1rem;
 }
 
 .calendar {
@@ -28,37 +37,29 @@
   font-family: "Inter", sans-serif;
 }
 
-/* Override react-calendar styles */
+/* react-calendar 커스터마이징 */
 :global(.react-calendar__tile--now) {
   background: #f1f8f1;
 }
-
-:global(.react-calendar__tile--active) {
+:global(.react-calendar__tile--active),
+:global(.react-calendar__tile--active:hover) {
   background: #dfa579 !important;
   color: white;
 }
-
-:global(.react-calendar__tile--active:hover) {
-  background: #dfa579 !important;
-}
-
 :global(.react-calendar__navigation) {
   height: 2.75rem;
   margin-bottom: 0.5rem;
 }
-
 :global(.react-calendar__navigation button) {
   min-width: 2.75rem;
   background: none;
   font-size: 1rem;
   color: #333;
 }
-
 :global(.react-calendar__navigation button:enabled:hover),
 :global(.react-calendar__navigation button:enabled:focus) {
   background-color: #f5f5f5;
 }
-
 :global(.react-calendar__month-view__weekdays) {
   text-align: center;
   font-weight: 500;
@@ -66,46 +67,87 @@
   font-size: 0.8rem;
   color: #666;
 }
-
 :global(.react-calendar__month-view__days__day--weekend) {
   color: #ff4d4d;
 }
-
 :global(.react-calendar__tile:disabled) {
   background-color: #f9f9f9;
   color: #ccc;
 }
 
-/* Goal section styles */
-.goalSection {
-  margin-top: 1.25rem;
+.goalsContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  position: relative;
+  align-items: flex-start;
 }
 
 .sectionTitle {
   font-size: 1.25rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  color: #333333;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  color: #333;
 }
 
-.goalList {
+.dailyGoalsBox,
+.longGoalsBox {
+  position: relative;
+  height: 30rem;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
+  margin-bottom: 2rem;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+.goalList,
+.longTermGoalListHorizontal {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.goalItem {
+.longTermGoalListHorizontal {
+  flex-direction: row;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.longTermGoalListHorizontal::-webkit-scrollbar {
+  height: 8px;
+}
+.longTermGoalListHorizontal::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.goalItem,
+.longTermGoalItemHorizontal {
   display: flex;
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.2s;
 }
-
-.goalItem:hover {
+.goalItem:hover,
+.longTermGoalItemHorizontal {
   background-color: #f5f5f5;
+}
+.longTermGoalItemHorizontal {
+  min-width: 220px;
+  flex-shrink: 0;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .checkbox {
@@ -114,17 +156,13 @@
   height: 1.25rem;
   border: 2px solid #ccc;
   border-radius: 0.25rem;
-  outline: none;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
 }
-
 .checkbox:checked {
   background-color: #dfa579;
   border-color: #dfa579;
 }
-
 .checkbox:checked::after {
   content: "✓";
   font-size: 0.875rem;
@@ -137,202 +175,108 @@
 
 .goalText {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.375rem;
-  transition: all 0.2s;
-}
-
-.goalText:focus {
+  padding: 4px;
+  font-size: 0.95rem;
+  border: none;
+  border-bottom: 1px solid #ccc;
   outline: none;
+  width: 100%;
+}
+.goalText:focus {
   border-color: #dfa579;
   box-shadow: 0 0 0 0.125rem rgba(76, 175, 80, 0.2);
 }
-
 .done {
   text-decoration: line-through;
   color: #999;
 }
 
-.deleteButton {
-  background-color: #ff4d4d;
-  color: white;
-  border: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: background-color 0.2s;
-}
-
-.deleteButton:hover {
-  background-color: #e60000;
-}
-
-.inputBox {
-  display: flex;
-  gap: 0.625rem;
-  margin-top: 0.625rem;
-}
-
-.input {
-  flex: 1;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.375rem;
-  transition: all 0.2s;
-}
-
-.input:focus {
-  outline: none;
-  border-color: #dfa579;
-  box-shadow: 0 0 0 0.125rem rgba(76, 175, 80, 0.2);
-}
-
-.addButton {
-  padding: 0.75rem 1.25rem;
-  background-color: #dfa579;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.addButton:hover {
-  background-color: #dfa579;
-}
-
-.calendarContainer {
-  width: 35rem;
-  height: 30rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-}
-
-.goalsContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  position: relative;
-  align-items: flex-start;
-}
-
-.longTermSection {
-  margin-top: 2rem;
-  border-top: 1px solid #e0e0e0;
-  padding-top: 1.25rem;
-}
-
-.dueDateField {
-  display: flex;
-  gap: 0.625rem;
-  margin-top: 0.625rem;
-}
-
-.dateInput {
-  flex: 1;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.375rem;
-  transition: all 0.2s;
-}
-
 .dueDate {
-  font-size: 0.75rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: #888;
   background-color: #f0f0f0;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   margin-left: 0.5rem;
 }
 
-.progressBar {
-  height: 0.625rem;
-  background-color: #f0f0f0;
-  border-radius: 0.3125rem;
-  margin: 0.625rem 0;
-  overflow: hidden;
+.inputBox,
+.inputBoxHorizontal {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.input:focus {
+  outline: none;
+  border-color: #dfa579;
+  box-shadow: 0 0 0 0.125rem rgba(76, 175, 80, 0.2);
+}
+.dateInput {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
 }
 
+.addButton {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.addButton:hover {
+  background-color: #45a049;
+}
+
+.deleteButton {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+.deleteButton:hover {
+  background-color: #e60000;
+}
+
+.progressBar {
+  height: 0.625rem;
+  background-color: #eee;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0.625rem 0;
+}
 .progressFill {
   height: 100%;
-  position: sticky;
   background-color: #dfa579;
   transition: width 0.3s ease;
 }
-
 .progressText {
   display: flex;
-  position: sticky;
   justify-content: space-between;
-  margin-top: 0.3125rem;
   font-size: 0.875rem;
   color: #666;
+  margin-top: 0.3125rem;
 }
 
-.dailyGoalsBox,
-.longTermGoalsBox {
-  position: relative;
-  height: 30rem;
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-  width: 100%; /* ✅ 추가 */
-  overflow-y: scroll;
-}
 .progressStickyWrapper {
   position: sticky;
   top: 0;
-  background: rgb(255, 255, 255); /* 배경색 주면 위로 스크롤될 때 가려지지 않음 */
+  background: #fff;
   z-index: 10;
   padding-bottom: 8px;
-}
-.goalsContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-.longTermGoalListHorizontal {
-  display: flex;
-  flex-direction: row;
-  gap: 12px;
-  overflow-x: auto; /* 가로 스크롤 활성화 */
-  padding: 10px 0;
-  max-width: 100%; /* 부모 너비 넘지 않도록 */
-  scroll-behavior: smooth; /* 부드러운 스크롤 */
-}
-.sectionTitle {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-.goalList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.inputBox {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.dueDateField {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
 }

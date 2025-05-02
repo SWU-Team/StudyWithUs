@@ -127,8 +127,19 @@ function Planner() {
   const completedGoals = todayGoals.filter((goal) => goal.done).length;
   const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
 
-  const totalLongTermGoals = longTermGoals.length;
-  const completedLongTermGoals = longTermGoals.filter((goal) => goal.done).length;
+  const baseToday = new Date();
+  baseToday.setHours(0, 0, 0, 0);
+  const selectedDate = new Date(date);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  const filteredLongTermGoals = longTermGoals.filter((goal) => {
+    const due = new Date(goal.dueDate);
+    due.setHours(0, 0, 0, 0);
+    return due >= selectedDate;
+  });
+
+  const totalLongTermGoals = filteredLongTermGoals.length;
+  const completedLongTermGoals = filteredLongTermGoals.filter((goal) => goal.done).length;
   const longTermProgressPercentage =
     totalLongTermGoals > 0 ? (completedLongTermGoals / totalLongTermGoals) * 100 : 0;
 
@@ -202,7 +213,8 @@ function Planner() {
           </div>
         </div>
       </div>
-      <div className={styles.longGoalContainer}>
+
+      <div className={styles.longGoalsBox}>
         <h3 className={styles.sectionTitle}>장기 목표</h3>
         {totalLongTermGoals > 0 && (
           <>
@@ -221,7 +233,7 @@ function Planner() {
           </>
         )}
         <div className={styles.longTermGoalListHorizontal}>
-          {longTermGoals.map((goal) => (
+          {filteredLongTermGoals.map((goal) => (
             <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
               <input
                 type="checkbox"
