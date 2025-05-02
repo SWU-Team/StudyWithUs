@@ -9,6 +9,7 @@ public record DiaryResponse(
     Long id,
     String title,
     String content,
+    int score,
     LocalDate diaryDate,
     LocalDateTime createdAt,
     String feedback
@@ -18,6 +19,7 @@ public record DiaryResponse(
             diary.getId(),
             diary.getTitle(),
             diary.getContent(),
+            diary.getScore(),
             diary.getDiaryDate(),
             diary.getCreatedAt(),
             diary.getFeedback()
