@@ -9,6 +9,7 @@ import com.swu.domain.room.exception.RoomFullException;
 import com.swu.domain.room.exception.RoomNotFoundException;
 import com.swu.domain.room.repository.RoomMemberRepository;
 import com.swu.domain.room.repository.RoomRepository;
+import com.swu.domain.studytime.service.StudyTimeService;
 import com.swu.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +29,7 @@ public class RoomMemberService {
 
     private final RoomMemberRepository roomMemberRepository;
     private final RoomRepository roomRepository;
+    private final StudyTimeService studyTimeService;
 
     @Transactional
     public void joinRoom(Long roomId, User user) {
@@ -58,9 +63,16 @@ public class RoomMemberService {
 
         RoomMember roomMember = roomMemberRepository.findByRoomAndUserAndExitedAtIsNull(room, user)
                 .orElseThrow(() -> new NotJoinedRoomException("방에 참여하지 않은 사용자입니다."));
-
+        
         roomMember.exit();
 
+        // 스터디 시간 기록
+        LocalDateTime enteredAt = roomMember.getJoinedAt();
+        LocalDateTime exitedAt = roomMember.getExitedAt();
+        int minutes = (int) Duration.between(enteredAt, exitedAt).toMinutes();
+        LocalDate studyDate = enteredAt.toLocalDate();
+        studyTimeService.addOrUpdate(user.getId(), studyDate, minutes);
+        
         boolean isHost = roomMember.isHost();
         if (isHost) roomMember.setHost(false);
 
