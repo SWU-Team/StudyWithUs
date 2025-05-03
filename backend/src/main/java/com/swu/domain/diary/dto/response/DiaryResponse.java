@@ -12,9 +12,10 @@ public record DiaryResponse(
     int score,
     LocalDate diaryDate,
     LocalDateTime createdAt,
-    String feedback
+    String feedback,
+    int studyMinutes
 ) {
-    public static DiaryResponse from(Diary diary) {
+    public static DiaryResponse from(Diary diary, int studyMinutes) {
         return new DiaryResponse(
             diary.getId(),
             diary.getTitle(),
@@ -22,7 +23,8 @@ public record DiaryResponse(
             diary.getScore(),
             diary.getDiaryDate(),
             diary.getCreatedAt(),
-            diary.getFeedback()
+            diary.getFeedback(),
+            studyMinutes
         );
     }
 }
