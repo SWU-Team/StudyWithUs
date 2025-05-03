@@ -32,4 +32,8 @@ public class StudyTime {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void addMinutes(int additionalMinutes) {
+        this.totalMinutes += additionalMinutes;
+    }
 }
