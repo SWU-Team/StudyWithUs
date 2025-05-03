@@ -9,11 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.swu.domain.diary.dto.request.DiaryRequest;
 import com.swu.domain.diary.dto.response.DiaryResponse;
-import com.swu.domain.diary.dto.response.DiarySummaryResponse;
 import com.swu.domain.diary.entity.Diary;
 import com.swu.domain.diary.exception.DiaryAlreadyExistsException;
 import com.swu.domain.diary.exception.DiaryNotFoundException;
 import com.swu.domain.diary.repository.DiaryRepository;
+import com.swu.domain.studytime.entity.StudyTime;
+import com.swu.domain.studytime.repository.StudyTimeRepository;
 import com.swu.domain.user.entity.User;
 import com.swu.domain.user.repository.UserRepository;
 
@@ -25,6 +26,7 @@ public class DiaryService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
+    private final StudyTimeRepository studyTimeRepository;
 
     @Transactional
     public DiaryResponse createDiary(Long userId, DiaryRequest request) {
@@ -49,7 +51,7 @@ public class DiaryService {
             .build();
 
         diaryRepository.save(diary);
-        return DiaryResponse.from(diary);
+        return DiaryResponse.from(diary, 0);
     }
 
     @Transactional(readOnly = true)
@@ -57,11 +59,16 @@ public class DiaryService {
         Diary diary = diaryRepository.findByIdAndUserId(id, userId)
             .orElseThrow(() -> new DiaryNotFoundException());
 
-        return DiaryResponse.from(diary);
+        int studyMinutes = studyTimeRepository
+            .findByUserIdAndRecordDate(userId, diary.getDiaryDate())
+            .map(StudyTime::getTotalMinutes)
+            .orElse(0);
+
+        return DiaryResponse.from(diary, studyMinutes);
     }
 
     @Transactional(readOnly = true)
-    public List<DiarySummaryResponse> getDiaries(Long userId, YearMonth month) {
+    public List<DiaryResponse> getDiaries(Long userId, YearMonth month) {
         List<Diary> diaries;
 
         if (month != null) {
@@ -73,7 +80,12 @@ public class DiaryService {
         }
 
         return diaries.stream()
-            .map(DiarySummaryResponse::from)
+            .map(diary -> {
+                int minutes = studyTimeRepository.findByUserIdAndRecordDate(userId, diary.getDiaryDate())
+                    .map(StudyTime::getTotalMinutes)
+                    .orElse(0);
+                return DiaryResponse.from(diary, minutes);
+            })
             .toList();
     }
 }

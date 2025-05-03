@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.swu.auth.entity.CustomUserDetails;
 import com.swu.domain.diary.dto.request.DiaryRequest;
 import com.swu.domain.diary.dto.response.DiaryResponse;
-import com.swu.domain.diary.dto.response.DiarySummaryResponse;
 import com.swu.domain.diary.service.DiaryService;
 import com.swu.global.response.ApiResponse;
 
@@ -56,12 +55,12 @@ public class DiaryController {
 
     @GetMapping
     @Operation(summary = "일기 목록 조회", description = "선택된 월에 해당하는 사용자의 일기 목록을 조회합니다. 월을 지정하지 않으면 전체 조회됩니다.")
-    public ResponseEntity<ApiResponse<List<DiarySummaryResponse>>> getDiaries(
+    public ResponseEntity<ApiResponse<List<DiaryResponse>>> getDiaries(
         @RequestParam(required = false)
         @DateTimeFormat(pattern = "yyyy-MM") YearMonth month,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        List<DiarySummaryResponse> response = diaryService.getDiaries(userDetails.getUser().getId(), month);
+        List<DiaryResponse> response = diaryService.getDiaries(userDetails.getUser().getId(), month);
         return ResponseEntity.ok(ApiResponse.success("일기 목록 조회 성공", response));
     }
 }
