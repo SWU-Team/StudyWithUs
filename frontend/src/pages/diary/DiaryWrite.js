@@ -1,21 +1,22 @@
 import React, { useRef, useState } from "react";
-import { Editor } from "@toast-ui/react-editor";
-import "@toast-ui/editor/dist/toastui-editor.css";
 import { toast } from "react-toastify";
 import styles from "./DiaryWrite.module.css";
 import confetti from "canvas-confetti";
 import { apiPost, extractErrorInfo } from "../../utils/api";
 import Modal from "../../components/Modal";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function DiaryWrite() {
-  const editorRef = useRef();
   const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [aiFeedback, setAiFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [selfScore, setSelfScore] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(false);
+  const inputRef = useRef();
 
   const scoreDescriptions = {
     5: "완벽하게 집중했어요",
@@ -25,16 +26,24 @@ function DiaryWrite() {
     1: "거의 못 했어요",
   };
 
-  const handlePreSubmit = async () => {
-    const editorInstance = editorRef.current.getInstance();
-    const markdown = editorInstance.getMarkdown();
+  const formatDateWithDay = (isoDate) => {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+    });
+  };
 
+  const handlePreSubmit = async () => {
     if (!title.trim()) {
       toast.error("제목을 입력해주세요.");
       return;
     }
 
-    if (!markdown.trim()) {
+    const html = content.trim();
+    if (!html) {
       toast.error("내용을 입력해주세요.");
       return;
     }
@@ -50,10 +59,10 @@ function DiaryWrite() {
 
     try {
       setIsSubmitting(true);
-      const markdown = editorRef.current.getInstance().getMarkdown();
+      const html = content.trim();
       const res = await apiPost("/diaries", {
         title: title.trim(),
-        content: markdown.trim(),
+        content: html,
         diaryDate: selectedDate,
         score: selfScore,
       });
@@ -84,17 +93,19 @@ function DiaryWrite() {
           <h2 className={styles.pageTitle}>📝 오늘의 일기</h2>
           <div className={styles.meta}>
             <div className={styles.studyStat}>⏳ 오늘 공부한 시간: 3시간 25분</div>
-            <div className={styles.date}>
+            <div className={styles.dateWrapper} onClick={() => inputRef.current?.showPicker()}>
+              <span className={styles.dateText}>{formatDateWithDay(selectedDate)}</span>
               <input
+                ref={inputRef}
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 className={styles.datePicker}
-                max={new Date().toISOString().slice(0, 10)} // 미래 선택 방지
+                max={new Date().toISOString().slice(0, 10)}
               />
             </div>
           </div>
-          <label className={styles.titleLabel}>오늘의 제목</label>
+          <label className={styles.editorLabel}>오늘의 제목</label>
           <input
             type="text"
             className={styles.titleInput}
@@ -102,18 +113,13 @@ function DiaryWrite() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-
           <p className={styles.editorLabel}>오늘의 일기 내용</p>
-          <div className={styles.editorWrapper}>
-            <Editor
-              ref={editorRef}
-              height="100%"
-              initialEditType="wysiwyg"
-              hideModeSwitch={true}
-              language="ko"
-            />
-          </div>
-
+          <ReactQuill
+            value={content}
+            onChange={setContent}
+            placeholder="오늘의 일기를 작성해보세요..."
+            theme="snow"
+          />
           <div className={styles.bottomSection}>
             <button onClick={handlePreSubmit} disabled={isSubmitting} className={styles.button}>
               {isSubmitting ? "저장 완료" : "저장하고 피드백 받기"}
