@@ -22,9 +22,29 @@ body,
   box-sizing: inherit;
 }
 
-.toastui-editor-contents {
-  font-size: 1.15rem !important;
-  line-height: 2 !important;
-  font-family: "Pretendard", "Noto Sans KR", sans-serif !important;
-  color: #333 !important;
+.quill {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ql-toolbar {
+  border-radius: 10px 10px 0 0;
+  background-color: #f9f4f0;
+  border: 1px solid #ddd;
+  border-bottom: none;
+}
+
+.ql-container {
+  border: 1px solid #ddd;
+  border-radius: 0 0 10px 10px;
+  background-color: #fffdfc;
+}
+
+.ql-editor {
+  font-family: "Pretendard", "Noto Sans KR", sans-serif;
+  font-size: 1rem;
+  padding: 1.2rem;
+  line-height: 1.7;
+  color: #333;
 }
