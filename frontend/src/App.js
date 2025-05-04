@@ -5,12 +5,11 @@ import { ToastContainer } from "react-toastify";
 
 import Layout from "./components/Layout";
 import Mypage from "./pages/mypage/Mypage";
-import Diary from "./pages/diary/Diary";
+import DiaryList from "./pages/diary/DiaryList";
 import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import LandingPage from "./pages/landing/LandingPage";
 import StudyRoom from "./pages/rooms/StudyRoom";
-import DiaryWrite from "./pages/diary/DiaryWrite";
 
 import { isAuthenticated } from "./utils/auth";
 
@@ -45,8 +44,7 @@ function App() {
         {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/mypage" element={<Mypage />} />
-          <Route path="/diary" element={<Diary />} />
-          <Route path="/diary/write" element={<DiaryWrite />} />
+          <Route path="/diaries" element={<DiaryList />} />
           <Route path="/planer" element={<Planer />} />
           <Route path="/rooms" element={<StudyRoomList />} />
           <Route path="/rooms/:roomId" element={<StudyRoom />} />

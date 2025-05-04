@@ -1,29 +1,54 @@
-.root {
-  width: 100%;
-  height: 100%;
-  padding: 2rem;
-  background: linear-gradient(to bottom right, #faf3eb, #fdfdfd);
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  border-radius: 10px;
-  font-family: "Pretendard", "Noto Sans KR", sans-serif;
+  align-items: center;
+  z-index: 9999;
 }
 
 .container {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
   background-color: #ffffff;
   padding: 2rem;
   border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  font-family: "Pretendard", "Noto Sans KR", sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background-color: #f6f1ed;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  color: #a15b3d;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
+
+.closeBtn:hover {
+  background-color: #e0d6cd;
 }
 
 .pageTitle {
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: bold;
   color: #3f3f3f;
   margin-bottom: 1.5rem;
 }
@@ -42,31 +67,36 @@
 .studyStat {
   color: #444;
   font-weight: 600;
-  font-size: 1rem;
 }
 
 .dateWrapper {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
   background-color: #f5f1ec;
   border-radius: 12px;
   padding: 0.6rem 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
+
 .dateWrapper:hover {
   background-color: #ece0d9;
 }
 
 .dateText {
-  font-size: 1rem;
   color: #333;
 }
+
 .datePicker {
   opacity: 0;
   position: absolute;
   pointer-events: none;
+}
+
+.editorLabel {
+  margin: 1rem 0 0.5rem;
+  font-weight: 500;
+  color: #888;
+  font-size: 1rem;
 }
 
 .titleInput {
@@ -75,15 +105,13 @@
   border: none;
   border-radius: 12px;
   border-bottom: 2px solid #ddd;
-  outline: none;
   background-color: #fff7f0;
   font-style: italic;
-  transition: box-shadow 0.2s ease-in-out;
 }
 
 .titleInput:focus {
-  box-shadow: 0 0 0 2px #b96852;
   background-color: #fffaf7;
+  box-shadow: 0 0 0 2px #b96852;
 }
 
 .bottomSection {
@@ -100,9 +128,7 @@
   font-weight: 600;
   border-radius: 100px;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
   box-shadow: 0 4px 12px rgba(185, 104, 82, 0.25);
-  white-space: nowrap;
 }
 
 .button:hover {
@@ -147,18 +173,36 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.editorLabel {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #888;
-  font-weight: 500;
+.modalTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #b96852;
+}
+
+.modalContent {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.modalClose {
+  padding: 0.6rem 1.2rem;
+  background-color: #b96852;
+  color: white;
+  border: none;
+  border-radius: 10px;
   font-size: 1rem;
+  cursor: pointer;
+}
+
+.modalClose:hover {
+  background-color: #d07c61;
 }
 
 @media (max-width: 1000px) {
   .container {
-    padding: 1.2rem;
-    border-radius: 12px;
+    padding: 1rem;
   }
 
   .pageTitle {
@@ -170,25 +214,18 @@
     padding: 0.8rem;
   }
 
-  .editorLabel,
-  .titleLabel {
+  .editorLabel {
     font-size: 0.9rem;
   }
 }
 
 @media (max-width: 500px) {
-  .root {
-    height: 100vh;
-    padding: 2rem 1rem;
-  }
-
   .container {
     padding: 1rem;
-    border-radius: 10px;
   }
 
   .pageTitle {
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     margin-bottom: 1rem;
   }
 
@@ -203,12 +240,7 @@
     padding: 0.6rem 0.8rem;
   }
 
-  .editorWrapper {
-    min-height: 300px;
-  }
-
-  .editorLabel,
-  .titleLabel {
+  .editorLabel {
     font-size: 0.85rem;
   }
 

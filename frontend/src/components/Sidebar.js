@@ -13,7 +13,7 @@ const Sidebar = () => {
   const menuLinks = [
     { path: "/rooms", label: "스터디룸", icon: <FaChalkboardTeacher size={28} /> },
     { path: "/planer", label: "플래너", icon: <FaCalendarAlt size={28} /> },
-    { path: "/diary", label: "다이어리", icon: <FaBookOpen size={28} /> },
+    { path: "/diaries", label: "다이어리", icon: <FaBookOpen size={28} /> },
     { path: "/mypage", label: "마이페이지", icon: <FaUserCircle size={28} /> },
   ];
 
