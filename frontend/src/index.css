@@ -47,4 +47,5 @@ body,
   padding: 1.2rem;
   line-height: 1.7;
   color: #333;
+  min-height: 300px;
 }
