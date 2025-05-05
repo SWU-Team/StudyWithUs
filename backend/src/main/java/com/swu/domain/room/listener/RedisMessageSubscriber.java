@@ -27,7 +27,7 @@ public class RedisMessageSubscriber implements MessageListener {
             String body = new String(message.getBody());
             ChatMessage chatMessage = objectMapper.readValue(body, ChatMessage.class);
 
-            String destination = "/sub/room/chat" + chatMessage.roomId();
+            String destination = "/sub/room/chat/" + chatMessage.roomId();
             messagingTemplate.convertAndSend(destination, chatMessage);
             log.debug("Redis로부터 수신한 메시지를 전송함 - 방: {}", chatMessage.roomId());
 

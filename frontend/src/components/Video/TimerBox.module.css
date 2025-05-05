@@ -1,0 +1,14 @@
+.timerBox {
+  background-color: #fff8e1;
+  border: 2px solid #ff9800;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.timerBox.break {
+  background-color: #e1f5fe;
+  border-color: #03a9f4;
+}

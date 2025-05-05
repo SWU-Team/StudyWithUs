@@ -1,9 +1,8 @@
 .chatSection {
-  width: 20%;
+  flex: 3;
   min-width: 300px;
   max-width: 400px;
   border: 1px solid #ddd;
-  border-radius: 10px;
   display: flex;
   flex-direction: column;
   background-color: #fff;
@@ -15,37 +14,107 @@
   border-bottom: #ddd 1px solid;
   font-weight: 600;
   font-size: 20px;
+  background-color: #fdfcf7;
 }
 
 .chatMessages {
   flex: 1;
-  overflow-y: auto;
-  margin-bottom: 10px;
-  padding: 10px;
+  font-size: 1rem;
+  border-radius: 12px;
+  margin-bottom: 8px;
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 16px;
+}
+
+.chatMessageWrapper {
+  display: flex;
+  flex-direction: column;
+  margin: 8px 0;
+  max-width: 80%;
+  animation: slideFadeIn 0.2s ease-out;
+}
+
+.chatBubble {
+  padding: 10px 14px;
+  border-radius: 0px 18px 18px 18px; /* 좌하단 각진 것 같은 느낌 */
+  font-size: 0.9rem;
+  line-height: 1.5;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
   word-break: break-word;
 }
 
+/* 내 메시지 - 오른쪽 */
+.myMessage {
+  align-self: flex-end;
+}
+
+.myMessage .chatBubble {
+  background-color: #dcf8c6;
+  color: #111;
+  border-radius: 18px 0px 18px 18px;
+}
+
+/* 상대 메시지 - 왼쪽 */
+.otherMessage {
+  align-self: flex-start;
+}
+
+.otherMessage .chatBubble {
+  background-color: #f1f3f5;
+  color: #333;
+}
+
+/* 닉네임 (상대만 표시) */
+.nickname {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+/* 채팅 입력 영역 */
 .chatInput {
   display: flex;
-  gap: 8px;
-  padding: 10px 10px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid #ddd;
+  background-color: #fafafa;
+  border-radius: 0 0 10px 10px;
 }
 
 .chatInput input {
   flex: 1;
-  padding: 8px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 14px 14px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.chatInput input:focus {
+  border-color: #8b4513;
+  outline: none;
 }
 
 .chatInput button {
-  padding: 8px 16px;
-  background-color: #8b4513;
+  padding: 10px 16px;
+  background: linear-gradient(to right, #b96852, #d07c61);
   color: white;
+  font-weight: bold;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.chatInput button:hover {
+  filter: brightness(1.05);
 }
 
 @media (max-width: 1000px) {
@@ -61,9 +130,7 @@
 
 @media (max-width: 500px) {
   .chatSection {
-    width: 100%;
-    max-width: 100%;
-    height: 300px;
     max-height: 150px;
+    height: 100 px;
   }
 }

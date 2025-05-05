@@ -1,101 +1,98 @@
 .section {
-  flex: 1;
+  flex: 7;
   min-width: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
   background-color: white;
-  border-radius: 10px;
   overflow: hidden;
 }
 
 .roomHeader {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  border-radius: 10px 10px 0px 0px;
-  max-height: 10rem;
+  align-items: center;
+  padding: 20px 28px;
+  background-color: #fdfcf7;
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.roomTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #3e3e3e;
+  margin-bottom: 8px;
+}
+
+.roomDetails {
+  font-size: 14px;
+  color: #777;
+}
+
+.roomInfoRight {
+  display: flex;
   align-items: center;
 }
-.roomTitle {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #181a27;
-}
 
-.roomMeta {
-  font-size: 14px;
-  color: #666;
-}
-
-.timer {
-  width: 300px;
-  height: 30px;
-  border-radius: 20px;
-  font-size: 16px;
-  font-weight: bold;
-  background-color: orange;
-  color: white;
-  text-align: center;
-}
-/* 비디오 그리드 */
-.videoGrid {
-  display: grid;
-  height: 100%;
-  gap: 8px;
-  padding: 16px;
+.videoAreaWrapper {
   flex: 1;
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+  padding-bottom: 12px;
+  margin-top: 1rem;
 }
 
-.grid1x1 {
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
-}
-
-.grid1x2 {
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 1fr;
-}
-
-.grid2x2 {
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-}
-
-.grid2x3 {
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-}
-
-/* 하나의 비디오 */
-.videoContainer {
-  aspect-ratio: 4 / 3;
-  width: 100%;
-  max-height: 100%;
-  background-color: #000;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.myVideoWrapper {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto 16px auto;
   display: flex;
   justify-content: center;
-  align-items: center;
+}
+
+.otherVideosWrapper {
+  display: flex;
+  justify-content: flex-start;
+  padding: 12px 24px;
+  background-color: #fefefe;
+  scrollbar-width: thin;
+  flex-wrap: wrap;
+}
+
+.otherVideoItem {
+  width: 32%;
+  height: auto;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.otherVideoItem:hover {
+  outline: 2px solid #8b4513;
+}
+
+.videoContainer {
+  width: 90%;
+  aspect-ratio: 16 / 9;
   position: relative;
+  border-radius: 12px;
+  background-color: #f4f4f4;
 }
 
 .video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .nickname {
   position: absolute;
-  bottom: 6px;
-  left: 6px;
-  background: rgba(0, 0, 0, 0.6);
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.5);
   color: white;
   padding: 3px 8px;
   font-size: 13px;
@@ -105,59 +102,83 @@
 }
 
 .hostBadge {
-  background-color: gold;
-  color: black;
-  font-size: 10px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  color: #333;
+  font-size: 20px;
   font-weight: bold;
-  padding: 2px 6px;
-  margin-left: 6px;
-  border-radius: 4px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.videoPlaceholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+}
+
+.videoPlaceholder img {
+  width: 40%;
+  opacity: 0.5;
 }
 
 .videoControls {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  padding: 10px 20px;
-  /* background-color: #f5f5f5; */
-  /* border-radius: 12px; */
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); */
+  gap: 16px;
+  padding: 14px 0;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ddd;
+  border-radius: 0 0 12px 12px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
-.controlButton {
-  all: unset;
-  padding: 8px 16px;
+.iconButton,
+.iconButtonExit {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.iconButton {
   background-color: #8b4513;
   color: white;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
 }
 
-.controlButtonExit {
-  all: unset;
-  padding: 8px 16px;
+.iconButton:hover {
+  background-color: #6a3210;
+}
+
+.iconButtonExit {
   background-color: #d32f2f;
   color: white;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
 }
 
-.controlButton:hover {
-  background-color: #743204;
-}
-
-.controlButtonExit:hover {
+.iconButtonExit:hover {
   background-color: #b71c1c;
+}
+
+@media (max-width: 768px) {
+  .myVideoWrapper {
+    width: 100%;
+    padding: 12px 24px;
+  }
+  .otherVideoItem {
+    width: 100%;
+  }
 }
