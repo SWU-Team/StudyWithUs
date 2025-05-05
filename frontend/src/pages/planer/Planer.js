@@ -148,19 +148,14 @@ function Planner() {
       <div className={styles.plantoday}>
         <div className={styles.calendarContainer}>
           <h2 className={styles.title}>📆 플래너</h2>
-          <Calendar
-            onChange={handleDateChange}
-            value={date}
-            className={styles.calendar}
-            locale="ko-KR"
-          />
+          <Calendar onChange={handleDateChange} value={date} className={styles.calendar} />
         </div>
 
         <div className={styles.goalsContainer}>
           <div className={styles.dailyGoalsBox}>
             <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
 
-            {totalGoals > 0 && (
+            {totalGoals > 0 ? (
               <div className={styles.progressStickyWrapper}>
                 <div className={styles.progressBar}>
                   <div
@@ -175,7 +170,12 @@ function Planner() {
                   </span>
                 </div>
               </div>
+            ) : (
+              <p className={styles.noGoalsText}>
+                선택한 날짜에 목표가 없습니다. 목표를 추가해주세요 😊
+              </p>
             )}
+
             <div className={styles.goalList}>
               {todayGoals.map((goal) => (
                 <div key={goal.id} className={styles.goalItem}>
@@ -216,7 +216,7 @@ function Planner() {
 
       <div className={styles.longGoalsBox}>
         <h3 className={styles.sectionTitle}>장기 목표</h3>
-        {totalLongTermGoals > 0 && (
+        {totalLongTermGoals > 0 ? (
           <>
             <div className={styles.progressBar}>
               <div
@@ -231,6 +231,10 @@ function Planner() {
               </span>
             </div>
           </>
+        ) : (
+          <p className={styles.noGoalsText}>
+            아직 등록된 장기 목표가 없습니다. 목표를 추가해주세요 🎯
+          </p>
         )}
         <div className={styles.longTermGoalListHorizontal}>
           {filteredLongTermGoals.map((goal) => (
