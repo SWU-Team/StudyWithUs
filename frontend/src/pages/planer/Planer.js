@@ -105,8 +105,21 @@ function Planner() {
     }
   };
 
-  const handleToggleLongTerm = (goalId) => {
-    setLongTermGoals((prev) => prev.map((g) => (g.id === goalId ? { ...g, done: !g.done } : g)));
+  const handleToggleLongTerm = (goalId, dueDate) => {
+    // longTermGoals 안에 있는 목표인지 확인
+    const existsInLongTerm = longTermGoals.some((g) => g.id === goalId);
+
+    if (existsInLongTerm) {
+      setLongTermGoals((prev) => prev.map((g) => (g.id === goalId ? { ...g, done: !g.done } : g)));
+    } else {
+      // 미래 날짜 단기 목표인 경우
+      setGoals((prev) => {
+        const updatedList = (prev[dueDate] || []).map((g) =>
+          g.id === goalId ? { ...g, done: !g.done } : g
+        );
+        return { ...prev, [dueDate]: updatedList };
+      });
+    }
   };
 
   const handleDeleteLongTerm = (goalId) => {
@@ -132,10 +145,26 @@ function Planner() {
   const selectedDate = new Date(date);
   selectedDate.setHours(0, 0, 0, 0);
 
-  const filteredLongTermGoals = longTermGoals.filter((goal) => {
-    const due = new Date(goal.dueDate);
+  const filteredLongTermGoals = [
+    // 기존 장기 목표
+    ...longTermGoals,
+    // 날짜가 미래인 단기 목표도 포함
+    ...Object.entries(goals)
+      .filter(([dateKey]) => {
+        const targetDate = new Date(dateKey.replace(/-/g, "/"));
+        targetDate.setHours(0, 0, 0, 0);
+        return targetDate > baseToday; // 오늘보다 미래
+      })
+      .flatMap(([dateKey, goalList]) =>
+        goalList.map((goal) => ({
+          ...goal,
+          dueDate: dateKey,
+        }))
+      ),
+  ].filter((goal) => {
+    const due = new Date(goal.dueDate.replace(/-/g, "/"));
     due.setHours(0, 0, 0, 0);
-    return due >= selectedDate;
+    return due >= selectedDate; // 선택한 날짜 이후에 있는 것만 보여줌
   });
 
   const totalLongTermGoals = filteredLongTermGoals.length;
@@ -189,7 +218,7 @@ function Planner() {
                     type="checkbox"
                     className={styles.checkbox}
                     checked={goal.done}
-                    onChange={() => handleToggle(goal.id)}
+                    onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
                   />
                   <input
                     type="text"
@@ -198,7 +227,7 @@ function Planner() {
                     onChange={(e) => handleEdit(goal.id, e.target.value)}
                   />
                   <button className={styles.deleteButton} onClick={() => handleDelete(goal.id)}>
-                    삭제
+                    X
                   </button>
                 </div>
               ))}
@@ -213,7 +242,7 @@ function Planner() {
                 onKeyDown={handleKeyDown}
               />
               <button className={styles.addButton} onClick={handleAddGoal}>
-                추가
+                +
               </button>
             </div>
           </div>
@@ -221,7 +250,7 @@ function Planner() {
       </div>
 
       <div className={styles.longGoalsBox}>
-        <h3 className={styles.sectionTitle}>장기 목표</h3>
+        <h3 className={styles.sectionTitle}>예정된 목표</h3>
         {totalLongTermGoals > 0 ? (
           <>
             <div className={styles.progressBar}>
@@ -249,7 +278,7 @@ function Planner() {
                 type="checkbox"
                 className={styles.checkbox}
                 checked={goal.done}
-                onChange={() => handleToggleLongTerm(goal.id)}
+                onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
               />
               <input
                 type="text"
@@ -259,29 +288,10 @@ function Planner() {
               />
               <span className={styles.dueDate}>마감: {goal.dueDate}</span>
               <button className={styles.deleteButton} onClick={() => handleDeleteLongTerm(goal.id)}>
-                삭제
+                X
               </button>
             </div>
           ))}
-        </div>
-        <div className={styles.inputBoxHorizontal}>
-          <input
-            type="text"
-            placeholder="새 장기 목표 입력"
-            className={styles.input}
-            value={longTermInput}
-            onChange={(e) => setLongTermInput(e.target.value)}
-            onKeyDown={handleLongTermKeyDown}
-          />
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={dueDateInput}
-            onChange={(e) => setDueDateInput(e.target.value)}
-          />
-          <button className={styles.addButton} onClick={handleAddLongTermGoal}>
-            추가
-          </button>
         </div>
       </div>
     </div>
