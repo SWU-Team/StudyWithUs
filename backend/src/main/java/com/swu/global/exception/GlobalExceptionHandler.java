@@ -3,6 +3,7 @@ package com.swu.global.exception;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.swu.domain.diary.exception.DiaryAlreadyExistsException;
 import com.swu.domain.diary.exception.DiaryNotFoundException;
+import com.swu.domain.plan.exception.PlanNotFoundException;
 import com.swu.domain.room.exception.AlreadyJoinedRoomException;
 import com.swu.domain.room.exception.NotJoinedRoomException;
 import com.swu.domain.room.exception.RoomFullException;
@@ -145,6 +146,14 @@ public class GlobalExceptionHandler {
         log.warn("DiaryAlreadyExistsException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.failure(e.getMessage()));
+    }
+
+    @ExceptionHandler(PlanNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePlanNotFoundException(PlanNotFoundException e) {
+        log.warn("PlanNotFoundException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.failure(e.getMessage()));
     }
 
