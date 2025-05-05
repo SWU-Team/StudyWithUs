@@ -16,5 +16,8 @@ public record PlanRequest(
         LocalDate planDate,
 
         @NotNull(message = "중요도를 선택해주세요.")
-        Priority priority
+        Priority priority,
+
+        @NotNull(message = "완료 여부는 필수입니다.")
+        Boolean isCompleted
 ) {}
