@@ -41,4 +41,11 @@ public class Plan {
     public enum Priority {
         LOW, MEDIUM, HIGH
     }
+
+    public void update(String content, LocalDate planDate, Priority priority, boolean isCompleted) {
+        this.content = content;
+        this.planDate = planDate;
+        this.priority = priority;
+        this.isCompleted = isCompleted;
+    }
 }
