@@ -23,8 +23,11 @@ public class Plan {
     @Column(nullable = false, length = 255)
     private String content;
 
-    // 오늘 or 특정 날짜
     private LocalDate planDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Priority priority;
 
     private boolean isCompleted;
 
@@ -34,4 +37,8 @@ public class Plan {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public enum Priority {
+        LOW, MEDIUM, HIGH
+    }
 }
