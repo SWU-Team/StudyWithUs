@@ -10,6 +10,7 @@ function Planner() {
   const [input, setInput] = useState("");
   const [longTermInput, setLongTermInput] = useState("");
   const [dueDateInput, setDueDateInput] = useState("");
+  const [sortBy, setSortBy] = useState("priority");
 
   useEffect(() => {
     const storedGoals = localStorage.getItem("planner-goals");
@@ -54,12 +55,13 @@ function Planner() {
 
   const handleAddGoal = () => {
     if (!input.trim()) return;
-    const newGoal = { id: Date.now(), text: input, done: false };
+    const newGoal = { id: Date.now(), text: input, done: false, priority: priority || "" };
     setGoals((prev) => ({
       ...prev,
       [selectedDateKey]: [...(prev[selectedDateKey] || []), newGoal],
     }));
     setInput("");
+    setPriority("");
   };
 
   const handleToggle = (goalId) => {
@@ -122,8 +124,19 @@ function Planner() {
     }
   };
 
-  const handleDeleteLongTerm = (goalId) => {
-    setLongTermGoals((prev) => prev.filter((g) => g.id !== goalId));
+  const handleDeleteLongTerm = (goalId, dueDate) => {
+    const existsInLongTerm = longTermGoals.some((g) => g.id === goalId);
+
+    if (existsInLongTerm) {
+      // longTermGoals에서 삭제
+      setLongTermGoals((prev) => prev.filter((g) => g.id !== goalId));
+    } else {
+      // 미래 단기 목표(goals[날짜])에서 삭제
+      setGoals((prev) => {
+        const updatedList = (prev[dueDate] || []).filter((g) => g.id !== goalId);
+        return { ...prev, [dueDate]: updatedList };
+      });
+    }
   };
 
   const handleEditLongTerm = (goalId, newText) => {
@@ -135,10 +148,16 @@ function Planner() {
     return `${selectedDateKey} 목표`;
   };
 
+  const [priority, setPriority] = useState("");
   const todayGoals = goals[selectedDateKey] || [];
   const totalGoals = todayGoals.length;
   const completedGoals = todayGoals.filter((goal) => goal.done).length;
   const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
+  const priorityOrder = { high: 0, medium: 1, low: 2, "": 3 };
+
+  const sortedTodayGoals = [...todayGoals].sort(
+    (a, b) => priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""]
+  );
 
   const baseToday = new Date();
   baseToday.setHours(0, 0, 0, 0);
@@ -165,6 +184,17 @@ function Planner() {
     const due = new Date(goal.dueDate.replace(/-/g, "/"));
     due.setHours(0, 0, 0, 0);
     return due >= selectedDate; // 선택한 날짜 이후에 있는 것만 보여줌
+  });
+
+  const sortedLongTermGoals = [...filteredLongTermGoals].sort((a, b) => {
+    if (sortBy === "priority") {
+      return priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""];
+    } else if (sortBy === "date") {
+      const aDate = new Date(a.dueDate.replace(/-/g, "/"));
+      const bDate = new Date(b.dueDate.replace(/-/g, "/"));
+      return aDate - bDate;
+    }
+    return 0;
   });
 
   const totalLongTermGoals = filteredLongTermGoals.length;
@@ -212,13 +242,13 @@ function Planner() {
             )}
 
             <div className={styles.goalList}>
-              {todayGoals.map((goal) => (
+              {sortedTodayGoals.map((goal) => (
                 <div key={goal.id} className={styles.goalItem}>
                   <input
                     type="checkbox"
                     className={styles.checkbox}
                     checked={goal.done}
-                    onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
+                    onChange={() => handleToggle(goal.id)}
                   />
                   <input
                     type="text"
@@ -226,6 +256,14 @@ function Planner() {
                     value={goal.text}
                     onChange={(e) => handleEdit(goal.id, e.target.value)}
                   />
+
+                  {/* ✅ 중요도 아이콘 */}
+                  <span className={`${styles.priorityBadge} ${styles[goal.priority]}`}>
+                    {goal.priority === "high" && "🔥"}
+                    {goal.priority === "medium" && "⚡"}
+                    {goal.priority === "low" && "🌱"}
+                  </span>
+
                   <button className={styles.deleteButton} onClick={() => handleDelete(goal.id)}>
                     X
                   </button>
@@ -241,6 +279,16 @@ function Planner() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className={styles.select}
+              >
+                <option value="">중요도 없음</option>
+                <option value="high">상</option>
+                <option value="medium">중</option>
+                <option value="low">하</option>
+              </select>
               <button className={styles.addButton} onClick={handleAddGoal}>
                 +
               </button>
@@ -250,7 +298,17 @@ function Planner() {
       </div>
 
       <div className={styles.longGoalsBox}>
-        <h3 className={styles.sectionTitle}>예정된 목표</h3>
+        <div className={styles.sectionHeader}>
+          <h3 className={styles.sectionTitle}>예정된 목표</h3>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className={styles.select}
+          >
+            <option value="priority">중요도 순</option>
+            <option value="date">날짜 순</option>
+          </select>
+        </div>
         {totalLongTermGoals > 0 ? (
           <>
             <div className={styles.progressBar}>
@@ -272,7 +330,7 @@ function Planner() {
           </p>
         )}
         <div className={styles.longTermGoalListHorizontal}>
-          {filteredLongTermGoals.map((goal) => (
+          {sortedLongTermGoals.map((goal) => (
             <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
               <input
                 type="checkbox"
@@ -286,8 +344,17 @@ function Planner() {
                 value={goal.text}
                 onChange={(e) => handleEditLongTerm(goal.id, e.target.value)}
               />
+              {/* ✅ 중요도 아이콘 */}
+              <span className={`${styles.priorityBadge} ${styles[goal.priority]}`}>
+                {goal.priority === "high" && "🔥"}
+                {goal.priority === "medium" && "⚡"}
+                {goal.priority === "low" && "🌱"}
+              </span>
               <span className={styles.dueDate}>마감: {goal.dueDate}</span>
-              <button className={styles.deleteButton} onClick={() => handleDeleteLongTerm(goal.id)}>
+              <button
+                className={styles.deleteButton}
+                onClick={() => handleDeleteLongTerm(goal.id, goal.dueDate)}
+              >
                 X
               </button>
             </div>
