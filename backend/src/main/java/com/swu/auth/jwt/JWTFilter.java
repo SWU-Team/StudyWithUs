@@ -82,7 +82,7 @@ public class JWTFilter extends OncePerRequestFilter{
         // 토큰이 access인지 확인
         String category = jwtUtil.getCategory(token);
 
-        if (!category.equals("Authorization")) {
+        if (!category.equals("access")) {
             log.warn("Access 토큰 아님 - category: {}, Path: {}", category, path);
 
             // 1. 응답 상태코드 설정
