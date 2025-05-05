@@ -39,32 +39,42 @@ public class StompJwtInterceptor implements ChannelInterceptor {
             // Authorization 헤더에서 토큰 추출
             String token = accessor.getFirstNativeHeader("Authorization");
             
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-                
-                // 토큰 만료 여부 확인
-                if (jwtUtil.isExpired(token)) {
-                    log.warn("만료된 토큰으로 WebSocket 연결 시도");
-                    throw new IllegalArgumentException("JWT 토큰이 만료되었습니다.");
-                }
-
-                // 토큰에서 사용자 ID 추출 및 DB 조회
-                Long userId = (long)jwtUtil.getId(token);
-                User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 사용자입니다."));
-       
-                // CustomUserDetails 및 인증 객체 생성
-                CustomUserDetails customUserDetails = new CustomUserDetails(user);
-                UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(customUserDetails, token, customUserDetails.getAuthorities());
-
-                // WebSocket 세션에 인증 정보 설정
-                accessor.setUser(authentication);
-
-                log.debug("WebSocket 인증 성공: {}", user.getNickname());
-            } else {
-                log.warn("Authorization 헤더가 누락되었거나 형식이 잘못됨");
+            if (token == null || !token.startsWith("Bearer ")) {
+                log.warn("WebSocket 연결 시 Authorization 헤더가 없거나 형식이 잘못됨");
+                throw new IllegalArgumentException("Authorization 헤더가 유효하지 않습니다.");
             }
+
+            token = token.substring(7);
+
+             // 1. 토큰 만료 체크
+            if (jwtUtil.isExpired(token)) {
+                log.warn("만료된 토큰으로 WebSocket 연결 시도 - token: {}", token);
+                throw new IllegalArgumentException("JWT 토큰이 만료되었습니다.");
+            }
+
+            // 2. 토큰 타입이 access인지 확인
+            String category = jwtUtil.getCategory(token);
+            if (!category.equals("access")) {
+                log.warn("Access 토큰이 아님 - category: {}, token: {}", category, token);
+                throw new IllegalArgumentException("Access 토큰이 아닙니다.");
+            }
+
+            // 3. 사용자 조회
+            Long userId = (long) jwtUtil.getId(token);
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("WebSocket 인증 실패 - 존재하지 않는 userId: {}", userId);
+                    return new IllegalArgumentException("유효하지 않은 사용자입니다.");
+                });
+
+            // 4. 인증 정보 등록
+            CustomUserDetails customUserDetails = new CustomUserDetails(user);
+            UsernamePasswordAuthenticationToken authentication = 
+                new UsernamePasswordAuthenticationToken(customUserDetails, token, customUserDetails.getAuthorities());
+
+            accessor.setUser(authentication);
+
+            log.info("WebSocket 인증 성공 - userId: {}, nickname: {}", user.getId(), user.getNickname());
         }
         // 메시지를 다음 단계로 전달!!
         return message;

@@ -20,15 +20,6 @@ public class JWTUtil {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     }
 
-    public String getNickname(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("nickname", String.class);
-    }
-
     public Integer getId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -47,6 +38,15 @@ public class JWTUtil {
                 .get("role", String.class);
     }
 
+    public String getCategory(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("category", String.class);
+    }
+
     public Boolean isExpired(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -57,11 +57,11 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-    public String createJwt (String nickname, String role, Long Id, Long expiredMs) {
+    public String createJwt (String category, String role, Long Id, Long expiredMs) {
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + expiredMs);
         return Jwts.builder()
-                .claim("nickname", nickname)
+                .claim("category", category)
                 .claim("id", Id)
                 .claim("role", role.replace("ROLE_", ""))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
