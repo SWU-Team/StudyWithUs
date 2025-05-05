@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import styles from "./Chat.module.css";
 
-const ChatMessages = ({ chatMessages }) => {
+const ChatMessages = ({ chatMessages, user }) => {
   const scrollRef = useRef();
 
   useEffect(() => {
@@ -12,11 +12,21 @@ const ChatMessages = ({ chatMessages }) => {
 
   return (
     <div className={styles.chatMessages}>
-      {chatMessages.map((msg, idx) => (
-        <div key={idx}>
-          <strong>{msg.senderNickname}</strong>: {msg.message}
-        </div>
-      ))}
+      {chatMessages.map((msg, idx) => {
+        const isMe = msg.senderId === user?.id;
+
+        return (
+          <div
+            key={idx}
+            className={`${styles.chatMessageWrapper} ${
+              isMe ? styles.myMessage : styles.otherMessage
+            }`}
+          >
+            {!isMe && <div className={styles.nickname}>{msg.senderNickname}</div>}
+            <div className={styles.chatBubble}>{msg.message}</div>
+          </div>
+        );
+      })}
       <div ref={scrollRef} />
     </div>
   );
