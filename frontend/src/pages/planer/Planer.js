@@ -148,7 +148,13 @@ function Planner() {
       <div className={styles.plantoday}>
         <div className={styles.calendarContainer}>
           <h2 className={styles.title}>📆 플래너</h2>
-          <Calendar onChange={handleDateChange} value={date} className={styles.calendar} />
+          <Calendar
+            onChange={handleDateChange}
+            value={date}
+            className={styles.calendar}
+            locale="ko-KR"
+            calendarType="US"
+          />
         </div>
 
         <div className={styles.goalsContainer}>

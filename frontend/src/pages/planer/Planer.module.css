@@ -69,14 +69,14 @@
   color: #666;
 }
 :global(.react-calendar__month-view__days__day--weekend) {
-  color: #339af0;
+  color: #ff4d4d;
 }
 :global(.react-calendar__tile:disabled) {
   background-color: #f9f9f9;
   color: #ccc;
 }
 :global(.react-calendar__month-view__days__day--weekend:nth-child(7n + 7)) {
-  color: #ff4d4d; /* 파란색 (토요일) */
+  color: #339af0; /* 파란색 (토요일) */
 }
 
 .goalsContainer {
