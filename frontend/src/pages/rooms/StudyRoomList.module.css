@@ -5,10 +5,11 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background-color: #fffdf8;
   border-radius: 10px;
 }
 
+/* 검색영역 */
 .searchContainer {
   display: flex;
   align-items: center;
@@ -42,37 +43,10 @@
   padding: 0;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-}
-
-.createBtn {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  background-color: #b96852;
-  color: white;
-  padding: 14px 20px;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  z-index: 999;
-  transition: background-color 0.2s;
-}
-
-.createBtn:hover {
-  background-color: #d4431b;
-}
-
+/* 룸 목록 */
 .roomList {
   display: flex;
   flex-direction: column;
-  /* gap: 10px; */
   margin-top: 20px;
   margin: 20px;
 }
@@ -97,24 +71,24 @@
   transition: background-color 0.2s;
 }
 
+.roomListRow:hover {
+  background-color: #f4ede6;
+  transform: translateY(-1px);
+}
+
 .roomInfoWrapper {
   display: flex;
   gap: 30px;
   align-items: center;
-  justify-content: flex-end; /* 우측 정렬 */
+  justify-content: flex-end;
   flex: 1;
   padding: 0 10px;
 }
 
-.roomListRow:hover {
-  background-color: #f2f2f2;
-}
-
-/* 칸들 스타일 */
 .roomTitleCell {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 제목은 왼쪽 정렬 */
+  justify-content: flex-start;
   padding: 0 10px;
 }
 
@@ -126,62 +100,70 @@
   align-items: center;
 }
 
-.roomCard {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 10px;
-  /* border: 1px solid #ddd; */
-  border-bottom: 1px solid #ddd;
-
-  /* border-radius: 10px; */
-  background-color: #fff;
-  /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); */
-  transition: all 0.2s ease;
-}
-
-.roomCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-  background-color: #e8f5ff;
-}
-
-/* 제목+인원 묶기 */
-.roomInfoBox {
+/* 방 생성 모달 */
+.formGroup {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  margin-bottom: 1.5rem;
+  text-align: left;
 }
 
-.roomTitle {
-  font-size: 18px;
-  font-weight: 700;
-  color: #2a2a2a;
-}
-
-.roomInfo {
+.label {
   font-size: 14px;
-  color: #777;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #444;
 }
 
-.roomTime {
-  font-size: 13px;
-  color: #999;
-}
-
-.enterBtn {
-  padding: 10px 16px;
+.input,
+.select {
+  width: 100%;
+  padding: 10px 12px;
   font-size: 14px;
-  font-weight: 600;
-  background-color: #666;
-  color: #fff;
-  border: none;
   border-radius: 8px;
-  cursor: pointer;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
-.enterBtn:hover {
-  background-color: #357ac9;
+.formRow {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.formItem {
+  flex: 1 1 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputWithUnit {
+  position: relative;
+}
+
+.inputWithUnit input {
+  padding-right: 40px;
+}
+
+.unit {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #888;
+  pointer-events: none;
+  background-color: #fffaf4;
+  padding-left: 4px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 5px 0;
+  color: #444;
 }
 
 .input {
@@ -198,133 +180,16 @@
   border: 1px solid #aaa;
 }
 
-.formButtons {
-  display: flex;
-  gap: 10px;
-}
-
-.submitBtn {
-  padding: 10px 15px;
-  background-color: #666;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.cancelBtn {
-  padding: 10px 15px;
-  background-color: #ccc;
-  color: #333;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.modal {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transform: scale(0.95);
-  animation: popUp 0.2s ease-in-out forwards;
-  overflow: hidden;
-}
-
-@keyframes popUp {
-  to {
-    transform: scale(1);
-  }
-}
-
-.modalTitle {
-  font-size: 25px;
-  font-weight: 700;
-  margin-bottom: 10px;
-
-  color: skyblue;
-  text-align: center;
-}
-
-.label {
-  font-size: 14px;
-  font-weight: 800;
-  margin: 5px 0;
-  color: #444;
-}
-
-.modalRow {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.modalColumn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.formButtons {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.submitBtn {
-  padding: 8px 12px;
-  background-color: #666;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.cancelBtn {
-  padding: 8px 12px;
-  background-color: #ccc;
-  color: #333;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
+/* 로딩 스피너 */
 .loadingWrapper {
   width: 100%;
-  height: 400px; /* 또는 화면 높이에 맞춰도 되고 */
+  height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* 페이지 네이션 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -335,7 +200,7 @@
 
 .pageBtn,
 .pageNumber {
-  all: unset; /* 버튼 기본 스타일 제거 */
+  all: unset;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -365,4 +230,40 @@
 .pageNumber.active {
   background-color: #b96852;
   color: white;
+}
+
+.createBtn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background-color: #b96852;
+  color: white;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  transition: background-color 0.2s;
+}
+
+.createBtn:hover {
+  background-color: #d4431b;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popUp {
+  to {
+    transform: scale(1);
+  }
 }
