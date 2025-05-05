@@ -12,6 +12,7 @@ import com.swu.auth.entity.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -80,12 +82,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(nickname, role, id, 10 * 60 * 60 * 1000L); // 10시간 설정
+        // 토큰 생성
+        String token = jwtUtil.createJwt("access", role, id, 600000L); // 10분
+        String refresh = jwtUtil.createJwt("refresh", role, id, 86400000L); // 24시간
 
-        // 헤더에 토큰 설정
+        // 응답 설정
         response.setHeader("Authorization", "Bearer " + token);
-
-        // 바디 구성
+        response.addCookie(createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
@@ -101,16 +105,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
             response.getWriter().write(responseBody);
         } catch (IOException e) {
             log.error("JSON 직렬화 중 오류 발생", e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
-        log.info("로그인 성공: " + nickname);
+        log.info("로그인 성공: {} (id: {}) " + nickname, id);
     }
 
     //로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
@@ -125,5 +129,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
         }
 
         log.warn("로그인 실패");
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+    
+        return cookie;
     }
 }
