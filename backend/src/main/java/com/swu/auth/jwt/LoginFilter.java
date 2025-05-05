@@ -6,12 +6,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.swu.auth.dto.request.LoginRequest;
 import com.swu.auth.entity.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,10 +41,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
     // 커스텀 필터에서 사용하기 위해 주입받음
     private final  AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public LoginFilter (AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public LoginFilter (AuthenticationManager authenticationManager, JWTUtil jwtUtil, RedisTemplate<String, Object> redisTemplate) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.redisTemplate = redisTemplate;
 
         setFilterProcessesUrl("/api/auth/login");
     }
@@ -86,6 +90,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
         String token = jwtUtil.createJwt("access", role, id, 600000L); // 10분
         String refresh = jwtUtil.createJwt("refresh", role, id, 86400000L); // 24시간
 
+        // Redis에 refresh 토큰 저장 (유저 1명당 1개의 refresh 토큰만 유지)
+        redisTemplate.opsForValue().set("refresh:user:" + id, refresh, 24, TimeUnit.HOURS);
+
         // 응답 설정
         response.setHeader("Authorization", "Bearer " + token);
         response.addCookie(createCookie("refresh", refresh));
@@ -108,7 +115,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
 
-        log.info("로그인 성공: {} (id: {}) " + nickname, id);
+        log.info("로그인 성공: {} (id: {})", nickname, id);
     }
 
     //로그인 실패시 실행하는 메소드

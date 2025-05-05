@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,7 +25,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; 
-
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -53,7 +54,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(customAuthenticationEntryPoint) 
                 );       
         http
-                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
@@ -61,5 +62,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }

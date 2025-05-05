@@ -1,5 +1,8 @@
 package com.swu.auth.service;
 
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Refresh Token을 검증하고 Access/Refresh Token을 재발급하는 서비스
  * - Refresh Token 유효성 및 타입 검증
- * - Rotate 방식 적용 (재발급 시 기존 Refresh는 폐기 전제)
+ * - Rotate 방식 적용 (재발급 시 기존 Refresh는 폐기)
  * - Access Token은 Authorization 헤더로, Refresh는 HttpOnly 쿠키로 반환
  */
 @Slf4j
@@ -27,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TokenService {
 
     private final JWTUtil jwtUtil;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public ResponseEntity<ApiResponse<Void>> reissueToken(HttpServletRequest request, HttpServletResponse response) {
 
@@ -56,13 +60,27 @@ public class TokenService {
                     .body(ApiResponse.failure("invalid token type"));
         }
 
-        // 4. 새로운 access/refresh 토큰 생성
+        // 4. JWT에서 유저 정보 파싱
         Long id = (long) jwtUtil.getId(refresh);
         String role = jwtUtil.getRole(refresh);
+
+        // 5. Redis에서 저장된 refresh 토큰과 비교
+        String redisKey = "refresh:user:" + id;
+        String savedRefresh = (String) redisTemplate.opsForValue().get(redisKey);
+        if (!refresh.equals(savedRefresh)) {
+            log.warn("유효하지 않은 refresh 토큰 요청 - userId: {}", id);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.failure("invalid refresh token"));
+        }
+
+        // 6. 새로운 access/refresh 토큰 생성
         String newAccess = jwtUtil.createJwt("access", role, id, 600000L);
         String newRefresh = jwtUtil.createJwt("refresh", role, id, 86400000L);
 
-        // 5. 쿠키와 헤더에 access/refresh 토큰 추가 (Refresh Rotate)
+        // 7. Redis에 새로운 refresh 토큰 저장 (기존 토큰은 삭제)
+        redisTemplate.opsForValue().set("refresh:user:" + id, newRefresh, 24, TimeUnit.HOURS);
+
+        // 8. 쿠키와 헤더에 access/refresh 토큰 추가 (Refresh Rotate)
         response.setHeader("Authorization", "Bearer " + newAccess);
         response.addCookie(createCookie("refresh", newRefresh));
 
@@ -90,5 +108,4 @@ public class TokenService {
         cookie.setHttpOnly(true);
         return cookie;
     }
-    
 }
