@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAuthHeader } from "./auth";
+import { getAuthHeader, removeToken, setToken } from "./auth";
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
@@ -20,12 +20,39 @@ apiClient.interceptors.request.use((config) => {
 // 응답 인터셉터 (에러 핸들링)
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const status = error.response?.status;
+    const originalRequest = error.config;
 
     console.error("API 에러 발생", error);
+    if (status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const reissueRes = await axios.post(
+          `${process.env.REACT_APP_API_BASE_URL}/auth/reissue`,
+          {},
+          {
+            withCredentials: true, // refresh token 쿠키 전송
+          }
+        );
+        const newAccessToken = reissueRes.headers["authorization"]?.split(" ")[1];
+        if (newAccessToken) {
+          setToken(newAccessToken);
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return apiClient(originalRequest); // 원래 요청 재시도
+        }
+      } catch (reissueError) {
+        console.error("토큰 재발급 실패", reissueError);
+        removeToken();
+        window.location.href = "/";
+        return Promise.reject(reissueError);
+      }
+    }
+
     if (status === 401) {
       alert("로그인이 필요합니다. 다시 로그인 해주세요.");
+      removeToken();
       window.location.href = "/";
     } else if (status >= 500) {
       alert("서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
