@@ -63,12 +63,13 @@ const AuthForm = () => {
       const res = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
         { email, password },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json" }, withCredentials: true } // refresh token 쿠키 전송
       );
 
       const token = extractTokenFromHeader(res);
       if (token) {
         setToken(token);
+        localStorage.setItem("nickname", res.data.data.nickname);
         navigate("/rooms");
       } else {
         toast.error("로그인 처리 중 문제가 발생했습니다.");
