@@ -1,6 +1,6 @@
 import styles from "./Header.module.css";
 import { useState, useEffect } from "react";
-import { getNicknameFromToken, removeToken } from "../utils/auth";
+import { removeToken } from "../utils/auth";
 import { FiClock, FiMenu } from "react-icons/fi";
 import MobileSidebar from "./MobileSidebar";
 
@@ -8,11 +8,23 @@ const Header = () => {
   const [studyTime, setStudyTime] = useState("00시간 00분");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const nickname = getNicknameFromToken();
+  const nickname = localStorage.getItem("nickname");
 
-  const handleLogout = () => {
-    removeToken();
-    window.location.href = "/";
+  const handleLogout = async () => {
+    try {
+      await fetch(`${process.env.REACT_APP_API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include", // refresh token 쿠키 전송
+      });
+
+      // 서버 로그아웃 성공 후 클라이언트 정리
+      removeToken(); // access token 제거
+      localStorage.removeItem("nickname"); // 닉네임 제거
+      window.location.href = "/";
+    } catch (error) {
+      console.error("로그아웃 실패", error);
+      alert("로그아웃 중 오류가 발생했습니다.");
+    }
   };
 
   // 현재 시간
