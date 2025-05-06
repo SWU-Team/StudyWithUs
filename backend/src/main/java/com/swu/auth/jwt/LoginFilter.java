@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.swu.auth.dto.request.LoginRequest;
+import com.swu.auth.dto.LoginRequest;
 import com.swu.auth.entity.CustomUserDetails;
 import com.swu.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
