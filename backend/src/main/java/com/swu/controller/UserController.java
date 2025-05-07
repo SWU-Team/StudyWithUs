@@ -1,6 +1,7 @@
 package com.swu.controller;
 
 import com.swu.auth.entity.CustomUserDetails;
+import com.swu.domain.user.dto.request.ExtraInfoRequest;
 import com.swu.domain.user.dto.request.PasswordChangeRequest;
 import com.swu.domain.user.dto.request.SignupRequest;
 import com.swu.domain.user.dto.request.UserUpdateRequests;
@@ -52,6 +53,28 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("회원가입 성공", null));
     }
 
+    @Operation(summary = "소셜 로그인 유저 추가 정보 입력", description = "닉네임, 프로필 이미지를 입력하여 PREUSER → USER 승격")
+    @PostMapping("/users/complete-info")
+    public ResponseEntity<ApiResponse<Void>> completeInfo(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestPart("info") @Valid ExtraInfoRequest request,
+        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+        String profileUrl = null;
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            try {
+                profileUrl = s3Uploader.upload(profileImage);
+            } catch (IOException e) {
+                throw new ImageUploadFailedException("이미지 업로드 실패");
+            }
+        }
+
+        userService.completeExtraInfo(userDetails.getUser().getId(), request.getNickname(), profileUrl);
+
+        return ResponseEntity.ok(ApiResponse.success("추가 정보 입력 완료", null));
+    }
+
+
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
     @GetMapping("/users/me")
     public ResponseEntity<ApiResponse<UserInfoResponse>> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -70,7 +93,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("닉네임 변경 성공", null));
     }
 
-    
     @Operation(summary = "프로필 이미지 수정", description = "현재 로그인한 사용자의 프로필을 수정합니다.")
     @PatchMapping("/users/me/profileImg")
     public ResponseEntity<ApiResponse<Void>> updateProfileImg(
@@ -87,7 +109,6 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("프로필 이미지 변경 성공", null));
     }
 
-    
     @Operation(summary = "비밀번호 변경", description = "현재 로그인한 사용자의 비밀번호를 변경합니다.")
     @PatchMapping("/users/me/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(

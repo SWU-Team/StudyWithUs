@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.swu.domain.user.dto.request.SignupRequest;
 import com.swu.domain.user.dto.response.UserInfoResponse;
+import com.swu.domain.user.entity.Role;
 import com.swu.domain.user.entity.User;
 import com.swu.domain.user.exception.EmailAlreadyExistsException;
 import com.swu.domain.user.exception.InvalidCurrentPasswordException;
@@ -39,6 +40,22 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void completeExtraInfo(Long userId, String nickname, String profileImg) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저"));
+    
+        user.updateNickname(nickname);
+        if (profileImg != null) {
+            user.updateProfileImg(profileImg);
+        }
+        
+        // 추가정보 입력 후 PREUSER에서 USER로 승격
+        user.updateRole(Role.USER); 
+    
+        userRepository.save(user);
+    }
+    
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId)
