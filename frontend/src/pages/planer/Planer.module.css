@@ -400,7 +400,10 @@
     padding: 1.25rem;
   }
   .longGoalsBox {
-    flex-direction: column;
+    width: 100%;
+    max-height: none;
+    overflow-x: visible;
+    padding: 1.25rem;
   }
 
   .inputBox,
@@ -419,7 +422,9 @@
   }
 
   .longTermGoalItemHorizontal {
-    min-width: 180px;
+    min-width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .goalItem,
@@ -431,5 +436,17 @@
   .deleteButton {
     align-self: stretch;
     width: 100%;
+  }
+  /* 이번 달 전체 목표 박스도 너비 100% */
+  .monthlyGoalsSection {
+    width: 100%;
+    max-height: none;
+    padding: 1.25rem;
+  }
+
+  /* 전체 목표 리스트 요소들을 세로로 정렬 */
+  .goalItem {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
