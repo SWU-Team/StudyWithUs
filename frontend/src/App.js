@@ -1,7 +1,9 @@
 import "./App.css";
-import React from "react";
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import { getAuthHeader, setToken, extractTokenFromHeader } from "./utils/auth";
+import axios from "axios";
 
 import Layout from "./components/Layout";
 import Mypage from "./pages/mypage/Mypage";
@@ -10,14 +12,39 @@ import Planer from "./pages/planer/Planer";
 import StudyRoomList from "./pages/rooms/StudyRoomList";
 import LandingPage from "./pages/landing/LandingPage";
 import StudyRoom from "./pages/rooms/StudyRoom";
+import CompleteInfoPage from "./pages/landing/CompleteInfoPage";
 
 import { isAuthenticated } from "./utils/auth";
 
 // ✅ 인증이 필요한 라우트 래퍼
 const ProtectedRoute = () => {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = getAuthHeader();
+      if (!token) {
+        try {
+          const res = await axios.post(
+            `${process.env.REACT_APP_API_BASE_URL}/auth/reissue`,
+            {},
+            {
+              withCredentials: true,
+            }
+          );
+          const newToken = extractTokenFromHeader(res);
+          setToken(newToken);
+        } catch (e) {
+          navigate("/", { replace: true });
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, [navigate]);
+  if (loading) return <div>로딩 중...</div>;
+
   return (
     <Layout>
       <Outlet />
@@ -40,6 +67,7 @@ function App() {
       <Routes>
         {/* 🔓 인증 없이 접근 가능한 페이지 */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/complete-info" element={<CompleteInfoPage />} />
 
         {/* 🔐 인증이 필요한 페이지 (공통 레이아웃 포함) */}
         <Route element={<ProtectedRoute />}>
