@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.studytime.dto.response.StudyTimeResponse;
 import com.swu.domain.studytime.service.StudyTimeService;
 import com.swu.global.response.ApiResponse;
@@ -32,7 +32,7 @@ public class StudyTimeController {
     @Operation(summary = "스터디 시간 단일 조회", description = "특정 날짜의 스터디 시간을 조회합니다.")
     public ResponseEntity<ApiResponse<StudyTimeResponse>> getStudyTime(
         @RequestParam LocalDate date,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        @AuthenticationPrincipal PrincipalDetails userDetails) {
         
         Long userId = userDetails.getUser().getId();
         StudyTimeResponse response = studyTimeService.getStudyTime(userId, date);
@@ -46,7 +46,7 @@ public class StudyTimeController {
     @Operation(summary = "월간 스터디 시간 조회", description = "특정 월의 스터디 시간을 일자별로 조회합니다.")
     public ResponseEntity<ApiResponse<List<StudyTimeResponse>>> getMonthlyStudyTimes(
         @RequestParam YearMonth month,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        @AuthenticationPrincipal PrincipalDetails userDetails) {
             
         Long userId = userDetails.getUser().getId();
         List<StudyTimeResponse> response = studyTimeService.getStudyTimes(userId, month);

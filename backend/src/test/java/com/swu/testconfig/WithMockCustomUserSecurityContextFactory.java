@@ -5,7 +5,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.user.entity.User;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +21,7 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
                 .nickname(annotation.nickname())
                 .build();
 
-        CustomUserDetails userDetails = new CustomUserDetails(user);
+        PrincipalDetails userDetails = new PrincipalDetails(user);
 
         Authentication auth =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
