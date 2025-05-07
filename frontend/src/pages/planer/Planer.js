@@ -176,7 +176,7 @@ function Planner() {
       .filter(([dateKey]) => {
         const targetDate = new Date(dateKey.replace(/-/g, "/"));
         targetDate.setHours(0, 0, 0, 0);
-        return targetDate > baseToday; // 오늘보다 미래
+        return targetDate >= baseToday; // 오늘보다 미래
       })
       .flatMap(([dateKey, goalList]) =>
         goalList.map((goal) => ({
@@ -226,6 +226,11 @@ function Planner() {
   const completedLongTermGoals = filteredLongTermGoals.filter((goal) => goal.done).length;
   const longTermProgressPercentage =
     totalLongTermGoals > 0 ? (completedLongTermGoals / totalLongTermGoals) * 100 : 0;
+  const sortedMonthlyGoals = [...monthlyGoals].sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    // 필요하면 여기에 중요도, 날짜 정렬 추가
+    return 0;
+  });
 
   return (
     <div className={styles.wrapper}>
@@ -443,9 +448,20 @@ function Planner() {
 
           {/* ✅ 목표 리스트 */}
           <div className={styles.goalList}>
-            {monthlyGoals.map((goal) => (
+            {sortedMonthlyGoals.map((goal) => (
               <div key={goal.id} className={styles.goalItem}>
-                <input type="checkbox" className={styles.checkbox} checked={goal.done} readOnly />
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={goal.done}
+                  onChange={() => {
+                    if (longTermGoals.some((g) => g.id === goal.id)) {
+                      handleToggleLongTerm(goal.id, goal.dueDate);
+                    } else {
+                      handleToggle(goal.id);
+                    }
+                  }}
+                />
                 <span className={`${styles.goalText} ${goal.done ? styles.done : ""}`}>
                   {goal.text}
                 </span>
