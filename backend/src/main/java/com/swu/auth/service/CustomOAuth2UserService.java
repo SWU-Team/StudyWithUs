@@ -39,7 +39,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             
             oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
         } else if (registrationId.equals("google")) {
-            log.info("Kakao user info: {}", oAuth2User.getAttributes());
+            log.info("Google user info: {}", oAuth2User.getAttributes());
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         } else {
@@ -58,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .loginType(loginType)
                 .role(Role.PREUSER)
                 .build();
-
+            
             userRepository.save(user);
 
             return new PrincipalDetails(user);
