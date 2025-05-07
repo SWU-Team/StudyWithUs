@@ -1,6 +1,6 @@
 package com.swu.controller;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.room.dto.request.RoomRequest;
 import com.swu.domain.room.dto.response.RoomResponse;
 import com.swu.domain.room.service.RoomService;
@@ -27,7 +27,7 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<ApiResponse<RoomResponse>> createRoom(
             @RequestBody RoomRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal PrincipalDetails userDetails) {
         RoomResponse room = roomService.createRoom(request, userDetails.getUser());
         return ResponseEntity.ok(ApiResponse.success("방 생성 성공", room));
     }

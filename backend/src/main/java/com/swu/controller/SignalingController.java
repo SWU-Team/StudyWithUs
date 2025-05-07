@@ -1,6 +1,6 @@
 package com.swu.controller;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.room.dto.message.SignalingMessage;
 import com.swu.domain.room.service.RoomService;
 import com.swu.domain.user.entity.User;
@@ -32,7 +32,7 @@ public class SignalingController {
                 throw new SecurityException("인증되지 않은 사용자입니다.");
             }
     
-            CustomUserDetails userDetails = (CustomUserDetails) authToken.getPrincipal();
+            PrincipalDetails userDetails = (PrincipalDetails) authToken.getPrincipal();
             User user = userDetails.getUser();
     
             if (!roomService.hasAccessToRoom(message.roomId(), user)) {

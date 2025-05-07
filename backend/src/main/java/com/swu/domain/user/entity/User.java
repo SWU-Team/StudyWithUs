@@ -71,4 +71,8 @@ public class User {
         this.nickname = "탈퇴한 사용자";
         this.profileImg = null;
     }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
 }

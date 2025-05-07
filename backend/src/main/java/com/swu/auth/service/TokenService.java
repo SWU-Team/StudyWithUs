@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.swu.auth.jwt.JWTUtil;
+import com.swu.domain.user.entity.User;
+import com.swu.domain.user.repository.UserRepository;
 import com.swu.global.response.ApiResponse;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -31,6 +33,7 @@ public class TokenService {
 
     private final JWTUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserRepository userRepository;
 
     public ResponseEntity<ApiResponse<Void>> reissueToken(HttpServletRequest request, HttpServletResponse response) {
 
@@ -62,7 +65,9 @@ public class TokenService {
 
         // 4. JWT에서 유저 정보 파싱
         Long id = (long) jwtUtil.getId(refresh);
-        String role = jwtUtil.getRole(refresh);
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("유저 없음"));
+        String role = "ROLE_" + user.getRole().name();
 
         // 5. Redis에서 저장된 refresh 토큰과 비교
         String redisKey = "refresh:user:" + id;

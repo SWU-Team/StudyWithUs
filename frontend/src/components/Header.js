@@ -1,6 +1,7 @@
 import styles from "./Header.module.css";
 import { useState, useEffect } from "react";
 import { removeToken } from "../utils/auth";
+import { apiGet } from "../utils/api";
 import { FiClock, FiMenu } from "react-icons/fi";
 import MobileSidebar from "./MobileSidebar";
 
@@ -8,7 +9,16 @@ const Header = () => {
   const [studyTime, setStudyTime] = useState("00시간 00분");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const nickname = localStorage.getItem("nickname");
+  const [nickname, setNickname] = useState(localStorage.getItem("nickname") || "");
+
+  useEffect(() => {
+    if (!localStorage.getItem("nickname")) {
+      apiGet("/users/me").then((res) => {
+        localStorage.setItem("nickname", res.nickname);
+        setNickname(res.nickname);
+      });
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {

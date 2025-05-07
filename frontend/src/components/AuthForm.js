@@ -29,7 +29,9 @@ const AuthForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSocialLogin = (platform) => {
-    toast.info(`${platform} 로그인은 준비 중입니다.`);
+    const baseUrl = process.env.REACT_APP_SERVER_ORIGIN;
+
+    window.location.href = `${baseUrl}/oauth2/authorization/${platform.toLowerCase()}`;
   };
 
   const handleProfileImgChange = (e) => {
@@ -63,7 +65,7 @@ const AuthForm = () => {
       const res = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
         { email, password },
-        { headers: { "Content-Type": "application/json" }, withCredentials: true } // refresh token 쿠키 전송
+        { headers: { "Content-Type": "application/json" }, withCredentials: true }
       );
 
       const token = extractTokenFromHeader(res);
@@ -209,11 +211,11 @@ const AuthForm = () => {
 
   const renderSocialLogin = () => (
     <div className={styles.socialLogin}>
-      <div className={styles.socialButton} onClick={() => handleSocialLogin("카카오")}>
+      <div className={styles.socialButton} onClick={() => handleSocialLogin("kakao")}>
         <img src={kakaoLogo} alt="카카오 로그인" className={styles.socialIcon} />
         카카오로 계속하기
       </div>
-      <div className={styles.socialButton} onClick={() => handleSocialLogin("구글")}>
+      <div className={styles.socialButton} onClick={() => handleSocialLogin("google")}>
         <img src={googleLogo} alt="구글 로그인" className={styles.socialIcon} />
         구글로 계속하기
       </div>

@@ -50,11 +50,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    if (status === 401) {
-      alert("로그인이 필요합니다. 다시 로그인 해주세요.");
-      removeToken();
-      window.location.href = "/";
-    } else if (status >= 500) {
+    if (status >= 500) {
       alert("서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
 

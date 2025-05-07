@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.room.dto.message.ChatMessage;
 import com.swu.domain.room.service.ChatService;
 import com.swu.domain.room.service.RoomService;
@@ -25,13 +25,14 @@ public class ChatController {
 
     private final ChatService chatService;
     private final RoomService roomService;
+    
     @MessageMapping("/chat/message")
     public void handleChatMessage(@Payload @Valid ChatMessage message, Principal principal) {
         if (!(principal instanceof UsernamePasswordAuthenticationToken authToken)) {
             throw new SecurityException("인증되지 않은 사용자입니다.");
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) authToken.getPrincipal();
+        PrincipalDetails userDetails = (PrincipalDetails) authToken.getPrincipal();
         User user = userDetails.getUser();
 
         if (!roomService.hasAccessToRoom(message.roomId(), user)) {

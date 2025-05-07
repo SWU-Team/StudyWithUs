@@ -9,7 +9,7 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.auth.jwt.JWTUtil;
 import com.swu.domain.user.entity.User;
 import com.swu.domain.user.repository.UserRepository;
@@ -68,9 +68,9 @@ public class StompJwtInterceptor implements ChannelInterceptor {
                 });
 
             // 4. 인증 정보 등록
-            CustomUserDetails customUserDetails = new CustomUserDetails(user);
+            PrincipalDetails userDetails = new PrincipalDetails(user);
             UsernamePasswordAuthenticationToken authentication = 
-                new UsernamePasswordAuthenticationToken(customUserDetails, token, customUserDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
 
             accessor.setUser(authentication);
 

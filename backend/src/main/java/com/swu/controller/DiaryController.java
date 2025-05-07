@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.diary.dto.request.DiaryRequest;
 import com.swu.domain.diary.dto.response.DiaryResponse;
 import com.swu.domain.diary.service.DiaryService;
@@ -37,7 +37,7 @@ public class DiaryController {
     @Operation(summary = "일기 생성", description = "일기를 새로 생성합니다.")
     public ResponseEntity<ApiResponse<DiaryResponse>> createDiary(
         @RequestBody @Valid DiaryRequest request,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        @AuthenticationPrincipal PrincipalDetails userDetails) {
 
         DiaryResponse response = diaryService.createDiary(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(ApiResponse.success("일기 생성 성공", response));
@@ -47,7 +47,7 @@ public class DiaryController {
     @Operation(summary = "일기 단건 조회", description = "id를 이용해 사용자의 일기를 조회합니다.")
     public ResponseEntity<ApiResponse<DiaryResponse>> getDiary(
         @PathVariable Long id,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        @AuthenticationPrincipal PrincipalDetails userDetails) {
 
         DiaryResponse response = diaryService.getDiary(id, userDetails.getUser().getId());
         return ResponseEntity.ok(ApiResponse.success("일기 조회 성공", response));
@@ -58,7 +58,7 @@ public class DiaryController {
     public ResponseEntity<ApiResponse<List<DiaryResponse>>> getDiaries(
         @RequestParam(required = false)
         @DateTimeFormat(pattern = "yyyy-MM") YearMonth month,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        @AuthenticationPrincipal PrincipalDetails userDetails) {
 
         List<DiaryResponse> response = diaryService.getDiaries(userDetails.getUser().getId(), month);
         return ResponseEntity.ok(ApiResponse.success("일기 목록 조회 성공", response));

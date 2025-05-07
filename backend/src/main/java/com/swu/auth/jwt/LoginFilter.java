@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.swu.auth.dto.request.LoginRequest;
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.dto.LoginRequest;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
@@ -76,9 +76,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter{
     //로그인 성공시 실행하는 메소드
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long  id = customUserDetails.getUser().getId();
-        String nickname = customUserDetails.getUser().getNickname();
+        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
+        Long  id = principal.getUser().getId();
+        String nickname = principal.getUser().getNickname();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();

@@ -1,7 +1,6 @@
 package com.swu.controller;
 
-
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.room.dto.response.RoomMemberResponse;
 import com.swu.domain.room.service.RoomMemberService;
 import com.swu.global.response.ApiResponse;
@@ -27,7 +26,7 @@ public class RoomMemberController {
     @PostMapping("/{roomId}/join")
     public ResponseEntity<ApiResponse<Void>> joinRoom(
             @PathVariable Long roomId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal PrincipalDetails userDetails) {
 
         roomMemberService.joinRoom(roomId, userDetails.getUser());
         return ResponseEntity.ok(ApiResponse.success("방 참여 성공.", null));
@@ -37,7 +36,7 @@ public class RoomMemberController {
     @PostMapping("/{roomId}/exit")
     public ResponseEntity<ApiResponse<Void>> exitRoom(
             @PathVariable Long roomId,
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @AuthenticationPrincipal PrincipalDetails userDetails) {
 
         roomMemberService.exitRoom(roomId, userDetails.getUser());
         return ResponseEntity.ok(ApiResponse.success("방 나가기 성공.", null));
