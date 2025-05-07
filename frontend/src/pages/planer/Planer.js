@@ -398,7 +398,7 @@ function Planner() {
 
           {/* ✅ 진행률 표시 */}
           {monthlyGoals.length > 0 ? (
-            <>
+            <div className={styles.monthprogressStickyWrapper}>
               <div className={styles.progressBar}>
                 <div
                   className={styles.progressFill}
@@ -411,7 +411,7 @@ function Planner() {
                   {completedMonthlyGoals}/{monthlyGoals.length} 완료
                 </span>
               </div>
-            </>
+            </div>
           ) : (
             <p className={styles.noGoalsText}>해당 월에 등록된 목표가 없습니다 🗓️</p>
           )}
