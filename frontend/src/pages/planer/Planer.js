@@ -11,7 +11,8 @@ function Planner() {
   const [longTermInput, setLongTermInput] = useState("");
   const [dueDateInput, setDueDateInput] = useState("");
   const [sortBy, setSortBy] = useState("priority");
-
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   useEffect(() => {
     const storedGoals = localStorage.getItem("planner-goals");
     if (storedGoals) {
@@ -155,9 +156,12 @@ function Planner() {
   const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
   const priorityOrder = { high: 0, medium: 1, low: 2, "": 3 };
 
-  const sortedTodayGoals = [...todayGoals].sort(
-    (a, b) => priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""]
-  );
+  const sortedTodayGoals = [...todayGoals].sort((a, b) => {
+    // 완료 여부 먼저 비교
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    // 완료 상태가 같다면 중요도 비교
+    return priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""];
+  });
 
   const baseToday = new Date();
   baseToday.setHours(0, 0, 0, 0);
@@ -187,6 +191,10 @@ function Planner() {
   });
 
   const sortedLongTermGoals = [...filteredLongTermGoals].sort((a, b) => {
+    // 완료 여부 먼저 비교
+    if (a.done !== b.done) return a.done ? 1 : -1;
+
+    // 정렬 기준
     if (sortBy === "priority") {
       return priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""];
     } else if (sortBy === "date") {
@@ -196,6 +204,23 @@ function Planner() {
     }
     return 0;
   });
+  const allGoalsWithDueDate = [
+    ...longTermGoals,
+    ...Object.entries(goals).flatMap(([dateKey, goalList]) =>
+      goalList.map((goal) => ({
+        ...goal,
+        dueDate: dateKey,
+      }))
+    ),
+  ];
+
+  const monthlyGoals = allGoalsWithDueDate.filter((goal) => {
+    const due = new Date(goal.dueDate.replace(/-/g, "/"));
+    return due.getFullYear() === selectedYear && due.getMonth() + 1 === selectedMonth;
+  });
+  const completedMonthlyGoals = monthlyGoals.filter((goal) => goal.done).length;
+  const monthlyProgressPercentage =
+    monthlyGoals.length > 0 ? (completedMonthlyGoals / monthlyGoals.length) * 100 : 0;
 
   const totalLongTermGoals = filteredLongTermGoals.length;
   const completedLongTermGoals = filteredLongTermGoals.filter((goal) => goal.done).length;
@@ -295,70 +320,139 @@ function Planner() {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles.longGoalsBox}>
-        <div className={styles.sectionHeader}>
-          <h3 className={styles.sectionTitle}>예정된 목표</h3>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className={styles.select}
-          >
-            <option value="priority">중요도 순</option>
-            <option value="date">날짜 순</option>
-          </select>
+        <div className={styles.longGoalsBox}>
+          {/* <div className={styles.longTermGoalsSection}> */}
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>예정된 목표</h3>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={styles.select}
+            >
+              <option value="priority">중요도 순</option>
+              <option value="date">날짜 순</option>
+            </select>
+          </div>
+
+          {totalLongTermGoals > 0 ? (
+            <>
+              <div className={styles.progressBar}>
+                <div
+                  className={styles.progressFill}
+                  style={{ width: `${longTermProgressPercentage}%` }}
+                />
+              </div>
+              <div className={styles.progressText}>
+                <span>진행 상황</span>
+                <span>
+                  {completedLongTermGoals}/{totalLongTermGoals} 완료
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className={styles.noGoalsText}>
+              아직 등록된 장기 목표가 없습니다. 목표를 추가해주세요 🎯
+            </p>
+          )}
+          <div className={styles.longTermGoalListHorizontal}>
+            {sortedLongTermGoals.map((goal) => (
+              <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={goal.done}
+                  onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
+                />
+                <input
+                  type="text"
+                  className={`${styles.goalText} ${goal.done ? styles.done : ""}`}
+                  value={goal.text}
+                  onChange={(e) => handleEditLongTerm(goal.id, e.target.value)}
+                />
+                {/* ✅ 중요도 아이콘 */}
+                <span className={`${styles.priorityBadge} ${styles[goal.priority]}`}>
+                  {goal.priority === "high" && "🔥"}
+                  {goal.priority === "medium" && "⚡"}
+                  {goal.priority === "low" && "🌱"}
+                </span>
+                <span className={styles.dueDate}>마감: {goal.dueDate}</span>
+                <button
+                  className={styles.smalldeleteButton}
+                  onClick={() => handleDeleteLongTerm(goal.id, goal.dueDate)}
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+          {/* </div> */}
         </div>
-        {totalLongTermGoals > 0 ? (
-          <>
-            <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${longTermProgressPercentage}%` }}
-              />
-            </div>
-            <div className={styles.progressText}>
-              <span>진행 상황</span>
-              <span>
-                {completedLongTermGoals}/{totalLongTermGoals} 완료
-              </span>
-            </div>
-          </>
-        ) : (
-          <p className={styles.noGoalsText}>
-            아직 등록된 장기 목표가 없습니다. 목표를 추가해주세요 🎯
-          </p>
-        )}
-        <div className={styles.longTermGoalListHorizontal}>
-          {sortedLongTermGoals.map((goal) => (
-            <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
-              <input
-                type="checkbox"
-                className={styles.checkbox}
-                checked={goal.done}
-                onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
-              />
-              <input
-                type="text"
-                className={`${styles.goalText} ${goal.done ? styles.done : ""}`}
-                value={goal.text}
-                onChange={(e) => handleEditLongTerm(goal.id, e.target.value)}
-              />
-              {/* ✅ 중요도 아이콘 */}
-              <span className={`${styles.priorityBadge} ${styles[goal.priority]}`}>
-                {goal.priority === "high" && "🔥"}
-                {goal.priority === "medium" && "⚡"}
-                {goal.priority === "low" && "🌱"}
-              </span>
-              <span className={styles.dueDate}>마감: {goal.dueDate}</span>
-              <button
-                className={styles.deleteButton}
-                onClick={() => handleDeleteLongTerm(goal.id, goal.dueDate)}
+        <div className={styles.monthlyGoalsSection}>
+          <h3 className={styles.sectionTitle}>📅 이번 달 전체 목표</h3>
+
+          {/* ✅ 진행률 표시 */}
+          {monthlyGoals.length > 0 ? (
+            <>
+              <div className={styles.progressBar}>
+                <div
+                  className={styles.progressFill}
+                  style={{ width: `${monthlyProgressPercentage}%` }}
+                />
+              </div>
+              <div className={styles.progressText}>
+                <span>진행 상황</span>
+                <span>
+                  {completedMonthlyGoals}/{monthlyGoals.length} 완료
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className={styles.noGoalsText}>해당 월에 등록된 목표가 없습니다 🗓️</p>
+          )}
+
+          {/* ✅ 월 선택 UI */}
+          <div className={styles.monthSelector}>
+            <label>
+              연도:
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
               >
-                X
-              </button>
-            </div>
-          ))}
+                {[2023, 2024, 2025, 2026].map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              월:
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                  <option key={month} value={month}>
+                    {month}월
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {/* ✅ 목표 리스트 */}
+          <div className={styles.goalList}>
+            {monthlyGoals.map((goal) => (
+              <div key={goal.id} className={styles.goalItem}>
+                <input type="checkbox" className={styles.checkbox} checked={goal.done} readOnly />
+                <span className={`${styles.goalText} ${goal.done ? styles.done : ""}`}>
+                  {goal.text}
+                </span>
+                <span className={styles.dueDate}>마감: {goal.dueDate}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
