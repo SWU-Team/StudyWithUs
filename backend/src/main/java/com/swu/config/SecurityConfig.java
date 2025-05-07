@@ -5,6 +5,7 @@ import com.swu.auth.jwt.CustomLogoutFilter;
 import com.swu.auth.jwt.JWTFilter;
 import com.swu.auth.jwt.JWTUtil;
 import com.swu.auth.jwt.LoginFilter;
+import com.swu.auth.service.CustomOAuth2UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,23 +40,24 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable());
-
-        http
-                .formLogin(form -> form.disable());
-
-        http
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
                 .httpBasic(httpBasic -> httpBasic.disable());
-
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/ws/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/users/complete-info").hasRole("PREUSER")
+                        .requestMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated()
                 );
         http
                 .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(customAuthenticationEntryPoint) 
                 );       
+        http
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)));
         http
                 .addFilterAt(new LoginFilter(authenticationConfiguration.getAuthenticationManager(), jwtUtil, redisTemplate), UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class);

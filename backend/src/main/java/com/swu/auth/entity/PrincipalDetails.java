@@ -2,30 +2,40 @@ package com.swu.auth.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.swu.domain.user.entity.User;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-public class CustomUserDetails implements UserDetails {
+@RequiredArgsConstructor
+public class PrincipalDetails implements UserDetails, OAuth2User {
 
     private final User user;
+    private Map<String, Object> attributes;
 
-    public CustomUserDetails(User user) {
-        this.user = user;
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
-    // 사용자가 가진 권한 목록 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
         collection.add(() -> "ROLE_" + user.getRole());
         return collection;
+    }
+
+    @Override
+    public String getName() {
+        return user.getEmail();
     }
 
     @Override
@@ -57,5 +67,4 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

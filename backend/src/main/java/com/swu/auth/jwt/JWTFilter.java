@@ -3,7 +3,7 @@ package com.swu.auth.jwt;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swu.auth.entity.CustomUserDetails;
+import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.user.entity.Role;
 import com.swu.domain.user.entity.User;
 import com.swu.global.response.ApiResponse;
@@ -112,10 +112,10 @@ public class JWTFilter extends OncePerRequestFilter{
                 .build();
 
         // UserDetails에 회원 정보 객체 담기
-        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+        PrincipalDetails principal = new PrincipalDetails(user);
 
         // 스프링 시큐리티 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
 
         // 세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
