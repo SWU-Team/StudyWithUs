@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.swu.auth.dto.GoogleResponse;
-import com.swu.auth.dto.NaverResponse;
+import com.swu.auth.dto.KakaoResponse;
 import com.swu.auth.dto.OAuth2Response;
 import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.user.entity.LoginType;
@@ -34,10 +34,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
         OAuth2Response oAuth2Response = null;
-        if (registrationId.equals("naver")) {
-            log.info("Naver user info: {}", oAuth2User.getAttributes());
+        if (registrationId.equals("kakao")) {
+            log.info("Kakao user info: {}", oAuth2User.getAttributes());
             
-            oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
+            oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         } else if (registrationId.equals("google")) {
             log.info("Google user info: {}", oAuth2User.getAttributes());
 
@@ -48,7 +48,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         String email = oAuth2Response.getEmail();
         LoginType loginType = LoginType.valueOf(oAuth2Response.getProvider().toUpperCase());
-
+      
         User existData = userRepository.findByEmail(email).orElse(null);
 
         if (existData == null) {

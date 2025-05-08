@@ -68,8 +68,15 @@ const CompleteInfoPage = () => {
         withCredentials: true,
       });
 
-      toast.success("정보가 성공적으로 저장되었습니다!");
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/auth/reissue`,
+        {},
+        { withCredentials: true }
+      );
+      const newToken = extractTokenFromHeader(res);
+      setToken(newToken);
 
+      toast.success("정보가 성공적으로 저장되었습니다!");
       navigate("/rooms");
     } catch (err) {
       toast.error("정보 저장에 실패했습니다.");
