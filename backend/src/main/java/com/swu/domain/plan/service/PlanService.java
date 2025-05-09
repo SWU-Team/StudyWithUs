@@ -2,6 +2,7 @@ package com.swu.domain.plan.service;
 
 import com.swu.domain.plan.dto.PlanRequest;
 import com.swu.domain.plan.dto.PlanResponse;
+import com.swu.domain.plan.dto.PlanStatsResponse;
 import com.swu.domain.plan.entity.Plan;
 import com.swu.domain.plan.repository.PlanRepository;
 import com.swu.domain.plan.exception.PlanNotFoundException;
@@ -64,6 +65,16 @@ public class PlanService {
                 .map(PlanResponse::from)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public PlanStatsResponse getPlanStats(Long userId) {
+        log.debug("유저 ID 플랜Stats 조회", userId);
+        List<Plan> plans = planRepository.findByUserId(userId);
+        int total = plans.size();
+        int completed = (int) plans.stream().filter(Plan::isCompleted).count();
+        return new PlanStatsResponse(total, completed);
+    }
+    
 
     @Transactional
     public PlanResponse updatePlan(Long planId, PlanRequest request, Long userId) {

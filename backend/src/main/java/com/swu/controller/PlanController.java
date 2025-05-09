@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.plan.dto.PlanRequest;
 import com.swu.domain.plan.dto.PlanResponse;
+import com.swu.domain.plan.dto.PlanStatsResponse;
 import com.swu.domain.plan.service.PlanService;
 import com.swu.global.response.ApiResponse;
 
@@ -61,6 +62,14 @@ public class PlanController {
 
         List<PlanResponse> responses = planService.getPlansByMonth(year, month, userDetails.getUser().getId());
         return ResponseEntity.ok(ApiResponse.success("월별 플랜 조회 성공", responses));
+    }
+
+    @Operation(summary = "전체 플랜 통계 조회", description = "사용자의 전체 플랜 수와 그중 완료된 플랜 수를 반환합니다.")
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<PlanStatsResponse>> getPlanStats(
+            @AuthenticationPrincipal PrincipalDetails userDetails) {
+        PlanStatsResponse response = planService.getPlanStats(userDetails.getUser().getId());
+        return ResponseEntity.ok(ApiResponse.success("전체 플랜 통계 조회 성공", response));
     }
 
     @Operation(summary = "특정 플랜 수정", description = "특정 플랜을 수정합니다.")
