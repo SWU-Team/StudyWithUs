@@ -1,0 +1,39 @@
+.btn {
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.default {
+  background-color: #495057;
+  color: white;
+}
+
+.default:hover {
+  background-color: #343a40;
+}
+
+.primary {
+  background-color: #a15b3d;
+  color: white;
+}
+
+.primary:hover {
+  background-color: #87432f;
+}
+
+.danger {
+  background-color: #bb4848;
+  color: white;
+}
+
+.danger:hover {
+  background-color: #a83232;
+}
