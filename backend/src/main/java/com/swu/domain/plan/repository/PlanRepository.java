@@ -21,4 +21,7 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     // 필요 시: 전체 Plan 날짜별 정렬 (사용자 전용)
     List<Plan> findByUserIdOrderByPlanDateDesc(Long userId);
+
+    // 특정 사용자 소유의 전체 Plan 목록
+    List<Plan> findByUserId(Long userId);
 }

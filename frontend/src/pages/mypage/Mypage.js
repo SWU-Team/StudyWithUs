@@ -1,245 +1,433 @@
-import React, { useState } from "react";
-import Layout from "../../components/Layout";
+import React, { useState, useEffect, useMemo } from "react";
 import styles from "./Mypage.module.css";
-import StudywithusLogo from "../../assets/images/StudywithusLogo.png";
-
+import defaultUserImg from "../../assets/images/user.png";
+import { Bar } from "react-chartjs-2";
+import useCurrentUser from "../../hooks/useCurrentUser";
+import { apiGet } from "../../utils/api";
+import { formatMinutes, formatMonthKorean, formatDateWithDayKorean } from "../../utils/format";
+import { toast } from "react-toastify";
 import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
   Tooltip,
-  CartesianGrid,
-} from "recharts";
+  Legend,
+} from "chart.js";
+import NicknameModal from "../../components/Mypage/NicknameModal";
+import ProfileImgModal from "../../components/Mypage/ProfileImgModal";
+import PasswordModal from "../../components/Mypage/PasswordModal";
+import WithdrawModal from "../../components/Mypage/WithdrawModal";
+import Loading from "../../components/Loading";
+import Button from "../../components/common/Button";
 
-// 📊 일별 공부 시간 (예: 이번 주 기준)
-const dailyStudyData = [
-  { day: "월", hours: 2 },
-  { day: "화", hours: 3 },
-  { day: "수", hours: 1.5 },
-  { day: "목", hours: 4 },
-  { day: "금", hours: 2 },
-  { day: "토", hours: 5 },
-  { day: "일", hours: 3 },
-];
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// 📊 월별 공부 시간 (올해 기준)
-const monthlyStudyData = [
-  { month: "1월", hours: 10 },
-  { month: "2월", hours: 25 },
-  { month: "3월", hours: 15 },
-  { month: "4월", hours: 32 },
-  { month: "5월", hours: 20 },
-  { month: "6월", hours: 28 },
-];
+const MyPage = () => {
+  const { user, refreshUser } = useCurrentUser();
 
-function Mypage() {
-  const [nickname, setNickname] = useState("닉네임");
-  const [email] = useState("user@email.com");
-  const [profileImage, setProfileImage] = useState(StudywithusLogo);
-  const [previewImage, setPreviewImage] = useState(StudywithusLogo);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [newNickname, setNewNickname] = useState(nickname);
-  const [newImageFile, setNewImageFile] = useState(null);
-  const [rankMode, setRankMode] = useState("daily"); // "daily" or "monthly"
+  const [todayMinutes, setTodayMinutes] = useState(null);
+  const [totalMinutes, setTotalMinutes] = useState(null);
+  const [diaryCount, setDiaryCount] = useState(null);
+  const [planStats, setPlanStats] = useState({ total: 0, completed: 0 });
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setNewImageFile(file);
-      setPreviewImage(URL.createObjectURL(file)); // 미리보기
-    }
-  };
+  const [isNicknameModalOpen, setIsNicknameModalOpen] = useState(false);
+  const [isProfileImgModalOpen, setIsProfileImgModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
-  const handleSaveProfile = () => {
-    setNickname(newNickname);
-    if (previewImage) {
-      setProfileImage(previewImage);
-    }
-    setShowEditModal(false);
-    alert("프로필이 수정되었습니다.");
-  };
-
-  const dummyFriends = [
-    {
-      id: 1,
-      name: "효서기",
-      email: "hyoseok@naver.com",
-      image: StudywithusLogo,
-      status: "오늘도 파이팅 ✨",
-      dailyHours: 5,
-      monthlyHours: 45,
-    },
-    {
-      id: 2,
-      name: "태비니",
-      email: "taebin@naver.com",
-      image: StudywithusLogo,
-      status: "열공 중입니다 👨‍💻",
-      dailyHours: 4,
-      monthlyHours: 38,
-    },
-    {
-      id: 3,
-      name: "열공핑",
-      email: "yeongho@naver.com",
-      image: StudywithusLogo,
-      status: "컴포넌트 분해 중 🧩",
-      dailyHours: 2,
-      monthlyHours: 20,
-    },
-  ];
-
-  const sortedRanking = [...dummyFriends].sort((a, b) => {
-    return rankMode === "daily"
-      ? b.dailyHours - a.dailyHours
-      : b.monthlyHours - a.monthlyHours;
+  const isLoading = !user || todayMinutes === null || totalMinutes === null;
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   });
+  const [studyChartData, setStudyChartData] = useState({ labels: [], datasets: [] });
+  const [planChartData, setPlanChartData] = useState({ labels: [], datasets: [] });
 
+  useEffect(() => {
+    const fetchTodayStudyTime = async () => {
+      const today = new Date().toISOString().split("T")[0];
+      try {
+        const res = await apiGet(`/study-times?date=${today}`);
+        setTodayMinutes(res.totalMinutes);
+      } catch (err) {
+        console.error("오늘 공부 시간 조회 실패", err);
+        setTodayMinutes(0);
+      }
+    };
+
+    fetchTodayStudyTime();
+  }, []);
+
+  useEffect(() => {
+    const featchAllStudyTime = async () => {
+      try {
+        const res = await apiGet("/study-times/total");
+        setTotalMinutes(res.totalMinutes);
+      } catch (err) {
+        console.error("총 공부 시간 불러오기 실패", err);
+        setTotalMinutes(0);
+      }
+    };
+
+    featchAllStudyTime();
+  }, []);
+
+  useEffect(() => {
+    const featchAllDiary = async () => {
+      try {
+        const res = await apiGet("/diaries");
+        console.log("총 다이어리", res);
+        setDiaryCount(res.length);
+      } catch (err) {
+        console.error("총 공부 시간 불러오기 실패", err);
+        setTotalMinutes(0);
+      }
+    };
+
+    featchAllDiary();
+  }, []);
+
+  useEffect(() => {
+    const fetchPlanStats = async () => {
+      try {
+        const res = await apiGet("/plans/stats");
+        setPlanStats({
+          total: res.totalPlans,
+          completed: res.completedPlans,
+        });
+      } catch (err) {
+        console.error("플랜 통계 조회 실패", err);
+        setPlanStats({ total: 0, completed: 0 });
+      }
+    };
+
+    fetchPlanStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchMonthlyStudyData = async () => {
+      const [year, month] = currentMonth.split("-").map(Number);
+      const res = await apiGet(`/study-times/monthly?month=${currentMonth}`);
+      const dailyMap = new Map();
+
+      res.forEach(({ recordDate, totalMinutes }) => {
+        const date = new Date(recordDate).getDate();
+        const prev = dailyMap.get(date) || 0;
+        dailyMap.set(date, prev + totalMinutes);
+      });
+
+      const endDate = new Date(year, month, 0).getDate();
+      const labels = Array.from({ length: endDate }, (_, i) => `${i + 1}`);
+      const studyData = Array.from({ length: endDate }, (_, i) => {
+        const minutes = dailyMap.get(i + 1) || 0;
+        return minutes / 60;
+      });
+
+      setStudyChartData({
+        labels,
+        datasets: [
+          {
+            label: "공부 시간 (시간)",
+            data: studyData,
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
+            hoverBackgroundColor: "rgba(75, 192, 192, 1)",
+            barThickness: 20,
+          },
+        ],
+      });
+    };
+
+    fetchMonthlyStudyData();
+  }, [currentMonth]);
+
+  useEffect(() => {
+    const fetchPlanData = async () => {
+      const [year, month] = currentMonth.split("-").map(Number);
+      const res = await apiGet(`/plans/month?year=${year}&month=${month}`);
+      console.log("플랜 데이터", res);
+      const dailyMap = new Map();
+
+      res.forEach((plan) => {
+        if (plan.isCompleted) {
+          const day = new Date(plan.planDate).getDate();
+          const prev = dailyMap.get(day) || 0;
+          dailyMap.set(day, prev + 1);
+        }
+      });
+
+      const endDate = new Date(year, month, 0).getDate();
+      const labels = Array.from({ length: endDate }, (_, i) => `${i + 1}`);
+      const planData = Array.from({ length: endDate }, (_, i) => dailyMap.get(i + 1) || 0);
+
+      setPlanChartData({
+        labels,
+        datasets: [
+          {
+            label: "완료된 플랜 수",
+            data: planData,
+            backgroundColor: "rgba(255, 159, 64, 0.6)",
+            hoverBackgroundColor: "rgba(255, 159, 64, 1)",
+            barThickness: 20,
+          },
+        ],
+      });
+    };
+
+    fetchPlanData();
+  }, [currentMonth]);
+
+  const handleMonthChange = (dir) => {
+    const [year, month] = currentMonth.split("-").map(Number);
+    const date = new Date(year, month - 1);
+    date.setMonth(date.getMonth() + dir);
+
+    const newYear = date.getFullYear();
+    const newMonth = String(date.getMonth() + 1).padStart(2, "0");
+    setCurrentMonth(`${newYear}-${newMonth}`);
+  };
+
+  const optionsStudy = useMemo(
+    () => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true },
+        tooltip: {
+          backgroundColor: "#343a40",
+          callbacks: {
+            title: (ctx) => `📅 ${ctx[0].label}`,
+            label: (ctx) => {
+              const minutes = Math.round(ctx.parsed.y * 60);
+              return `총 ${formatMinutes(minutes)}`;
+            },
+          },
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          suggestedMax: 2,
+          ticks: {
+            stepSize: 0.5,
+            callback: (v) => `${v}시간`,
+            color: "#495057",
+            font: { size: 12 },
+          },
+          grid: {
+            color: "#dee2e6",
+            borderDash: [4],
+          },
+        },
+        x: {
+          ticks: {
+            color: "#495057",
+            font: { size: 12 },
+          },
+          grid: { display: false },
+        },
+      },
+    }),
+    []
+  );
+
+  const optionsPlan = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true },
+      tooltip: {
+        backgroundColor: "#343a40",
+        callbacks: {
+          title: (ctx) => `📅 ${ctx[0].label}`,
+          label: (ctx) => `완료된 플랜: ${ctx.parsed.y}개`,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        suggestedMax: 2,
+        ticks: {
+          stepSize: 1,
+          callback: (v) => `${v}개`,
+          color: "#495057",
+          font: { size: 12 },
+        },
+        grid: {
+          color: "#dee2e6",
+          borderDash: [4],
+        },
+      },
+      x: {
+        ticks: {
+          color: "#495057",
+          font: { size: 12 },
+        },
+        grid: { display: false },
+      },
+    },
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <Loading />
+        <p>마이페이지 정보를 불러오는 중입니다...</p>
+      </div>
+    );
+  }
   return (
-    <div className={styles.wrapper}>
-      <h2 className={styles.title}>마이페이지</h2>
-
-      {/* 프로필 */}
-      <div className={`${styles.section} ${styles.profileSection}`}>
-        <img
-          src={profileImage}
-          alt="Profile"
-          className={styles.profileImage}
-        />
-        <div className={styles.profileInfo}>
-          <h3>{nickname}</h3>
-          <p>{email}</p>
-        </div>
-        <button
-          className={styles.editButton}
-          onClick={() => setShowEditModal(true)}
-        >
-          수정
-        </button>
-      </div>
-
-      {/* 📌 스터디 랭킹 */}
-      <div className={styles.section}>
-        <h3>스터디 랭킹</h3>
-        <div className={styles.rankButtons}>
-          <button
-            className={rankMode === "daily" ? styles.activeBtn : ""}
-            onClick={() => setRankMode("daily")}
-          >
-            일간
-          </button>
-          <button
-            className={rankMode === "monthly" ? styles.activeBtn : ""}
-            onClick={() => setRankMode("monthly")}
-          >
-            월간
-          </button>
-        </div>
-        {sortedRanking.map((friend, index) => (
-          <div key={friend.id} className={styles.rankItem}>
-            <span className={styles.rankNum}>{index + 1}위</span>
-            <span className={styles.rankName}>{friend.name}</span>
-            <span className={styles.rankHours}>
-              {rankMode === "daily"
-                ? `${friend.dailyHours}시간`
-                : `${friend.monthlyHours}시간`}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* 친구 */}
-      <div className={styles.friendSection}>
-        <h4>친구</h4>
-        <input
-          type="text"
-          placeholder="친구 검색"
-          className={styles.inputField}
-        />
-        <div className={styles.friendList}>
-          {dummyFriends.map((friend) => (
-            <div key={friend.id} className={styles.friendItem}>
-              <img
-                src={friend.image}
-                alt="profile"
-                className={styles.friendAvatar}
-              />
-              <div className={styles.friendInfo}>
-                <strong>{friend.name}</strong>
-                <p>{friend.status}</p>
+    <>
+      <div className={styles.container}>
+        <div className={styles.mainLayout}>
+          <div className={styles.leftSection}>
+            <div className={styles.profileSection}>
+              <div className={styles.profileImageWrapper}>
+                <img
+                  src={user.profileImg ? user.profileImg : defaultUserImg}
+                  alt="Profile"
+                  className={styles.profileImg}
+                />
+              </div>
+              <div className={styles.profileInfo}>
+                <dl>
+                  <dt>닉네임</dt>
+                  <dd>{user.nickname}</dd>
+                  <dt>이메일</dt>
+                  <dd>{user.email}</dd>
+                  <dt>등급</dt>
+                  <dd>
+                    <span className={styles.badge}>{user.grade}</span>
+                  </dd>
+                  <dt>로그인 방식</dt>
+                  <dd>
+                    <span
+                      className={`${styles.loginTypeBadge} ${
+                        user.loginType === "LOCAL"
+                          ? styles["login-local"]
+                          : user.loginType === "KAKAO"
+                          ? styles["login-kakao"]
+                          : styles["login-google"]
+                      }`}
+                    >
+                      {user.loginType}
+                    </span>
+                  </dd>
+                  <dt>가입일</dt>
+                  <dd>{formatDateWithDayKorean(user.createdAt)}</dd>
+                </dl>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className={styles.accountSection}>
+              <h3>계정 설정</h3>
+              <div className={styles.btnWrapper}>
+                <Button type="primary" onClick={() => setIsNicknameModalOpen(true)}>
+                  닉네임 수정
+                </Button>
+                <Button type="primary" onClick={() => setIsProfileImgModalOpen(true)}>
+                  프로필 이미지 수정
+                </Button>
+                {user.loginType === "LOCAL" ? (
+                  <Button type="default" onClick={() => setIsPasswordModalOpen(true)}>
+                    비밀번호 변경
+                  </Button>
+                ) : (
+                  <Button
+                    type="default"
+                    onClick={() => toast.error("소셜 로그인 유저는 비밀번호를 변경할 수 없습니다.")}
+                  >
+                    비밀번호 변경
+                  </Button>
+                )}
+                <Button type="danger" onClick={() => setIsWithdrawModalOpen(true)}>
+                  회원 탈퇴
+                </Button>
+              </div>
+              <p className={styles.notice}>※ 소셜 로그인 유저는 비밀번호를 변경할 수 없습니다.</p>
+            </div>
+          </div>
 
-      {/* 하단 일간/월간 공부 시간 */}
-      <div className={styles.subGrid}>
-        <div className={styles.subSection}>
-          <h4>일별 공부시간</h4>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={dailyStudyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis unit="시간" />
-              <Tooltip />
-              <Bar dataKey="hours" fill="#82ca9d" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className={styles.subSection}>
-          <h4>월별 공부시간</h4>
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={monthlyStudyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis unit="시간" />
-              <Tooltip />
-              <Bar dataKey="hours" fill="#8884d8" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+          <div className={styles.rightSection}>
+            <div className={styles.summaryGrid}>
+              <div className={styles.summaryCard}>
+                <p className={styles.summaryLabel}>오늘 공부 시간</p>
+                <p className={styles.summaryValue}>{formatMinutes(todayMinutes)}</p>
+              </div>
+              <div className={styles.summaryCard}>
+                <p className={styles.summaryLabel}>누적 공부 시간</p>
+                <p className={styles.summaryValue}>{formatMinutes(totalMinutes)}</p>
+              </div>
+              <div className={styles.summaryCard}>
+                <p className={styles.summaryLabel}>전체 일기</p>
+                <p className={styles.summaryValue}>{diaryCount}</p> {/* 추후 API 연결 */}
+              </div>
+              <div className={styles.summaryCard}>
+                <p className={styles.summaryLabel}>전체 플랜</p>
+                <p className={styles.summaryValue}>
+                  {planStats.completed}개 / {planStats.total}개
+                </p>{" "}
+              </div>
+            </div>
+            <div className={styles.statsCard}>
+              <div className={styles.monthHeader}>
+                <button onClick={() => handleMonthChange(-1)}>← 이전달</button>
+                <span>{formatMonthKorean(currentMonth)}</span>
 
-      {/* 수정 모달 */}
-      {showEditModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>프로필 수정</h3>
-            <input
-              type="text"
-              placeholder="새 닉네임"
-              value={newNickname}
-              onChange={(e) => setNewNickname(e.target.value)}
-              className={styles.inputField}
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className={styles.inputField}
-            />
-            <div className={styles.modalButtons}>
-              <button
-                onClick={handleSaveProfile}
-                className={styles.submitBtn}
-              >
-                저장
-              </button>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className={styles.cancelBtn}
-              >
-                취소
-              </button>
+                <button onClick={() => handleMonthChange(1)}>다음달 →</button>
+              </div>
+              <div className={styles.statsGraphSection}>
+                <div className={styles.graphBlock}>
+                  {studyChartData.datasets.length > 0 &&
+                  studyChartData.datasets[0].data.length > 0 ? (
+                    <Bar data={studyChartData} options={optionsStudy} />
+                  ) : (
+                    <div className={styles.emptyMessage}>
+                      <p>
+                        이번 달 공부 기록이 없습니다. 플래너에서 계획을 세우고, 스터디룸에서 공부를
+                        시작해보세요!
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className={styles.graphBlock}>
+                  {planChartData.datasets.length > 0 &&
+                  planChartData.datasets[0].data.length > 0 ? (
+                    <Bar data={planChartData} options={optionsPlan} />
+                  ) : (
+                    <div className={styles.emptyMessage}>
+                      <p>해당 월에 완료된 플랜이 없습니다. 플래너에서 계획을 세워보세요.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+      {isNicknameModalOpen && (
+        <NicknameModal
+          isOpen={isNicknameModalOpen}
+          onClose={() => setIsNicknameModalOpen(false)}
+          onUpdate={refreshUser}
+        />
       )}
-    </div>
+      {isProfileImgModalOpen && (
+        <ProfileImgModal
+          isOpen={isProfileImgModalOpen}
+          onClose={() => setIsProfileImgModalOpen(false)}
+          onUpdate={refreshUser}
+        />
+      )}
+      {isPasswordModalOpen && (
+        <PasswordModal isOpen={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} />
+      )}
+      {isWithdrawModalOpen && (
+        <WithdrawModal isOpen={isWithdrawModalOpen} onClose={() => setIsWithdrawModalOpen(false)} />
+      )}
+    </>
   );
-}
+};
 
-export default Mypage;
+export default MyPage;

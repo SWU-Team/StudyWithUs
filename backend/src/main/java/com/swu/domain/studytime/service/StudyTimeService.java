@@ -58,4 +58,9 @@ public class StudyTimeService {
         studyTime.addMinutes(minutes); // 누적
         studyTimeRepository.save(studyTime);
     }
+
+    @Transactional(readOnly = true)
+    public int getTotalStudyMinutes(Long userId) {
+        return studyTimeRepository.getTotalMinutesByUserId(userId);
+    }
 }
