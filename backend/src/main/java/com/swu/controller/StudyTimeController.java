@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.swu.auth.entity.PrincipalDetails;
 import com.swu.domain.studytime.dto.response.StudyTimeResponse;
+import com.swu.domain.studytime.dto.response.StudyTimeTotalResponse;
 import com.swu.domain.studytime.service.StudyTimeService;
 import com.swu.global.response.ApiResponse;
 
@@ -52,5 +53,17 @@ public class StudyTimeController {
         List<StudyTimeResponse> response = studyTimeService.getStudyTimes(userId, month);
 
         return ResponseEntity.ok(ApiResponse.success("월간 스터디 시간 목록 조회 성공", response));
+    }
+
+    @GetMapping("/total")
+    @Operation(summary = "누적 공부 시간 조회", description = "사용자의 전체 공부 시간을 분 단위로 반환합니다.")
+    public ResponseEntity<ApiResponse<StudyTimeTotalResponse>> getTotalStudyTime(
+        @AuthenticationPrincipal PrincipalDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+        int totalMinutes = studyTimeService.getTotalStudyMinutes(userId);
+
+        StudyTimeTotalResponse response = new StudyTimeTotalResponse(totalMinutes);
+        return ResponseEntity.ok(ApiResponse.success("누적 공부 시간 조회 성공", response));
     }
 }
