@@ -14,10 +14,8 @@ import { toast } from "react-toastify";
 
 const StudyRoom = () => {
   const navigate = useNavigate();
-  const user = useCurrentUser();
+  const { user } = useCurrentUser();
   const { roomId } = useParams();
-  const userId = user?.id;
-  const myNickname = user?.nickname || "익명";
   const hasExitedRef = useRef(false);
 
   const [room, setRoom] = useState(null);
