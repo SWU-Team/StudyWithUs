@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import styles from "./Planer.module.css";
+import { apiGet, apiPost, apiPatch, apiDelete, extractErrorInfo } from "../../utils/api";
+import { toast } from "react-toastify";
 
 function Planner() {
   const [date, setDate] = useState(new Date());
@@ -13,15 +15,21 @@ function Planner() {
   const [sortBy, setSortBy] = useState("priority");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [priority, setPriority] = useState("");
+  const selectedDateKey = useMemo(() => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }, [date]);
+  const todayKey = (() => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  })();
   useEffect(() => {
-    const storedGoals = localStorage.getItem("planner-goals");
-    if (storedGoals) {
-      try {
-        setGoals(JSON.parse(storedGoals));
-      } catch (error) {
-        console.error("Failed to parse stored goals:", error);
-      }
-    }
 
     const storedLongTermGoals = localStorage.getItem("planner-long-term-goals");
     if (storedLongTermGoals) {
@@ -31,7 +39,25 @@ function Planner() {
         console.error("Failed to parse stored long term goals:", error);
       }
     }
-  }, []);
+
+    apiGet(`/plans?date=${selectedDateKey}`)
+    .then((res) => {
+      setGoals((prev) => ({
+        ...prev,
+        [selectedDateKey]: res,
+      }));
+
+      // 최신 goals를 localStorage에도 동기화
+      // localStorage.setItem("planner-goals", JSON.stringify({
+      //   ...goals,
+      //   [selectedDateKey]: res,
+      // }));
+    })
+    .catch((err) => {
+      const { message } = extractErrorInfo(err);
+      toast.error(`목표 불러오기 실패: ${message}`);
+    });
+}, [selectedDateKey]);
 
   useEffect(() => {
     localStorage.setItem("planner-goals", JSON.stringify(goals));
@@ -41,50 +67,99 @@ function Planner() {
     localStorage.setItem("planner-long-term-goals", JSON.stringify(longTermGoals));
   }, [longTermGoals]);
 
-  const selectedDateKey = date
-    .toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })
-    .replace(/\./g, "-")
-    .replace(/ /g, "");
-  const todayKey = new Date()
-    .toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })
-    .replace(/\./g, "-")
-    .replace(/ /g, "");
+  
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
   };
 
-  const handleAddGoal = () => {
-    if (!input.trim()) return;
-    const newGoal = { id: Date.now(), text: input, done: false, priority: priority || "" };
+  function getKSTTodayDateString() {
+  const now = new Date();
+
+  // UTC 시간 + 9시간 → 한국 시간으로 보정
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+
+  // YYYY-MM-DD 형태로 자르기
+  return kst.toISOString().split("T")[0];
+}
+const [isSubmitting, setIsSubmitting] = useState(false);
+  
+const handleAddGoal = async () => {
+  if (isSubmitting) return;
+  if (!input.trim()) return;
+
+  const todayKey = getKSTTodayDateString();
+  if (selectedDateKey < todayKey) {
+    toast.error("과거 날짜에는 목표를 등록할 수 없습니다.");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  const newGoal = {
+    content: input,
+    planDate: selectedDateKey,
+    priority: (priority || "LOW").toUpperCase(),
+    isCompleted: false,
+  };
+
+  try {
+    await apiPost("/plans", newGoal);
+
+    // 🔥 UI 즉시 반영
+    const updated = await apiGet(`/plans?date=${selectedDateKey}`);
     setGoals((prev) => ({
       ...prev,
-      [selectedDateKey]: [...(prev[selectedDateKey] || []), newGoal],
+      [selectedDateKey]: updated,
     }));
+
     setInput("");
     setPriority("");
-  };
+  } catch (err) {
+    const { message } = extractErrorInfo(err);
+    toast.error(`목표 추가 실패: ${message}`);
+  }finally {
+    setIsSubmitting(false); // 🔓
+  }
+};
 
   const handleToggle = (goalId) => {
     const currentGoals = goals[selectedDateKey] || [];
-    const updated = currentGoals.map((g) => (g.id === goalId ? { ...g, done: !g.done } : g));
+    const updated = currentGoals.map((g) => (g.id === goalId ? { ...g, isCompleted: !g.isCompleted } : g));
     setGoals((prev) => ({ ...prev, [selectedDateKey]: updated }));
   };
 
-  const handleDelete = (goalId) => {
-    const currentGoals = goals[selectedDateKey] || [];
-    const updated = currentGoals.filter((g) => g.id !== goalId);
-    setGoals((prev) => ({ ...prev, [selectedDateKey]: updated }));
+  const handleDelete = async (goalId) => {
+    try {
+      await apiDelete(`/plans/${goalId}`);
+      setGoals((prev) => ({
+        ...prev,
+        [selectedDateKey]: (prev[selectedDateKey] || []).filter((g) => g.id !== goalId),
+      }));
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`삭제 실패: ${message}`);
+    }
   };
 
-  const handleEdit = (goalId, newText) => {
-    const currentGoals = goals[selectedDateKey] || [];
-    const updated = currentGoals.map((g) => (g.id === goalId ? { ...g, text: newText } : g));
-    setGoals((prev) => ({ ...prev, [selectedDateKey]: updated }));
+  const handleEdit = async (goalId, newText) => {
+    try {
+      await apiPatch(`/plans/${goalId}`, { content: newText });
+      setGoals((prev) => ({
+        ...prev,
+        [selectedDateKey]: (prev[selectedDateKey] || []).map((g) =>
+          g.id === goalId ? { ...g, content: newText } : g
+        ),
+      }));
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`수정 실패: ${message}`);
+    }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       handleAddGoal();
     }
   };
@@ -113,12 +188,12 @@ function Planner() {
     const existsInLongTerm = longTermGoals.some((g) => g.id === goalId);
 
     if (existsInLongTerm) {
-      setLongTermGoals((prev) => prev.map((g) => (g.id === goalId ? { ...g, done: !g.done } : g)));
+      setLongTermGoals((prev) => prev.map((g) => (g.id === goalId ? { ...g, isCompleted: !g.isCompleted} : g)));
     } else {
       // 미래 날짜 단기 목표인 경우
       setGoals((prev) => {
         const updatedList = (prev[dueDate] || []).map((g) =>
-          g.id === goalId ? { ...g, done: !g.done } : g
+          g.id === goalId ? { ...g, isCompleted: !g.isCompleted } : g
         );
         return { ...prev, [dueDate]: updatedList };
       });
@@ -149,16 +224,15 @@ function Planner() {
     return `${selectedDateKey} 목표`;
   };
 
-  const [priority, setPriority] = useState("");
   const todayGoals = goals[selectedDateKey] || [];
   const totalGoals = todayGoals.length;
-  const completedGoals = todayGoals.filter((goal) => goal.done).length;
+  const completedGoals = todayGoals.filter((goal) => goal.isCompleted).length;
   const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
   const priorityOrder = { high: 0, medium: 1, low: 2, "": 3 };
 
   const sortedTodayGoals = [...todayGoals].sort((a, b) => {
     // 완료 여부 먼저 비교
-    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
     // 완료 상태가 같다면 중요도 비교
     return priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""];
   });
@@ -176,7 +250,7 @@ function Planner() {
       .filter(([dateKey]) => {
         const targetDate = new Date(dateKey.replace(/-/g, "/"));
         targetDate.setHours(0, 0, 0, 0);
-        return targetDate >= baseToday; // 오늘보다 미래
+        return targetDate.getTime() >= baseToday.getTime(); // 오늘보다 미래
       })
       .flatMap(([dateKey, goalList]) =>
         goalList.map((goal) => ({
@@ -187,12 +261,12 @@ function Planner() {
   ].filter((goal) => {
     const due = new Date(goal.dueDate.replace(/-/g, "/"));
     due.setHours(0, 0, 0, 0);
-    return due >= selectedDate; // 선택한 날짜 이후에 있는 것만 보여줌
+    return due.getTime() >= selectedDate.getTime(); // 선택한 날짜 이후에 있는 것만 보여줌
   });
 
   const sortedLongTermGoals = [...filteredLongTermGoals].sort((a, b) => {
     // 완료 여부 먼저 비교
-    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
 
     // 정렬 기준
     if (sortBy === "priority") {
@@ -218,23 +292,41 @@ function Planner() {
     const due = new Date(goal.dueDate.replace(/-/g, "/"));
     return due.getFullYear() === selectedYear && due.getMonth() + 1 === selectedMonth;
   });
-  const completedMonthlyGoals = monthlyGoals.filter((goal) => goal.done).length;
+  const completedMonthlyGoals = monthlyGoals.filter((goal) => goal.isCompleted).length;
   const monthlyProgressPercentage =
     monthlyGoals.length > 0 ? (completedMonthlyGoals / monthlyGoals.length) * 100 : 0;
 
   const totalLongTermGoals = filteredLongTermGoals.length;
-  const completedLongTermGoals = filteredLongTermGoals.filter((goal) => goal.done).length;
+  const completedLongTermGoals = filteredLongTermGoals.filter((goal) => goal.isCompleted).length;
   const longTermProgressPercentage =
     totalLongTermGoals > 0 ? (completedLongTermGoals / totalLongTermGoals) * 100 : 0;
   const sortedMonthlyGoals = [...monthlyGoals].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
     // 필요하면 여기에 중요도, 날짜 정렬 추가
     return 0;
   });
+  const handlePrevMonth = () => {
+    if (selectedMonth === 1) {
+      setSelectedMonth(12);
+      setSelectedYear((prev) => prev - 1);
+    } else {
+      setSelectedMonth((prev) => prev - 1);
+    }
+  };
+  
+  const handleNextMonth = () => {
+    if (selectedMonth === 12) {
+      setSelectedMonth(1);
+      setSelectedYear((prev) => prev + 1);
+    } else {
+      setSelectedMonth((prev) => prev + 1);
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.plantoday}>
+        {/* 여기가 캘린더 컨테이너 */}
         <div className={styles.calendarContainer}>
           <h2 className={styles.title}>📆 플래너</h2>
           <Calendar
@@ -245,10 +337,10 @@ function Planner() {
             calendarType="US"
           />
         </div>
-
+        {/* 여기는 선택한 날 목표 컨테이너 */}
         <div className={styles.goalsContainer}>
           <div className={styles.dailyGoalsBox}>
-            <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
+          <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
 
             {totalGoals > 0 ? (
               <div className={styles.progressStickyWrapper}>
@@ -277,13 +369,13 @@ function Planner() {
                   <input
                     type="checkbox"
                     className={styles.checkbox}
-                    checked={goal.done}
+                    checked={goal.isCompleted}
                     onChange={() => handleToggle(goal.id)}
                   />
                   <input
                     type="text"
-                    className={`${styles.goalText} ${goal.done ? styles.done : ""}`}
-                    value={goal.text}
+                    className={`${styles.goalText} ${goal.isCompleted ? styles.isCompleted : ""}`}
+                    value={goal.content}
                     onChange={(e) => handleEdit(goal.id, e.target.value)}
                   />
 
@@ -325,9 +417,8 @@ function Planner() {
             </div>
           </div>
         </div>
-
+              {/* 여기는 예정된 목표 */}
         <div className={styles.longGoalsBox}>
-          {/* <div className={styles.longTermGoalsSection}> */}
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>예정된 목표</h3>
             <select
@@ -363,16 +454,11 @@ function Planner() {
           <div className={styles.longTermGoalListHorizontal}>
             {sortedLongTermGoals.map((goal) => (
               <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
-                <input
-                  type="checkbox"
-                  className={styles.checkbox}
-                  checked={goal.done}
-                  onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
-                />
+                
                 <input
                   type="text"
-                  className={`${styles.goalText} ${goal.done ? styles.done : ""}`}
-                  value={goal.text}
+                  className={`${styles.goalText} ${goal.isCompleted ? styles.done : ""}`}
+                  value={goal.text || goal.content}
                   onChange={(e) => handleEditLongTerm(goal.id, e.target.value)}
                 />
                 {/* ✅ 중요도 아이콘 */}
@@ -381,7 +467,14 @@ function Planner() {
                   {goal.priority === "medium" && "⚡"}
                   {goal.priority === "low" && "🌱"}
                 </span>
+                
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={goal.isCompleted}
+                  onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
+                />
                 <button
                   className={styles.smalldeleteButton}
                   onClick={() => handleDeleteLongTerm(goal.id, goal.dueDate)}
@@ -391,10 +484,19 @@ function Planner() {
               </div>
             ))}
           </div>
-          {/* </div> */}
         </div>
+        {/* 여기는 달의 목표 */}
         <div className={styles.monthlyGoalsSection}>
-          <h3 className={styles.sectionTitle}>📅 이번 달 전체 목표</h3>
+          {/* ✅ 월 선택 UI */}
+          <div className={styles.monthSelector}>
+            <button onClick={handlePrevMonth}>◀ 이전 달</button>
+
+            <span>
+            📅{selectedYear}년 {selectedMonth}월 전체 목표
+            </span>
+
+            <button onClick={handleNextMonth}>다음 달 ▶</button>
+          </div>
 
           {/* ✅ 진행률 표시 */}
           {monthlyGoals.length > 0 ? (
@@ -416,35 +518,7 @@ function Planner() {
             <p className={styles.noGoalsText}>해당 월에 등록된 목표가 없습니다 🗓️</p>
           )}
 
-          {/* ✅ 월 선택 UI */}
-          <div className={styles.monthSelector}>
-            <label>
-              연도:
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-              >
-                {[2023, 2024, 2025, 2026].map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              월:
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                  <option key={month} value={month}>
-                    {month}월
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+          
 
           {/* ✅ 목표 리스트 */}
           <div className={styles.goalList}>
@@ -453,7 +527,7 @@ function Planner() {
                 <input
                   type="checkbox"
                   className={styles.checkbox}
-                  checked={goal.done}
+                  checked={goal.isCompleted}
                   onChange={() => {
                     if (longTermGoals.some((g) => g.id === goal.id)) {
                       handleToggleLongTerm(goal.id, goal.dueDate);
@@ -462,8 +536,8 @@ function Planner() {
                     }
                   }}
                 />
-                <span className={`${styles.goalText} ${goal.done ? styles.done : ""}`}>
-                  {goal.text}
+                <span className={`${styles.goalText} ${goal.isCompleted? styles.done : ""}`}>
+                {goal.text || goal.content}
                 </span>
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
               </div>

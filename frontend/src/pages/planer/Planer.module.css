@@ -10,7 +10,7 @@
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap; /* ✅ 줄바꿈 허용 */
-  height: auto; /* ✅ 높이 고정 제거 */
+  height: 100%; /* ✅ 높이 고정 제거 */
 }
 
 .title {
@@ -23,15 +23,16 @@
 
 .calendarContainer {
   width: 35rem;
-  height: 24rem;
+  background-color: #fdfaf5;
+  height: auto;
   border-radius: 0.75rem;
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  background-color: white;
 }
 
 .calendar {
   width: 100%;
+  min-height: 15rem;
   border: 1px solid #e0e0e0;
   border-radius: 0.5rem;
   overflow: hidden;
@@ -39,44 +40,78 @@
 }
 
 /* react-calendar 커스터마이징 */
+/* 오늘 날짜 */
 :global(.react-calendar__tile--now) {
-  background: #f1f8f1;
+  background: #e6f5e6; /* 연한 초록 배경 */
+  border-radius: 0.5rem;
+  font-weight: bold;
 }
+
+/* 선택된 날짜 */
 :global(.react-calendar__tile--active),
 :global(.react-calendar__tile--active:hover) {
-  background: #dfa579 !important;
+  background: #dfa579 !important; /* 살구색 */
   color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  transition: background 0.2s;
 }
+
+/* 네비게이션 영역 */
 :global(.react-calendar__navigation) {
-  height: 2rem;
-  margin-bottom: 0.5rem;
-}
-:global(.react-calendar__navigation button) {
-  min-width: 2.75rem;
+  height: 2.5rem;
+  margin-bottom: 1rem;
   background: none;
-  font-size: 1rem;
+}
+
+:global(.react-calendar__navigation button) {
+  min-width: 2.5rem;
+  background-color: #fff5ec;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1.1rem;
   color: #333;
+  transition: background-color 0.2s ease;
 }
-:global(.react-calendar__navigation button:enabled:hover),
-:global(.react-calendar__navigation button:enabled:focus) {
-  background-color: #f5f5f5;
+
+:global(.react-calendar__navigation button:hover) {
+  background-color: #ffe8d2;
 }
+
+/* 요일 (일~토) */
 :global(.react-calendar__month-view__weekdays) {
-  text-align: center;
-  font-weight: 500;
-  text-transform: uppercase;
-  font-size: 0.8rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: none;
   color: #666;
+  padding: 0.25rem 0;
 }
-:global(.react-calendar__month-view__days__day--weekend) {
-  color: #ff4d4d;
+
+/* 주말 - 일요일 (핑크), 토요일 (민트) */
+:global(.react-calendar__month-view__days__day--weekend:nth-child(7n+1)) {
+  color: #ff8888; /* 연핑크 */
 }
+:global(.react-calendar__month-view__days__day--weekend:nth-child(7n+7)) {
+  color: #66b2ff; /* 민트 블루 */
+}
+
+/* 비활성 날짜 */
 :global(.react-calendar__tile:disabled) {
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
   color: #ccc;
 }
-:global(.react-calendar__month-view__days__day--weekend:nth-child(7n + 7)) {
-  color: #339af0; /* 파란색 (토요일) */
+
+/* 모든 날짜 타일 공통 */
+:global(.react-calendar__tile) {
+  padding: 0.5rem; /* 기본값과 유사하게 */
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box; /* 패딩이 전체 높이에 포함되도록 */
+}
+
+:global(.react-calendar__tile:hover) {
+  background-color: #f0ece6;
+  cursor: pointer;
 }
 
 .goalsContainer {
@@ -88,29 +123,30 @@
   height: 24rem;
 }
 
-.sectionTitle {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #333;
-}
 
 .dailyGoalsBox {
   position: relative;
   height: 30rem;
-  background: #fff;
-  padding: 2rem;
+  background-color: #fdfaf5;
+  padding: 1rem;
   border-radius: 1rem;
   box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
   width: 100%;
   overflow-y: scroll;
 }
+.sectionTitle{
+  text-align: center;
+  position:sticky;
+  top: -1rem;
+  background-color: #fdfaf5;
+}
 .longGoalsBox {
   position: relative;
-  background: #fff;
+  background-color: #fdfaf5;
   border-radius: 1rem;
   box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
   width: 50rem;
-  max-height: 18rem;
+  height: calc(100% - 24rem);
   overflow-x: auto;
   padding: 1rem;
 }
@@ -146,14 +182,14 @@
 }
 .goalItem:hover,
 .longTermGoalItemHorizontal {
-  background-color: #f5f5f5;
+  background-color: #f9f0da;
 }
 .longTermGoalItemHorizontal {
   min-width: 10rem;
-  flex-shrink: 0;
+  flex-shrink: 0; 
   flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: #fdfaf5;
+  border: 1px solid #dfa579;
   border-radius: 8px;
   padding: 10px;
   gap: 6px;
@@ -188,23 +224,24 @@
   padding: 4px;
   font-size: 0.95rem;
   border: none;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #dfa579;
   outline: none;
   width: 100%;
+  background-color: #fdfaf5;
 }
 .goalText:focus {
-  border-color: #dfa579;
-  box-shadow: 0 0 0 0.125rem rgba(76, 175, 80, 0.2);
+  border-color: #e76908;
+  box-shadow: 0 0 0 0.125rem rgba(163, 116, 8, 0.2);
 }
 .done {
   text-decoration: line-through;
-  color: #999;
+  color: #999999;
 }
 
 .dueDate {
   font-size: 0.85rem;
-  color: #888;
-  background-color: #f0f0f0;
+  color: #dfa579;
+  background-color: #fff2e2;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   margin-left: 0.5rem;
@@ -213,6 +250,8 @@
 .inputBox,
 .inputBoxHorizontal {
   position: sticky;
+  bottom: -1rem;
+  background-color: #ffffff;
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
@@ -264,7 +303,7 @@
 .smalldeleteButton {
   background-color: #ff6b6b;
   color: white;
-  border: none;
+  border-color: #dfa579;
   border-radius: 6px;
   cursor: pointer;
   align-self: flex-end;
@@ -292,15 +331,15 @@
 
 .progressStickyWrapper {
   position: sticky;
-  top: -2rem;
-  background: #fff;
+  top: 0.4rem;
+  background-color: #fdfaf5;
   z-index: 10;
   padding: 8px;
 }
 .monthprogressStickyWrapper {
   position: sticky;
-  top: -1rem;
-  background: #fff;
+  top: 2rem;
+  background: #fdfaf5;
   z-index: 10;
   padding: 8px;
 }
@@ -319,15 +358,29 @@
 }
 .monthSelector {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  background-color: #f9f9f9;
+  justify-content: space-between;
+  position: sticky;
+  top: -1rem;
+  z-index: 2; 
+  background-color: #fdfaf5;
+  gap: 1rem;
   border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
   box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.05);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
 }
-
+.monthSelector button {
+  background-color: #dfa579;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
 .selectLabel {
   font-size: 1rem;
   font-weight: 500;
@@ -358,11 +411,12 @@
   padding: 2rem;
 }
 .monthlyGoalsSection {
+  position: relative;
   flex: 1;
-  min-width: 300px;
+  min-width: 20rem;
   overflow-y: auto;
-  max-height: 18rem;
-  background: #fff;
+  max-height: calc(100% - 24rem);
+  background: #fdfaf5;
   padding: 0.75rem;
   border-radius: 1rem;
   box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
