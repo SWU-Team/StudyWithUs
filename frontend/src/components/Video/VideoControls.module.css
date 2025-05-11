@@ -24,6 +24,34 @@
   margin-right: 2rem;
 }
 
+/* 플래너 영역 */
+.planerWrapper {
+  padding-right: 2rem;
+  border-right: 2px solid #ddd;
+}
+
+.todoList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.todoItem.completed span {
+  text-decoration: line-through;
+  color: #999;
+}
+
 /* 브금 영역 */
 .bgmWrapper {
   display: flex;
