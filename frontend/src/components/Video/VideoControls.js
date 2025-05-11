@@ -1,16 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaVideo, FaVideoSlash, FaSignOutAlt, FaMusic, FaPlay, FaPause } from "react-icons/fa";
+import { VscChecklist } from "react-icons/vsc";
 import { apiGet, apiPatch } from "../../utils/api";
+import CustomCheckbox from "../common/CustomCheckBox";
 import PopupBox from "../common/PopupBox";
 import styles from "./VideoControls.module.css";
 
 const VideoControls = ({ isVideoOn, toggleVideo, handleExit }) => {
   const BASE_URL = process.env.REACT_APP_BGM_BASE_URL;
 
+  const [isTodoOpen, setIsTodoOpen] = useState(false);
   const [isBgmOpen, setIsBgmOpen] = useState(false);
   const [currentBgm, setCurrentBgm] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(new Audio());
+  const [plans, setPlans] = useState([]);
 
   const bgms = [
     {
@@ -22,6 +26,45 @@ const VideoControls = ({ isVideoOn, toggleVideo, handleExit }) => {
       url: `${BASE_URL}/bgm/fire.mp3`,
     },
   ];
+
+  useEffect(() => {
+    const fetchTodayPlans = async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      try {
+        const res = await apiGet(`/plans?date=${today}`);
+        setPlans(res);
+        return res;
+      } catch (e) {
+        console.error("오늘의 플랜 불러오기 실패", e);
+        return [];
+      }
+    };
+    fetchTodayPlans();
+  }, []);
+
+  const togglePlanCompletion = async (planId, plan) => {
+    try {
+      await apiPatch(`/plans/${planId}`, {
+        content: plan.content,
+        planDate: plan.planDate,
+        priority: plan.priority,
+        isCompleted: !plan.isCompleted,
+      });
+    } catch (e) {
+      console.error("플랜 완료 여부 수정 실패", e);
+    }
+  };
+
+  const handleCheck = (planId) => {
+    const plan = plans.find((p) => p.id === planId);
+    if (!plan) return;
+
+    togglePlanCompletion(planId, plan).then(() => {
+      setPlans((prev) =>
+        prev.map((p) => (p.id === planId ? { ...p, isCompleted: !p.isCompleted } : p))
+      );
+    });
+  };
 
   const handleSelectBgm = (bgm) => {
     audioRef.current.pause();
@@ -47,6 +90,33 @@ const VideoControls = ({ isVideoOn, toggleVideo, handleExit }) => {
   return (
     <div className={styles.videoControls}>
       <div className={styles.leftSection}>
+        <div className={styles.planerWrapper}>
+          <button
+            className={styles.iconButton}
+            title="오늘 플래너 열기"
+            onClick={() => setIsTodoOpen(!isTodoOpen)}
+          >
+            <VscChecklist />
+            {isTodoOpen && (
+              <PopupBox title="오늘의 계획" onClose={() => setIsTodoOpen(false)}>
+                <ul className={styles.todoList}>
+                  {plans.map((plan) => (
+                    <li
+                      key={plan.id}
+                      className={`${styles.todoItem} ${plan.isCompleted ? styles.completed : ""}`}
+                    >
+                      <CustomCheckbox
+                        checked={plan.isCompleted}
+                        onChange={() => handleCheck(plan.id)}
+                      />
+                      <span>{plan.content}</span>
+                    </li>
+                  ))}
+                </ul>
+              </PopupBox>
+            )}
+          </button>
+        </div>
         <div className={styles.bgmWrapper}>
           <button
             className={styles.iconButton}
