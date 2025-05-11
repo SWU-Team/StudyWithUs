@@ -100,6 +100,8 @@ const handleAddGoal = async () => {
     content: input,
     planDate: selectedDateKey,
     priority: (priority || "LOW").toUpperCase(),
+
+
     isCompleted: false,
   };
 
@@ -228,7 +230,13 @@ const handleAddGoal = async () => {
   const totalGoals = todayGoals.length;
   const completedGoals = todayGoals.filter((goal) => goal.isCompleted).length;
   const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
-  const priorityOrder = { high: 0, medium: 1, low: 2, "": 3 };
+  const priorityOrder = {
+    high: 0,
+    medium: 1,
+    low: 2,
+    none: 3,
+    "": 4,
+  };
 
   const sortedTodayGoals = [...todayGoals].sort((a, b) => {
     // 완료 여부 먼저 비교
@@ -270,7 +278,8 @@ const handleAddGoal = async () => {
 
     // 정렬 기준
     if (sortBy === "priority") {
-      return priorityOrder[a.priority || ""] - priorityOrder[b.priority || ""];
+      return priorityOrder[a.priority?.toLowerCase() || ""] - priorityOrder[b.priority?.toLowerCase() || ""];
+
     } else if (sortBy === "date") {
       const aDate = new Date(a.dueDate.replace(/-/g, "/"));
       const bDate = new Date(b.dueDate.replace(/-/g, "/"));
@@ -339,84 +348,87 @@ const handleAddGoal = async () => {
         </div>
         {/* 여기는 선택한 날 목표 컨테이너 */}
         <div className={styles.goalsContainer}>
-          <div className={styles.dailyGoalsBox}>
-          <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
+  <div className={styles.dailyGoalsBox}>
+    <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
 
-            {totalGoals > 0 ? (
-              <div className={styles.progressStickyWrapper}>
-                <div className={styles.progressBar}>
-                  <div
-                    className={styles.progressFill}
-                    style={{ width: `${progressPercentage}%` }}
-                  />
-                </div>
-                <div className={styles.progressText}>
-                  <span>진행 상황</span>
-                  <span>
-                    {completedGoals}/{totalGoals} 완료
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <p className={styles.noGoalsText}>
-                선택한 날짜에 목표가 없습니다. 목표를 추가해주세요 😊
-              </p>
-            )}
-
-            <div className={styles.goalList}>
-              {sortedTodayGoals.map((goal) => (
-                <div key={goal.id} className={styles.goalItem}>
-                  <input
-                    type="checkbox"
-                    className={styles.checkbox}
-                    checked={goal.isCompleted}
-                    onChange={() => handleToggle(goal.id)}
-                  />
-                  <input
-                    type="text"
-                    className={`${styles.goalText} ${goal.isCompleted ? styles.isCompleted : ""}`}
-                    value={goal.content}
-                    onChange={(e) => handleEdit(goal.id, e.target.value)}
-                  />
-
-                  {/* ✅ 중요도 아이콘 */}
-                  <span className={`${styles.priorityBadge} ${styles[goal.priority]}`}>
-                    {goal.priority === "high" && "🔥"}
-                    {goal.priority === "medium" && "⚡"}
-                    {goal.priority === "low" && "🌱"}
-                  </span>
-
-                  <button className={styles.deleteButton} onClick={() => handleDelete(goal.id)}>
-                    X
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className={styles.inputBox}>
-              <input
-                type="text"
-                placeholder="새 목표 입력"
-                className={styles.input}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                className={styles.select}
-              >
-                <option value="">중요도 없음</option>
-                <option value="high">상</option>
-                <option value="medium">중</option>
-                <option value="low">하</option>
-              </select>
-              <button className={styles.addButton} onClick={handleAddGoal}>
-                +
-              </button>
-            </div>
-          </div>
+    {totalGoals > 0 ? (
+      <div className={styles.progressStickyWrapper}>
+        <div className={styles.progressBar}>
+          <div
+            className={styles.progressFill}
+            style={{ width: `${progressPercentage}%` }}
+          />
         </div>
+        <div className={styles.progressText}>
+          <span>진행 상황</span>
+          <span>
+            {completedGoals}/{totalGoals} 완료
+          </span>
+        </div>
+      </div>
+    ) : (
+      <p className={styles.noGoalsText}>
+        선택한 날짜에 목표가 없습니다. 목표를 추가해주세요 😊
+      </p>
+    )}
+
+    {/* ✅ 스크롤되는 영역만 따로 분리 */}
+    <div className={styles.goalListWrapper}>
+      <div className={styles.goalList}>
+        {sortedTodayGoals.map((goal) => (
+          <div key={goal.id} className={styles.goalItem}>
+            <input
+              type="checkbox"
+              className={styles.checkbox}
+              checked={goal.isCompleted}
+              onChange={() => handleToggle(goal.id)}
+            />
+            <input
+              type="text"
+              className={`${styles.goalText} ${goal.isCompleted ? styles.isCompleted : ""}`}
+              value={goal.content}
+              onChange={(e) => handleEdit(goal.id, e.target.value)}
+            />
+            <span className={`${styles.priorityTag} ${styles[goal.priority?.toLowerCase()]}`}>
+              {goal.priority?.toLowerCase() === "high" && "높음"}
+              {goal.priority?.toLowerCase() === "medium" && "중간"}
+              {goal.priority?.toLowerCase() === "low" && "낮음"}
+            </span>
+            <button className={styles.deleteButton} onClick={() => handleDelete(goal.id)}>
+              X
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* ✅ 고정 입력창 */}
+    <div className={styles.inputBox}>
+      <input
+        type="text"
+        placeholder="새 목표 입력"
+        className={styles.input}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+      />
+      <select
+        value={priority}
+        onChange={(e) => setPriority(e.target.value)}
+        className={styles.select}
+      >
+        <option value="">중요도 없음</option>
+        <option value="high">상</option>
+        <option value="medium">중</option>
+        <option value="low">하</option>
+      </select>
+      <button className={styles.addButton} onClick={handleAddGoal}>
+        +
+      </button>
+    </div>
+  </div>
+</div>
+
               {/* 여기는 예정된 목표 */}
         <div className={styles.longGoalsBox}>
           <div className={styles.sectionHeader}>
@@ -462,10 +474,11 @@ const handleAddGoal = async () => {
                   onChange={(e) => handleEditLongTerm(goal.id, e.target.value)}
                 />
                 {/* ✅ 중요도 아이콘 */}
-                <span className={`${styles.priorityBadge} ${styles[goal.priority]}`}>
-                  {goal.priority === "high" && "🔥"}
-                  {goal.priority === "medium" && "⚡"}
-                  {goal.priority === "low" && "🌱"}
+                <span className={`${styles.priorityTag} ${goal.content?.startsWith("[없음]") ? styles.none : styles[goal.priority?.toLowerCase()]}`}>
+                  {goal.content?.startsWith("[없음]") ? "없음" : (
+                    goal.priority?.toLowerCase() === "high" ? "높음" :
+                    goal.priority?.toLowerCase() === "medium" ? "중간" : "낮음"
+                  )}
                 </span>
                 
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
@@ -538,6 +551,12 @@ const handleAddGoal = async () => {
                 />
                 <span className={`${styles.goalText} ${goal.isCompleted? styles.done : ""}`}>
                 {goal.text || goal.content}
+                </span>
+                <span className={`${styles.priorityTag} ${goal.content?.startsWith("[없음]") ? styles.none : styles[goal.priority?.toLowerCase()]}`}>
+                  {goal.content?.startsWith("[없음]") ? "없음" : (
+                    goal.priority?.toLowerCase() === "high" ? "높음" :
+                    goal.priority?.toLowerCase() === "medium" ? "중간" : "낮음"
+                  )}
                 </span>
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
               </div>
