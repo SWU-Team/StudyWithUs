@@ -1,3 +1,7 @@
-/outputs
+/output
 
 /train
+
+__pycache__
+
+cached_dataset
