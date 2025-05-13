@@ -46,12 +46,6 @@ function Planner() {
         ...prev,
         [selectedDateKey]: res,
       }));
-
-      // 최신 goals를 localStorage에도 동기화
-      // localStorage.setItem("planner-goals", JSON.stringify({
-      //   ...goals,
-      //   [selectedDateKey]: res,
-      // }));
     })
     .catch((err) => {
       const { message } = extractErrorInfo(err);
@@ -82,11 +76,11 @@ function Planner() {
   // YYYY-MM-DD 형태로 자르기
   return kst.toISOString().split("T")[0];
 }
-const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-const handleAddGoal = async () => {
-  if (isSubmitting) return;
-  if (!input.trim()) return;
+  const handleAddGoal = async () => {
+    if (isSubmitting) return;
+    if (!input.trim()) return;
 
   const todayKey = getKSTTodayDateString();
   if (selectedDateKey < todayKey) {
@@ -431,6 +425,7 @@ const handleAddGoal = async () => {
 
               {/* 여기는 예정된 목표 */}
         <div className={styles.longGoalsBox}>
+          <div className={styles.positionGoalsBox}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>예정된 목표</h3>
             <select
@@ -458,11 +453,13 @@ const handleAddGoal = async () => {
                 </span>
               </div>
             </>
+            
           ) : (
             <p className={styles.noGoalsText}>
               아직 등록된 장기 목표가 없습니다. 목표를 추가해주세요 🎯
             </p>
           )}
+          </div>
           <div className={styles.longTermGoalListHorizontal}>
             {sortedLongTermGoals.map((goal) => (
               <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
@@ -482,21 +479,26 @@ const handleAddGoal = async () => {
                 </span>
                 
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
-                <input
-                  type="checkbox"
-                  className={styles.checkbox}
-                  checked={goal.isCompleted}
-                  onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
-                />
-                <button
-                  className={styles.smalldeleteButton}
-                  onClick={() => handleDeleteLongTerm(goal.id, goal.dueDate)}
-                >
-                  X
-                </button>
+              <div className={styles.buttonGroup}>  
+                  <input
+                    type="checkbox"
+                    className={styles.checkbox}
+                    checked={goal.isCompleted}
+                    onChange={() => handleToggleLongTerm(goal.id, goal.dueDate)}
+                  />
+                  <button
+                    className={styles.smalldeleteButton}
+                    onClick={() => handleDeleteLongTerm(goal.id, goal.dueDate)}
+                  >
+                    X
+                  </button>
+                </div>
+                
               </div>
+              
             ))}
           </div>
+        
         </div>
         {/* 여기는 달의 목표 */}
         <div className={styles.monthlyGoalsSection}>
