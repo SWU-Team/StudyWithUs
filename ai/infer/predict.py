@@ -1,47 +1,46 @@
-# 추론 CLI 코드
-
-# ai/infer/predict.py
-
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from peft import PeftModel
+from prompt_template import apply_prompt_template
 
-BASE_MODEL = "heegyu/polyglot-ko-1.3b-chat"
-FINETUNED_MODEL_PATH = "./outputs"
+# 경로 설정
+MERGED_MODEL_PATH = "ai/output/merged_model-1000"
 
 # 토크나이저 로드
-tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+tokenizer = AutoTokenizer.from_pretrained(MERGED_MODEL_PATH)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"
 
-# 기본 모델 로드
-base_model = AutoModelForCausalLM.from_pretrained(BASE_MODEL, torch_dtype=torch.float16)
-base_model = base_model.to("cuda")
-
-# LoRA 모델 병합
-model = PeftModel.from_pretrained(base_model, FINETUNED_MODEL_PATH)
+# LoRA merged model 로드
+model = AutoModelForCausalLM.from_pretrained(MERGED_MODEL_PATH, torch_dtype=torch.float16).to("cuda")
 model.eval()
 
-def generate_response(user_input: str):
-    prompt = f"<|user|>\n{user_input}\n<|assistant|>\n"
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+def generate_response(prompt: str):
+    formatted = apply_prompt_template(prompt)
+    inputs = tokenizer(formatted, return_tensors="pt").to("cuda")
+    inputs.pop("token_type_ids", None)
 
     with torch.no_grad():
-        output = model.generate(
+        outputs = model.generate(
             **inputs,
-            max_new_tokens=200,
-            temperature=0.7,
+            max_new_tokens=768,
+            temperature=0.5,
             top_p=0.9,
             do_sample=True,
-            pad_token_id=tokenizer.eos_token_id
+            pad_token_id=tokenizer.eos_token_id,
+            repetition_penalty=1.5
         )
 
-    response = tokenizer.decode(output[0], skip_special_tokens=True)
-    return response.replace(prompt, "").strip()
+    output_text = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
 
+    if formatted in output_text:
+        generated = output_text.split(formatted)[-1].strip()
+    else:
+        generated = output_text.strip()
+
+    return generated if generated else "[출력이 비어 있습니다]"
 
 if __name__ == "__main__":
-    print("💬 공부 내용을 입력해 보세요!")
-    user_text = input("> ")
-    result = generate_response(user_text)
-    print("\n🧠 모델 응답:\n", result)
+    print("입력을 해보세요:")
+    user_input = input("> ")
+    response = generate_response(user_input)
+    print("\n응답:\n", response)
