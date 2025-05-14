@@ -27,6 +27,6 @@ public record ChatMessage(
 
 ) {
     public enum MessageType {
-        ENTER, TALK, EXIT
+        ENTER, TALK, EXIT, KICK, SYSTEM
     }
 }

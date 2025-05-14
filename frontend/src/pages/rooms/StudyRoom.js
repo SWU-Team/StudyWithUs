@@ -91,7 +91,7 @@ const StudyRoom = () => {
     isConnected
   );
 
-  const { chatMessages, chatInputRef, handleSendChat } = useChat(
+  const { chatMessages, chatInputRef, handleSendChat, sendChat } = useChat(
     roomId,
     user,
     stompClientRef,
@@ -108,6 +108,7 @@ const StudyRoom = () => {
         isVideoOn={isVideoOn}
         toggleVideo={toggleVideo}
         handleExitRoom={handleExitRoom}
+        sendChat={sendChat}
       />
       <ChatSection
         chatMessages={chatMessages}
