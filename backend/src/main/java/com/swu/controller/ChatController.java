@@ -28,6 +28,7 @@ public class ChatController {
     
     @MessageMapping("/chat/message")
     public void handleChatMessage(@Payload @Valid ChatMessage message, Principal principal) {
+        
         if (!(principal instanceof UsernamePasswordAuthenticationToken authToken)) {
             throw new SecurityException("인증되지 않은 사용자입니다.");
         }
@@ -39,15 +40,20 @@ public class ChatController {
             throw new SecurityException("방에 입장할 권한이 없습니다.");
         }
         
-        // 발신자 정보 보정
-        ChatMessage updatedMessage = new ChatMessage(
-            message.type(),
-            message.roomId(),
-            user.getId(),
-            user.getNickname(),
-            message.message()
-        );
-    
-        chatService.sendMessage(updatedMessage);
+        if (message.type().equals(ChatMessage.MessageType.TALK)) {
+            // 발신자 정보 보정
+            ChatMessage updatedMessage = new ChatMessage(
+                message.type(),
+                message.roomId(),
+                user.getId(),
+                user.getNickname(),
+                message.message()
+            );
+            chatService.sendMessage(updatedMessage);
+            return;
+        }
+        
+        // 메시지 타입이 TALK이 아닐 경우, 발신자 정보 보정 없이 그대로 전송
+        chatService.sendMessage(message);
     }
 }
