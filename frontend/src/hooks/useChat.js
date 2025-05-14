@@ -61,7 +61,7 @@ export const useChat = (roomId, user, stompClientRef, isConnected) => {
       type: "ENTER",
       roomId: Number(roomId),
       senderId: user.id,
-      senderNickname: user.nickname,
+      senderNickname: "BOT",
       message: `${user.nickname}님이 입장하셨습니다.`,
     });
 
@@ -71,11 +71,11 @@ export const useChat = (roomId, user, stompClientRef, isConnected) => {
         type: "EXIT",
         roomId: Number(roomId),
         senderId: user.id,
-        senderNickname: user.nickname,
+        senderNickname: "BOT",
         message: `${user.nickname}님이 퇴장하셨습니다.`,
       });
     };
   }, [isConnected, user]);
 
-  return { chatMessages, chatInputRef, handleSendChat };
+  return { chatMessages, chatInputRef, handleSendChat, sendChat };
 };
