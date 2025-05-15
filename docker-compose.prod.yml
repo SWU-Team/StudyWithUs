@@ -1,6 +1,14 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - network
   backend:
     image: ghcr.io/swu-team/backend:latest
     container_name: backend
@@ -16,7 +24,7 @@ services:
     container_name: frontend
     restart: always
     ports:
-      - "80:80" 
+      - "80:80"
     depends_on:
       - backend
     networks:
