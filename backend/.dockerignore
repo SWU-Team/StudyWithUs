@@ -1,0 +1,22 @@
+# 빌드 산출물
+build/
+.gradle/
+out/
+
+# IDE, 환경파일
+.idea/
+*.iml
+*.log
+.DS_Store
+.env
+.env
+.env.*
+
+# 테스트 결과
+test-output/
+*.test.*
+*.spec.*
+
+# 불필요한 파일
+README.md
+Dockerfile

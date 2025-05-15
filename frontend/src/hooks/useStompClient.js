@@ -19,9 +19,9 @@ export const useStompClient = () => {
 
   // 최초 한 번만 클라이언트 생성
   if (!sharedClient) {
-    const socket = new SockJS(`${process.env.REACT_APP_WS_BASE_URL}/ws`);
+    const socket = new SockJS(`${process.env.REACT_APP_SERVER_ORIGIN}/ws`);
     const client = new Client({
-      webSocketFactory: () => socket, 
+      webSocketFactory: () => socket,
       connectHeaders: {
         Authorization: getAuthHeader(),
       },
@@ -50,8 +50,8 @@ export const useStompClient = () => {
     return () => {
       sharedClient.deactivate(); // 연결 종료
       sharedClient = null; // 전역 클라 제거
-      console.log("STOMP 연결 종료됨");   
-     };
+      console.log("STOMP 연결 종료됨");
+    };
   }, []);
 
   return { stompClientRef: clientRef, isConnected }; // 클라이언트와 연결 상태 반환
