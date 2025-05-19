@@ -16,6 +16,9 @@ function Planner() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [priority, setPriority] = useState("");
+  const [editingTexts, setEditingTexts] = useState({});
+const [isComposing, setIsComposing] = useState(false);
+
   const selectedDateKey = useMemo(() => {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -139,19 +142,29 @@ function Planner() {
   };
 
   const handleEdit = async (goalId, newText) => {
-    try {
-      await apiPatch(`/plans/${goalId}`, { content: newText });
-      setGoals((prev) => ({
-        ...prev,
-        [selectedDateKey]: (prev[selectedDateKey] || []).map((g) =>
-          g.id === goalId ? { ...g, content: newText } : g
-        ),
-      }));
-    } catch (err) {
-      const { message } = extractErrorInfo(err);
-      toast.error(`수정 실패: ${message}`);
-    }
+    const currentGoals = goals[selectedDateKey] || [];
+    const goalToEdit = currentGoals.find((g) => g.id === goalId);
+
+  const updatedGoal = {
+    content: newText,
+    planDate: goalToEdit.planDate || selectedDateKey, // 필수
+    priority: (goalToEdit.priority || "LOW").toUpperCase(),
+    isCompleted: goalToEdit.isCompleted,
   };
+
+  try {
+    await apiPatch(`/plans/${goalId}`, updatedGoal);
+    setGoals((prev) => ({
+      ...prev,
+      [selectedDateKey]: prev[selectedDateKey].map((g) =>
+        g.id === goalId ? { ...g, ...updatedGoal } : g
+      ),
+    }));
+  } catch (err) {
+    const { message } = extractErrorInfo(err);
+    toast.error(`수정 실패: ${message}`);
+  }
+};
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -211,8 +224,30 @@ function Planner() {
     }
   };
 
-  const handleEditLongTerm = (goalId, newText) => {
-    setLongTermGoals((prev) => prev.map((g) => (g.id === goalId ? { ...g, text: newText } : g)));
+  const handleEditLongTerm = async (goalId, newText) => {
+    const allGoals = Object.entries(goals).flatMap(([dateKey, list]) =>
+      list.map((g) => ({ ...g, dueDate: dateKey }))
+    );
+    const goalToEdit = allGoals.find((g) => g.id === goalId);
+    const updatedGoal = {
+      content: newText,
+      planDate: goalToEdit.dueDate,
+      priority: (goalToEdit.priority || "LOW").toUpperCase(),
+      isCompleted: goalToEdit.isCompleted,
+    };
+  
+    try {
+      await apiPatch(`/plans/${goalId}`, updatedGoal);
+      setGoals((prev) => {
+        const updatedList = (prev[goalToEdit.dueDate] || []).map((g) =>
+          g.id === goalId ? { ...g, ...updatedGoal } : g
+        );
+        return { ...prev, [goalToEdit.dueDate]: updatedList };
+      });
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`예정된 목표 수정 실패: ${message}`);
+    }
   };
 
   const formatDateTitle = () => {
@@ -467,9 +502,23 @@ function Planner() {
                 <input
                   type="text"
                   className={`${styles.goalText} ${goal.isCompleted ? styles.done : ""}`}
-                  value={goal.text || goal.content}
-                  onChange={(e) => handleEditLongTerm(goal.id, e.target.value)}
+                  value={editingTexts[goal.id] ?? goal.text ?? goal.content ?? ""}
+                  onChange={(e) => {
+                    const newText = e.target.value;
+                    setEditingTexts((prev) => ({ ...prev, [goal.id]: newText }));
+
+                    if (!isComposing) {
+                      handleEditLongTerm(goal.id, newText);
+                    }
+                  }}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={(e) => {
+                    setIsComposing(false);
+                    const newText = e.target.value;
+                    handleEditLongTerm(goal.id, newText);
+                  }}
                 />
+
                 {/* ✅ 중요도 아이콘 */}
                 <span className={`${styles.priorityTag} ${goal.content?.startsWith("[없음]") ? styles.none : styles[goal.priority?.toLowerCase()]}`}>
                   {goal.content?.startsWith("[없음]") ? "없음" : (
@@ -551,9 +600,37 @@ function Planner() {
                     }
                   }}
                 />
-                <span className={`${styles.goalText} ${goal.isCompleted? styles.done : ""}`}>
-                {goal.text || goal.content}
-                </span>
+                <input
+                  type="text"
+                  className={`${styles.goalText} ${goal.isCompleted ? styles.done : ""}`}
+                  value={editingTexts[goal.id] ?? goal.text ?? goal.content ?? ""}
+                  onChange={(e) => {
+                    const newText = e.target.value;
+                    setEditingTexts((prev) => ({ ...prev, [goal.id]: newText }));
+
+                    if (!isComposing) {
+                      const isLongTerm = goal.text && !goal.content;
+                      if (isLongTerm) {
+                        handleEditLongTerm(goal.id, newText);
+                      } else {
+                        handleEdit(goal.id, newText);
+                      }
+                    }
+                  }}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={(e) => {
+                    setIsComposing(false);
+                    const newText = e.target.value;
+                    const isLongTerm = goal.text && !goal.content;
+                    if (isLongTerm) {
+                      handleEditLongTerm(goal.id, newText);
+                    } else {
+                      handleEdit(goal.id, newText);
+                    }
+                  }}
+                />
+
+
                 <span className={`${styles.priorityTag} ${goal.content?.startsWith("[없음]") ? styles.none : styles[goal.priority?.toLowerCase()]}`}>
                   {goal.content?.startsWith("[없음]") ? "없음" : (
                     goal.priority?.toLowerCase() === "high" ? "높음" :
