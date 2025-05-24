@@ -1,0 +1,564 @@
+.wrapper {
+  width: 100%;
+  max-width: 100rem;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.plantoday {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap; /* ✅ 줄바꿈 허용 */
+  height: 100%; /* ✅ 높이 고정 제거 */
+}
+
+.title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin-bottom: 1.25rem;
+  color: #333;
+}
+
+.calendarContainer {
+  width: 35rem;
+  background-color: #fdfaf5;
+  height: 24rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.calendar {
+  width: 100%;
+  min-height: 15rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+/* react-calendar 커스터마이징 */
+/* 오늘 날짜 */
+:global(.react-calendar__tile--now) {
+  background: #e6f5e6; /* 연한 초록 배경 */
+  border-radius: 0.5rem;
+  font-weight: bold;
+}
+
+/* 선택된 날짜 */
+:global(.react-calendar__tile--active),
+:global(.react-calendar__tile--active:hover) {
+  background: #dfa579 !important; /* 살구색 */
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+/* 네비게이션 영역 */
+:global(.react-calendar__navigation) {
+  height: 2.5rem;
+  margin-bottom: 1rem;
+  background: none;
+}
+
+:global(.react-calendar__navigation button) {
+  min-width: 2.5rem;
+  background-color: #fff5ec;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1.1rem;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+:global(.react-calendar__navigation button:hover) {
+  background-color: #ffe8d2;
+}
+
+/* 요일 (일~토) */
+:global(.react-calendar__month-view__weekdays) {
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: none;
+  color: #666;
+  padding: 0.25rem 0;
+}
+
+/* 주말 - 일요일 (핑크), 토요일 (민트) */
+:global(.react-calendar__month-view__days__day--weekend:nth-child(7n+1)) {
+  color: #ff8888; /* 연핑크 */
+}
+:global(.react-calendar__month-view__days__day--weekend:nth-child(7n+7)) {
+  color: #66b2ff; /* 민트 블루 */
+}
+
+/* 비활성 날짜 */
+:global(.react-calendar__tile:disabled) {
+  background-color: #f5f5f5;
+  color: #ccc;
+}
+
+/* 모든 날짜 타일 공통 */
+:global(.react-calendar__tile) {
+  padding: 0.5rem; /* 기본값과 유사하게 */
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box; /* 패딩이 전체 높이에 포함되도록 */
+}
+
+:global(.react-calendar__tile:hover) {
+  background-color: #f0ece6;
+  cursor: pointer;
+}
+
+.goalsContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: flex-start;
+  height: 24rem;
+}
+
+
+.dailyGoalsBox {
+  position: relative;
+  display: flex;                /* ✅ 추가!! */
+  flex-direction: column; 
+  height: 24rem;
+  background-color: #fdfaf5;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
+  width: 100%;
+}
+.goalListWrapper {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+.sectionTitle{
+  text-align: center;
+  position:sticky;
+  top: -1rem;
+  background-color: #fdfaf5;
+}
+.longGoalsBox {
+  position: relative;
+  background-color: #fdfaf5;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
+  width: 100%;
+  max-width: 50rem;
+  max-height: 30rem; 
+  height: 28rem;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.goalList,
+.longTermGoalListHorizontal {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;  
+}
+
+.longTermGoalListHorizontal {
+  flex-wrap: wrap;            /* ✅ 줄바꿈 허용 */
+  gap: 1rem;
+  flex-direction: row;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.longTermGoalListHorizontal::-webkit-scrollbar {
+  height: 8px;
+}
+.longTermGoalListHorizontal::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.goalItem,
+.longTermGoalItemHorizontal {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+.goalItem:hover{
+  background-color: #f9f0da;
+}
+.longTermGoalItemHorizontal {
+  width: 11rem;
+  display: flex;
+  flex-shrink: 0; 
+  flex-direction: column;
+  background-color: #fdfaf5;
+  border: 1px solid #dfa579;
+  border-radius: 8px;
+  padding: 10px;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+.positionGoalsBox{
+  position: sticky;
+  top:-1rem;
+  background-color:#fdfaf5 ;
+  z-index: 10;
+}
+.checkbox {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #ccc;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  position: relative;
+}
+.checkbox:checked {
+  background-color: #dfa579;
+  border-color: #dfa579;
+}
+.checkbox:checked::after {
+  content: "✓";
+  font-size: 0.875rem;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.goalText {
+  flex: 1;
+  padding: 4px;
+  font-size: 0.95rem;
+  border: none;
+  border-bottom: 1px solid #dfa579;
+  outline: none;
+  width: 100%;
+  background-color: #fdfaf5;
+}
+.goalText:focus {
+  border-color: #e76908;
+  box-shadow: 0 0 0 0.125rem rgba(163, 116, 8, 0.2);
+}
+.goalText.done {
+  text-decoration: line-through;
+  color: #999999;
+}
+.isCompleted {
+  text-decoration: line-through;
+  color: #999999;
+}
+.dueDate {
+  font-size: 0.85rem;
+  color: #dfa579;
+  background-color: #fff2e2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.inputBox,
+.inputBoxHorizontal {
+  background-color: #ffffff;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.input:focus {
+  outline: none;
+  border-color: #dfa579;
+  box-shadow: 0 0 0 0.125rem rgba(76, 175, 80, 0.2);
+}
+.dateInput {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.addButton {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+}
+.addButton:hover {
+  background-color: #45a049;
+}
+
+.deleteButton {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+.deleteButton:hover {
+  background-color: #e60000;
+}
+.smalldeleteButton {
+  background-color: #ff6b6b;
+  color: white;
+  border-color: #dfa579;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.progressBar {
+  height: 0.625rem;
+  background-color: #eee;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0.625rem 0;
+}
+.progressFill {
+  height: 100%;
+  background-color: #dfa579;
+  transition: width 0.3s ease;
+}
+.progressText {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.3125rem;
+}
+
+.progressStickyWrapper {
+  position: sticky;
+  top: 0.4rem;
+  background-color: #fdfaf5;
+  z-index: 10;
+  padding: 8px;
+}
+.monthprogressStickyWrapper {
+  background: #fdfaf5;
+  z-index: 10;
+}
+.sectionHeader {
+  max-height: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select {
+  padding: 0.4rem;
+  font-size: 0.9rem;
+  border-radius: 0.375rem;
+  border: 1px solid #ccc;
+}
+.monthSelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: -1rem;
+  z-index: 2; 
+  background-color: #fdfaf5;
+  gap: 1rem;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.05);
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #333;
+}
+.monthSelector button {
+  background-color: #dfa579;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.selectLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.selectInput {
+  margin-top: 0.3rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  background-color: white;
+  appearance: none;
+  cursor: pointer;
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: #dfa579;
+  box-shadow: 0 0 0 0.15rem rgba(223, 165, 121, 0.3);
+}
+.longTermGoalsSection {
+  overflow-x: auto;
+  padding: 2rem;
+}
+.monthlyGoalsSection {
+  flex: 1 1 0;         /* ✅ 가능한 공간 다 차지 */
+  min-width: 20rem;    /* ✅ 너무 작지 않도록 최소 보장 */
+  width: 100%; 
+  display: flex;
+  flex-direction: column;
+  height: 28rem;               /* ✅ 고정 높이 설정 */
+  max-height: 100%;
+  background: #fdfaf5;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0.05, 0.05, 0.05, 0.05);
+  text-align: center;
+}
+.monthlyGoalList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.priorityTag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background-color: #eee;
+  color: #333;
+  display: inline-block;
+}
+.buttonGroup {
+  width: 100%; 
+  display: flex;
+  justify-content: space-between; /* 🔥 좌우로 벌려 정렬 */
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* 각각 색상 지정 */
+.high {
+  background-color: #ffe2e2;
+  color: #d93025; /* 붉은 계열 */
+}
+
+.medium {
+  background-color: #fff3cd;
+  color: #856404; /* 주황/갈색 */
+}
+
+.low {
+  background-color: #e6f4ea;
+  color: #1e824c; /* 녹색 계열 */
+}
+.none {
+  background-color: #e0e0e0;
+  color: #555;
+  font-style: italic;
+}
+
+/* --- 반응형 (모바일 대응) --- */
+@media screen and (max-width: 768px) {
+  .wrapper {
+    height: auto;
+    padding: 1rem;
+  }
+
+  .plantoday {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .calendarContainer,
+  .goalsContainer {
+    width: 100%;
+  }
+
+  .calendar {
+    height: auto;
+  }
+
+  .dailyGoalsBox {
+    height: auto;
+    padding: 1.25rem;
+  }
+  .longGoalsBox {
+    width: 100%;
+    max-height: none;
+    overflow-x: visible;
+    padding: 1.25rem;
+  }
+
+  .inputBox,
+  .inputBoxHorizontal {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input,
+  .dateInput {
+    width: 100%;
+  }
+
+  .addButton {
+    width: 100%;
+  }
+
+  .longTermGoalItemHorizontal {
+    min-width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .goalItem,
+  .longTermGoalItemHorizontal {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deleteButton {
+    align-self: stretch;
+    width: 100%;
+  }
+  /* 이번 달 전체 목표 박스도 너비 100% */
+  .monthlyGoalsSection {
+    width: 100%;
+    max-height: none;
+    padding: 1.25rem;
+  }
+
+  /* 전체 목표 리스트 요소들을 세로로 정렬 */
+  .goalItem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
