@@ -29,7 +29,7 @@ const AuthForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSocialLogin = (platform) => {
-    const baseUrl = process.env.REACT_APP_SERVER_ORIGIN;
+    const baseUrl = process.env.REACT_APP_SERVER_ORIGIN || "https://studywithus.kro.kr";
 
     window.location.href = `${baseUrl}/oauth2/authorization/${platform.toLowerCase()}`;
   };
