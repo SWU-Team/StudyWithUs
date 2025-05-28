@@ -10,6 +10,7 @@ import com.swu.auth.service.CustomOAuth2UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,6 +32,9 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; 
     private final RedisTemplate<String, Object> redisTemplate;
     private final CustomOAuth2UserService customOAuth2UserService;
+
+    @Value("${custom.frontend.base-url}")
+    private String frontendBaseUrl;
 
     // 비밀번호 암호화를 위한 Bean 등록
     @Bean
@@ -66,7 +70,7 @@ public class SecurityConfig {
         // OAuth2 로그인 설정
         http
                 .oauth2Login((oauth2) -> oauth2
-                        .successHandler(new CustomSuccessHandler(jwtUtil, redisTemplate))
+                        .successHandler(new CustomSuccessHandler(jwtUtil, redisTemplate, frontendBaseUrl))
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService)));
         
