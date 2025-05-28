@@ -15,7 +15,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -24,11 +23,17 @@ import lombok.extern.slf4j.Slf4j;
  * - 이후 프론트엔드로 리다이렉트 처리
  */
 @Slf4j
-@RequiredArgsConstructor
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final String frontendBaseUrl;
+
+    public CustomSuccessHandler(JWTUtil jwtUtil, RedisTemplate<String, Object> redisTemplate, String frontendBaseUrl) {
+        this.jwtUtil = jwtUtil;
+        this.redisTemplate = redisTemplate;
+        this.frontendBaseUrl = frontendBaseUrl;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -52,10 +57,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 5. OAuth2 로그인 후 리다이렉트 처리
         String redirectUrl;
         switch (principal.getUser().getRole()) {
-            case PREUSER -> redirectUrl = "http://localhost:3000/complete-info";
-            case USER -> redirectUrl = "http://localhost:3000/rooms";
-            default -> redirectUrl = "http://localhost:3000/";
+            case PREUSER -> redirectUrl = frontendBaseUrl + "/complete-info";
+            case USER -> redirectUrl = frontendBaseUrl + "/rooms";
+            default -> redirectUrl = frontendBaseUrl;
         }
+
+        log.info("Redirect URL: {}", redirectUrl);
 
         response.sendRedirect(redirectUrl); 
 
