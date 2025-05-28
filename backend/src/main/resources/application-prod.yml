@@ -63,3 +63,7 @@ cloud:
 logging:
   level:
     root: info
+
+custom:
+  frontend:
+    base-url: ${FRONTEND_BASE_URL}
