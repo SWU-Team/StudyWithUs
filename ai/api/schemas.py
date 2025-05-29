@@ -1,1 +1,7 @@
-# Pydantic 모델 정의
+from pydantic import BaseModel
+
+class PromptRequest(BaseModel):
+    text: str
+
+class PromptResponse(BaseModel):
+    response: str

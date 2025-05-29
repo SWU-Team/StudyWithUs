@@ -3,7 +3,7 @@ from transformers import TrainingArguments
 def get_training_arguments():
     return TrainingArguments(
         output_dir="ai/output",
-        max_steps=1500,
+        max_steps=20500,
         per_device_train_batch_size=1,
         gradient_accumulation_steps=16,
         learning_rate=2e-4,

@@ -4,7 +4,7 @@ from peft import PeftModel
 
 # 설정값
 BASE_MODEL = "heegyu/polyglot-ko-1.3b-chat"
-CHECKPOINT = 1000
+CHECKPOINT = 20000
 
 FINETUNED_MODEL_PATH = f"ai/output/checkpoint-{CHECKPOINT}"
 MERGED_MODEL_PATH = f"ai/output/merged_model-{CHECKPOINT}"

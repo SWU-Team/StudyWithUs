@@ -1,1 +1,5 @@
-# FastAPI 엔트리포인트
+from fastapi import FastAPI
+from .routes import router
+
+app = FastAPI()
+app.include_router(router)
