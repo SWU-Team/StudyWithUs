@@ -1,7 +1,9 @@
 /output
 
-/train
-
 __pycache__
 
 cached_dataset
+
+/test
+
+/data

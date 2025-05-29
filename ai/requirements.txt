@@ -1,9 +1,13 @@
-# transformers
-datasets
-peft
-trl
-accelerate
-bitsandbytes
+# 핵심 라이브러리
 torch
+transformers
+sentencepiece
 fastapi
 uvicorn
+pydantic
+# datasets          ← 학습 안 하면 제거
+# peft              ← LoRA 추론 없으면 제거
+# trl               ← PPO 등 RL 학습 안 쓰면 제거
+# accelerate        ← 훈련 안 하면 제거 가능
+# bitsandbytes      ← ❌ GPU 전용. CPU-only이면 반드시 제거
+# scipy             ← 꼭 필요한 경우만 유지 (수치 계산용)
