@@ -47,5 +47,6 @@ public class Diary {
     private LocalDateTime createdAt;
 
     @Lob
+    @Column(columnDefinition = "TEXT")
     private String feedback;
 }
