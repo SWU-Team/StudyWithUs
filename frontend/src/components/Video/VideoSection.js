@@ -68,7 +68,6 @@ const VideoSection = ({
                 nickname={user?.nickname}
                 muted={true}
                 isHost={user?.id === hostId}
-                isVideoOn={isVideoOn}
               />
               <FaceDetector
                 stream={myStream}
@@ -93,7 +92,6 @@ const VideoSection = ({
                 stream={other.stream}
                 nickname={other.nickname}
                 isHost={other?.peerId === hostId}
-                isVideoOn={isVideoOn}
               />
             </div>
           ))}

@@ -28,6 +28,14 @@ const StudyRoom = () => {
   useEffect(() => {
     if (!roomId || !isConnected) return;
 
+    sendChat({
+      type: "ENTER",
+      roomId: Number(roomId),
+      senderId: user.id,
+      senderNickname: "BOT",
+      message: `${user.nickname}님이 입장하셨습니다.`,
+    });
+
     apiGet(`/rooms/${roomId}`)
       .then(setRoom)
       .catch((err) => {
@@ -58,9 +66,29 @@ const StudyRoom = () => {
     initStream();
   }, []);
 
+  const { remoteStreams, sendSignal } = useWebRTC(
+    roomId,
+    isReadyForWebRTC ? user : null,
+    isReadyForWebRTC ? localStream : null,
+    stompClientRef,
+    isConnected
+  );
+
   const handleExitRoom = async () => {
     if (hasExitedRef.current) return;
     hasExitedRef.current = true;
+
+    if (stompClientRef.current?.connected) {
+      sendSignal("leave", {});
+    }
+
+    sendChat({
+      type: "EXIT",
+      roomId: Number(roomId),
+      senderId: user.id,
+      senderNickname: "BOT",
+      message: `${user.nickname}님이 퇴장하셨습니다.`,
+    });
 
     try {
       await apiPost(`/rooms/${roomId}/exit`);
@@ -82,14 +110,6 @@ const StudyRoom = () => {
     videoTrack.enabled = !videoTrack.enabled;
     setIsVideoOn(videoTrack.enabled);
   };
-
-  const { remoteStreams } = useWebRTC(
-    roomId,
-    isReadyForWebRTC ? user : null,
-    isReadyForWebRTC ? localStream : null,
-    stompClientRef,
-    isConnected
-  );
 
   const { chatMessages, chatInputRef, handleSendChat, sendChat } = useChat(
     roomId,

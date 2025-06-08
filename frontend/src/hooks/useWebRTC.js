@@ -5,7 +5,7 @@ export const useWebRTC = (roomId, user, localStream, stompClientRef, isConnected
   const peerConnections = useRef({});
   const [remoteStreams, setRemoteStreams] = useState([]);
   const pendingCandidates = useRef({});
-  
+
   // 방에 있는 기존 사용자 목록을 가져와서 연결
   const fetchExistingUsersAndConnect = async () => {
     try {
@@ -19,7 +19,7 @@ export const useWebRTC = (roomId, user, localStream, stompClientRef, isConnected
       console.error("기존 방 사용자 불러오기 실패", e);
     }
   };
-  
+
   // 시그널 전송 함수
   const sendSignal = (type, data, targetId = null) => {
     if (!user || !isConnected) return;
@@ -40,6 +40,7 @@ export const useWebRTC = (roomId, user, localStream, stompClientRef, isConnected
   };
 
   const removePeer = (peerId) => {
+    console.log(`[removePeer] 피어 연결 제거 요청 - peerId: ${peerId}`);
     const pc = peerConnections.current[peerId];
     if (pc) {
       console.log(`[removePeer] 피어 연결 종료 및 제거 - peerId: ${peerId}`);
@@ -239,5 +240,5 @@ export const useWebRTC = (roomId, user, localStream, stompClientRef, isConnected
     };
   }, []);
 
-  return { remoteStreams };
+  return { remoteStreams, sendSignal };
 };
