@@ -4,6 +4,7 @@ import { removeToken } from "../utils/auth";
 import { apiGet } from "../utils/api";
 import { FiClock, FiMenu } from "react-icons/fi";
 import MobileSidebar from "./MobileSidebar";
+import { formatMinutes } from "../utils/format";
 
 const Header = () => {
   const [studyTime, setStudyTime] = useState("00시간 00분");
@@ -18,7 +19,19 @@ const Header = () => {
         setNickname(res.nickname);
       });
     }
+
+    fetchTodayStudyTime();
   }, []);
+
+  const fetchTodayStudyTime = async () => {
+    const today = new Date().toISOString().split("T")[0]; // "2025-06-08" 형식
+    try {
+      const studyTime = await apiGet(`/study-times?date=${today}`);
+      setStudyTime(formatMinutes(studyTime.totalMinutes));
+    } catch (error) {
+      console.error("오늘 공부시간 조회 실패", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
