@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styles from "./VideoSection.module.css";
 import userImg from "../../assets/images/user.png";
 
@@ -30,4 +30,4 @@ const VideoPlayer = ({ stream, nickname, muted = false, isHost = false }) => {
   );
 };
 
-export default VideoPlayer;
+export default React.memo(VideoPlayer);
