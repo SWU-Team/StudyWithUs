@@ -13,6 +13,7 @@ const Header = () => {
   const [nickname, setNickname] = useState(localStorage.getItem("nickname") || "");
 
   useEffect(() => {
+    // 소셜 로그인을 통해 닉네임이 설정된 경우
     if (!localStorage.getItem("nickname")) {
       apiGet("/users/me").then((res) => {
         localStorage.setItem("nickname", res.nickname);
@@ -20,7 +21,19 @@ const Header = () => {
       });
     }
 
+    // 닉네임 변경 감지용 커스텀 이벤트 리스너
+    const handleNicknameChange = (e) => {
+      const newNickname = localStorage.getItem("nickname");
+      setNickname(newNickname);
+    };
+
+    window.addEventListener("nicknameChanged", handleNicknameChange);
+
     fetchTodayStudyTime();
+
+    return () => {
+      window.removeEventListener("nicknameChanged", handleNicknameChange);
+    };
   }, []);
 
   const fetchTodayStudyTime = async () => {

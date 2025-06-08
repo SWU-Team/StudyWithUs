@@ -11,6 +11,10 @@ const NicknameModal = ({ isOpen, onClose, onUpdate }) => {
     try {
       await apiPatch("/users/me/nickname", { nickname });
       toast.success("닉네임이 변경되었습니다.");
+
+      localStorage.setItem("nickname", nickname);
+      window.dispatchEvent(new Event("nicknameChanged"));
+
       onClose();
       onUpdate();
     } catch (err) {
