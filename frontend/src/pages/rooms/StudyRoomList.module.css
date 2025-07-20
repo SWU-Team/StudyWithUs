@@ -194,8 +194,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
-  gap: 8px;
+  margin-top: 1rem;
+  gap: 0.5rem;
 }
 
 .pageBtn,
@@ -217,6 +217,11 @@
 
 .pageBtn:hover {
   background-color: #dbe2e8;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .pageNumber {

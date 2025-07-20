@@ -10,6 +10,8 @@ function StudyRoomList() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [rooms, setRooms] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [newRoom, setNewRoom] = useState({
@@ -23,11 +25,20 @@ function StudyRoomList() {
     fetchRooms();
   }, []);
 
-  const fetchRooms = async () => {
+  const fetchRooms = async (page = 0, keyword = "") => {
     try {
       setIsLoading(true);
-      const data = await apiGet("/rooms");
-      setRooms(data);
+      let data;
+
+      if (keyword) {
+        data = await apiGet(`/rooms/search?keyword=${keyword}&page=${page}&size=10`);
+      } else {
+        data = await apiGet(`/rooms?page=${page}&size=10`);
+      }
+
+      setRooms(data.content);
+      setTotalPages(data.totalPages);
+      setCurrentPage(data.number);
     } catch (error) {
       console.error("방 목록 가져오기 실패: ", error);
       toast.error("방 목록을 가져오는 데 실패했습니다.");
@@ -73,6 +84,12 @@ function StudyRoomList() {
     }
   };
 
+  const handlePageChange = (page) => {
+    if (page >= 0 && page < totalPages) {
+      fetchRooms(page, searchTerm);
+    }
+  };
+
   return (
     <>
       <div className={styles.wrapper}>
@@ -83,8 +100,14 @@ function StudyRoomList() {
             className={styles.searchInput}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                fetchRooms(0, searchTerm);
+              }
+            }}
           />
-          <button className={styles.searchBtn}>
+          <button className={styles.searchBtn} onClick={() => fetchRooms(0, searchTerm)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="22"
@@ -135,9 +158,31 @@ function StudyRoomList() {
               ))}
             </div>
             <div className={styles.pagination}>
-              <button className={styles.pageBtn}>◀</button>
-              <div className={`${styles.pageNumber} ${styles.active}`}>1</div>
-              <button className={styles.pageBtn}>▶</button>
+              <button
+                className={styles.pageBtn}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 0}
+              >
+                ◀
+              </button>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`${styles.pageNumber} ${currentPage === i ? styles.active : ""}`}
+                  onClick={() => handlePageChange(i)}
+                >
+                  {i + 1}
+                </div>
+              ))}
+
+              <button
+                className={styles.pageBtn}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages - 1}
+              >
+                ▶
+              </button>
             </div>
           </>
         )}
