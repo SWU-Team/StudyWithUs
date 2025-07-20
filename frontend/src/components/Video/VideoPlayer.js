@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styles from "./VideoSection.module.css";
 import userImg from "../../assets/images/user.png";
 
-const VideoPlayer = ({ stream, nickname, muted = false, isHost = false, isVideoOn }) => {
+const VideoPlayer = ({ stream, nickname, muted = false, isHost = false }) => {
+  const isVideoTrackOn = stream.getVideoTracks()[0]?.enabled ?? true;
+
   return (
     <div className={styles.videoContainer}>
       {isHost && <span className={styles.hostBadge}>👑</span>}
-      {isVideoOn ? (
+      {isVideoTrackOn ? (
         <video
           className={styles.video}
           ref={(videoEl) => {
@@ -15,7 +17,7 @@ const VideoPlayer = ({ stream, nickname, muted = false, isHost = false, isVideoO
               videoEl.play().catch(() => {});
             }
           }}
-          muted
+          muted={muted}
           autoPlay
         />
       ) : (

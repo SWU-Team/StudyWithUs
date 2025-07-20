@@ -11,10 +11,11 @@ import com.swu.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -47,11 +48,10 @@ public class RoomService {
         return toRoomResponse(room);
     }
 
-    @Transactional
-    public List<RoomResponse> getAllRooms() {
-        return roomRepository.findByIsDeletedFalse().stream()
-                .map(this::toRoomResponse)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<RoomResponse> getAllRooms(Pageable pageable) {
+        return roomRepository.findAllByIsDeletedFalse(pageable)
+                .map(this::toRoomResponse);
     }
 
     @Transactional
@@ -59,6 +59,13 @@ public class RoomService {
         Room room = roomRepository.findByIdAndIsDeletedFalse(roomId)
                 .orElseThrow(() -> new RoomNotFoundException("해당 방이 존재하지 않습니다."));
         return toRoomResponse(room);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RoomResponse> searchRooms(String keyword, Pageable pageable) {
+        return roomRepository
+                .findByTitleContainingIgnoreCaseAndIsDeletedFalse(keyword, pageable)
+                .map(this::toRoomResponse);
     }
 
     private RoomResponse toRoomResponse(Room room) {

@@ -19,7 +19,9 @@ const Sidebar = () => {
 
   return (
     <div className={styles.sidebar}>
-      <img src={logoImage} alt="Study_With_Us_Logo" className={styles.logo} />
+      <Link to="/rooms">
+        <img src={logoImage} alt="Study_With_Us_Logo" className={styles.logo} />
+      </Link>
 
       <nav>
         <ul className={styles.menuList}>

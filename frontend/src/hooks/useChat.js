@@ -57,24 +57,6 @@ export const useChat = (roomId, user, stompClientRef, isConnected) => {
     if (!isConnected || !user) return;
 
     // 입장 메시지
-    sendChat({
-      type: "ENTER",
-      roomId: Number(roomId),
-      senderId: user.id,
-      senderNickname: "BOT",
-      message: `${user.nickname}님이 입장하셨습니다.`,
-    });
-
-    // 클린업 시 퇴장 메시지 전송
-    return () => {
-      sendChat({
-        type: "EXIT",
-        roomId: Number(roomId),
-        senderId: user.id,
-        senderNickname: "BOT",
-        message: `${user.nickname}님이 퇴장하셨습니다.`,
-      });
-    };
   }, [isConnected, user]);
 
   return { chatMessages, chatInputRef, handleSendChat, sendChat };

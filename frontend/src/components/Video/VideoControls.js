@@ -87,6 +87,12 @@ const VideoControls = ({ isVideoOn, toggleVideo, handleExit }) => {
     }
   };
 
+  const handleExitWithAudioStop = () => {
+    audioRef.current.pause();
+    audioRef.current.src = "";
+    handleExit();
+  };
+
   return (
     <div className={styles.videoControls}>
       <div className={styles.leftSection}>
@@ -173,7 +179,11 @@ const VideoControls = ({ isVideoOn, toggleVideo, handleExit }) => {
         <button className={styles.iconButton} title="비디오 토글" onClick={toggleVideo}>
           {isVideoOn ? <FaVideo /> : <FaVideoSlash />}
         </button>
-        <button className={styles.iconButtonExit} title="방 나가기" onClick={handleExit}>
+        <button
+          className={styles.iconButtonExit}
+          title="방 나가기"
+          onClick={handleExitWithAudioStop}
+        >
           <FaSignOutAlt />
         </button>
       </div>

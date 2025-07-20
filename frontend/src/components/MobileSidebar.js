@@ -13,7 +13,7 @@ const MobileSidebar = ({ isOpen, onClose }) => {
   const menuLinks = [
     { path: "/rooms", label: "스터디룸", icon: <FaChalkboardTeacher size={22} /> },
     { path: "/planer", label: "플래너", icon: <FaCalendarAlt size={22} /> },
-    { path: "/diary", label: "다이어리", icon: <FaBookOpen size={22} /> },
+    { path: "/diaries", label: "다이어리", icon: <FaBookOpen size={22} /> },
     { path: "/mypage", label: "마이페이지", icon: <FaUserCircle size={22} /> },
   ];
 

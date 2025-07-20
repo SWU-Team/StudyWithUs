@@ -4,6 +4,7 @@ import { removeToken } from "../utils/auth";
 import { apiGet } from "../utils/api";
 import { FiClock, FiMenu } from "react-icons/fi";
 import MobileSidebar from "./MobileSidebar";
+import { formatMinutes } from "../utils/format";
 
 const Header = () => {
   const [studyTime, setStudyTime] = useState("00시간 00분");
@@ -12,13 +13,38 @@ const Header = () => {
   const [nickname, setNickname] = useState(localStorage.getItem("nickname") || "");
 
   useEffect(() => {
+    // 소셜 로그인을 통해 닉네임이 설정된 경우
     if (!localStorage.getItem("nickname")) {
       apiGet("/users/me").then((res) => {
         localStorage.setItem("nickname", res.nickname);
         setNickname(res.nickname);
       });
     }
+
+    // 닉네임 변경 감지용 커스텀 이벤트 리스너
+    const handleNicknameChange = (e) => {
+      const newNickname = localStorage.getItem("nickname");
+      setNickname(newNickname);
+    };
+
+    window.addEventListener("nicknameChanged", handleNicknameChange);
+
+    fetchTodayStudyTime();
+
+    return () => {
+      window.removeEventListener("nicknameChanged", handleNicknameChange);
+    };
   }, []);
+
+  const fetchTodayStudyTime = async () => {
+    const today = new Date().toISOString().split("T")[0]; // "2025-06-08" 형식
+    try {
+      const studyTime = await apiGet(`/study-times?date=${today}`);
+      setStudyTime(formatMinutes(studyTime.totalMinutes));
+    } catch (error) {
+      console.error("오늘 공부시간 조회 실패", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {

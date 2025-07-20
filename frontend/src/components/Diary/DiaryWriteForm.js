@@ -135,22 +135,20 @@ function DiaryWrite({ onClose, onSuccess }) {
         </div>
       </div>
       {aiFeedback && showFeedbackModal && (
-        <Modal
-          isOpen={showFeedbackModal}
-          onClose={() => {
-            setShowFeedbackModal(false);
-            onClose();
-            onSuccess();
-          }}
-          title="🤖 AI 피드백"
-          content={aiFeedback}
-          confirmText="확인"
-          onConfirm={() => {
-            setShowFeedbackModal(false);
-            onClose();
-            onSuccess();
-          }}
-        ></Modal>
+        <div className={styles.overlay} onClick={() => setShowFeedbackModal(false)}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeBtn} onClick={() => setShowFeedbackModal(false)}>
+              ✖
+            </button>
+
+            {aiFeedback && (
+              <div className={styles.diaryBlock}>
+                <div className={styles.label}>🤖 AI 피드백</div>
+                <div className={styles.diaryText}>{aiFeedback}</div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
       <Modal
         isOpen={showScoreModal}
