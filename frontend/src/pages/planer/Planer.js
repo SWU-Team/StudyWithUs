@@ -17,7 +17,7 @@ function Planner() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [priority, setPriority] = useState("");
   const [editingTexts, setEditingTexts] = useState({});
-const [isComposing, setIsComposing] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
 
   const selectedDateKey = useMemo(() => {
     const yyyy = date.getFullYear();
@@ -33,7 +33,6 @@ const [isComposing, setIsComposing] = useState(false);
     return `${yyyy}-${mm}-${dd}`;
   })();
   useEffect(() => {
-
     const storedLongTermGoals = localStorage.getItem("planner-long-term-goals");
     if (storedLongTermGoals) {
       try {
@@ -44,17 +43,17 @@ const [isComposing, setIsComposing] = useState(false);
     }
 
     apiGet(`/plans?date=${selectedDateKey}`)
-    .then((res) => {
-      setGoals((prev) => ({
-        ...prev,
-        [selectedDateKey]: res,
-      }));
-    })
-    .catch((err) => {
-      const { message } = extractErrorInfo(err);
-      toast.error(`목표 불러오기 실패: ${message}`);
-    });
-}, [selectedDateKey]);
+      .then((res) => {
+        setGoals((prev) => ({
+          ...prev,
+          [selectedDateKey]: res,
+        }));
+      })
+      .catch((err) => {
+        const { message } = extractErrorInfo(err);
+        toast.error(`목표 불러오기 실패: ${message}`);
+      });
+  }, [selectedDateKey]);
 
   useEffect(() => {
     localStorage.setItem("planner-goals", JSON.stringify(goals));
@@ -64,68 +63,85 @@ const [isComposing, setIsComposing] = useState(false);
     localStorage.setItem("planner-long-term-goals", JSON.stringify(longTermGoals));
   }, [longTermGoals]);
 
-  
-
   const handleDateChange = (newDate) => {
     setDate(newDate);
   };
 
   function getKSTTodayDateString() {
-  const now = new Date();
+    const now = new Date();
 
-  // UTC 시간 + 9시간 → 한국 시간으로 보정
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+    // UTC 시간 + 9시간 → 한국 시간으로 보정
+    const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
 
-  // YYYY-MM-DD 형태로 자르기
-  return kst.toISOString().split("T")[0];
-}
+    // YYYY-MM-DD 형태로 자르기
+    return kst.toISOString().split("T")[0];
+  }
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const handleAddGoal = async () => {
     if (isSubmitting) return;
     if (!input.trim()) return;
 
-  const todayKey = getKSTTodayDateString();
-  if (selectedDateKey < todayKey) {
-    toast.error("과거 날짜에는 목표를 등록할 수 없습니다.");
-    return;
-  }
+    const todayKey = getKSTTodayDateString();
+    if (selectedDateKey < todayKey) {
+      toast.error("과거 날짜에는 목표를 등록할 수 없습니다.");
+      return;
+    }
 
-  setIsSubmitting(true);
+    setIsSubmitting(true);
 
-  const newGoal = {
-    content: input,
-    planDate: selectedDateKey,
-    priority: (priority || "LOW").toUpperCase(),
+    const newGoal = {
+      content: input,
+      planDate: selectedDateKey,
+      priority: (priority || "LOW").toUpperCase(),
 
+      isCompleted: false,
+    };
 
-    isCompleted: false,
+    try {
+      await apiPost("/plans", newGoal);
+
+      // 🔥 UI 즉시 반영
+      const updated = await apiGet(`/plans?date=${selectedDateKey}`);
+      setGoals((prev) => ({
+        ...prev,
+        [selectedDateKey]: updated,
+      }));
+
+      setInput("");
+      setPriority("");
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`목표 추가 실패: ${message}`);
+    } finally {
+      setIsSubmitting(false); // 🔓
+    }
   };
 
-  try {
-    await apiPost("/plans", newGoal);
-
-    // 🔥 UI 즉시 반영
-    const updated = await apiGet(`/plans?date=${selectedDateKey}`);
-    setGoals((prev) => ({
-      ...prev,
-      [selectedDateKey]: updated,
-    }));
-
-    setInput("");
-    setPriority("");
-  } catch (err) {
-    const { message } = extractErrorInfo(err);
-    toast.error(`목표 추가 실패: ${message}`);
-  }finally {
-    setIsSubmitting(false); // 🔓
-  }
-};
-
-  const handleToggle = (goalId) => {
+  const handleToggle = async (goalId) => {
     const currentGoals = goals[selectedDateKey] || [];
-    const updated = currentGoals.map((g) => (g.id === goalId ? { ...g, isCompleted: !g.isCompleted } : g));
-    setGoals((prev) => ({ ...prev, [selectedDateKey]: updated }));
+    const goalToToggle = currentGoals.find((g) => g.id === goalId);
+
+    if (!goalToToggle) return;
+
+    const updatedGoal = {
+      content: goalToToggle.content ?? goalToToggle.text ?? "",
+      planDate: selectedDateKey,
+      priority: (goalToToggle.priority || "LOW").toUpperCase(),
+      isCompleted: !goalToToggle.isCompleted,
+    };
+    try {
+      await apiPatch(`/plans/${goalId}`, updatedGoal);
+      setGoals((prev) => ({
+        ...prev,
+        [selectedDateKey]: currentGoals.map((g) =>
+          g.id === goalId ? { ...g, isCompleted: updatedGoal.isCompleted } : g
+        ),
+      }));
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`체크 상태 저장 실패: ${message}`);
+    }
   };
 
   const handleDelete = async (goalId) => {
@@ -145,26 +161,26 @@ const [isComposing, setIsComposing] = useState(false);
     const currentGoals = goals[selectedDateKey] || [];
     const goalToEdit = currentGoals.find((g) => g.id === goalId);
 
-  const updatedGoal = {
-    content: newText,
-    planDate: goalToEdit.planDate || selectedDateKey, // 필수
-    priority: (goalToEdit.priority || "LOW").toUpperCase(),
-    isCompleted: goalToEdit.isCompleted,
-  };
+    const updatedGoal = {
+      content: newText,
+      planDate: goalToEdit.planDate || selectedDateKey, // 필수
+      priority: (goalToEdit.priority || "LOW").toUpperCase(),
+      isCompleted: goalToEdit.isCompleted,
+    };
 
-  try {
-    await apiPatch(`/plans/${goalId}`, updatedGoal);
-    setGoals((prev) => ({
-      ...prev,
-      [selectedDateKey]: prev[selectedDateKey].map((g) =>
-        g.id === goalId ? { ...g, ...updatedGoal } : g
-      ),
-    }));
-  } catch (err) {
-    const { message } = extractErrorInfo(err);
-    toast.error(`수정 실패: ${message}`);
-  }
-};
+    try {
+      await apiPatch(`/plans/${goalId}`, updatedGoal);
+      setGoals((prev) => ({
+        ...prev,
+        [selectedDateKey]: prev[selectedDateKey].map((g) =>
+          g.id === goalId ? { ...g, ...updatedGoal } : g
+        ),
+      }));
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`수정 실패: ${message}`);
+    }
+  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -192,20 +208,40 @@ const [isComposing, setIsComposing] = useState(false);
     }
   };
 
-  const handleToggleLongTerm = (goalId, dueDate) => {
-    // longTermGoals 안에 있는 목표인지 확인
-    const existsInLongTerm = longTermGoals.some((g) => g.id === goalId);
+  const handleToggleLongTerm = async (goalId, dueDate) => {
+    const isLongTerm = longTermGoals.some((g) => g.id === goalId);
+    const list = isLongTerm ? longTermGoals : goals[dueDate] || [];
+    const goal = list.find((g) => g.id === goalId);
+    if (!goal) return;
 
-    if (existsInLongTerm) {
-      setLongTermGoals((prev) => prev.map((g) => (g.id === goalId ? { ...g, isCompleted: !g.isCompleted} : g)));
-    } else {
-      // 미래 날짜 단기 목표인 경우
-      setGoals((prev) => {
-        const updatedList = (prev[dueDate] || []).map((g) =>
-          g.id === goalId ? { ...g, isCompleted: !g.isCompleted } : g
+    // ✅ 서버에 보낼 데이터만 명확히 정의
+    const updatedGoal = {
+      content: goal.content ?? goal.text ?? "", // text or content
+      planDate: goal.dueDate || dueDate,
+      priority: (goal.priority || "LOW").toUpperCase(),
+      isCompleted: !goal.isCompleted,
+    };
+
+    try {
+      await apiPatch(`/plans/${goalId}`, updatedGoal);
+
+      // UI 업데이트
+      if (isLongTerm) {
+        setLongTermGoals((prev) =>
+          prev.map((g) => (g.id === goalId ? { ...g, isCompleted: updatedGoal.isCompleted } : g))
         );
-        return { ...prev, [dueDate]: updatedList };
-      });
+      } else {
+        setGoals((prev) => {
+          const updatedList = (prev[dueDate] || []).map((g) =>
+            g.id === goalId ? { ...g, isCompleted: updatedGoal.isCompleted } : g
+          );
+          return { ...prev, [dueDate]: updatedList };
+        });
+      }
+    } catch (err) {
+      const { message } = extractErrorInfo(err);
+      toast.error(`체크 상태 저장 실패: ${message}`);
+      console.error("PATCH 요청 실패 - 보낸 데이터:", updatedGoal);
     }
   };
 
@@ -235,7 +271,7 @@ const [isComposing, setIsComposing] = useState(false);
       priority: (goalToEdit.priority || "LOW").toUpperCase(),
       isCompleted: goalToEdit.isCompleted,
     };
-  
+
     try {
       await apiPatch(`/plans/${goalId}`, updatedGoal);
       setGoals((prev) => {
@@ -307,8 +343,10 @@ const [isComposing, setIsComposing] = useState(false);
 
     // 정렬 기준
     if (sortBy === "priority") {
-      return priorityOrder[a.priority?.toLowerCase() || ""] - priorityOrder[b.priority?.toLowerCase() || ""];
-
+      return (
+        priorityOrder[a.priority?.toLowerCase() || ""] -
+        priorityOrder[b.priority?.toLowerCase() || ""]
+      );
     } else if (sortBy === "date") {
       const aDate = new Date(a.dueDate.replace(/-/g, "/"));
       const bDate = new Date(b.dueDate.replace(/-/g, "/"));
@@ -351,7 +389,7 @@ const [isComposing, setIsComposing] = useState(false);
       setSelectedMonth((prev) => prev - 1);
     }
   };
-  
+
   const handleNextMonth = () => {
     if (selectedMonth === 12) {
       setSelectedMonth(1);
@@ -377,128 +415,129 @@ const [isComposing, setIsComposing] = useState(false);
         </div>
         {/* 여기는 선택한 날 목표 컨테이너 */}
         <div className={styles.goalsContainer}>
-  <div className={styles.dailyGoalsBox}>
-    <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
+          <div className={styles.dailyGoalsBox}>
+            <h3 className={styles.sectionTitle}>{formatDateTitle()}</h3>
 
-    {totalGoals > 0 ? (
-      <div className={styles.progressStickyWrapper}>
-        <div className={styles.progressBar}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${progressPercentage}%` }}
-          />
-        </div>
-        <div className={styles.progressText}>
-          <span>진행 상황</span>
-          <span>
-            {completedGoals}/{totalGoals} 완료
-          </span>
-        </div>
-      </div>
-    ) : (
-      <p className={styles.noGoalsText}>
-        선택한 날짜에 목표가 없습니다. 목표를 추가해주세요 😊
-      </p>
-    )}
+            {totalGoals > 0 ? (
+              <div className={styles.progressStickyWrapper}>
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
+                <div className={styles.progressText}>
+                  <span>진행 상황</span>
+                  <span>
+                    {completedGoals}/{totalGoals} 완료
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className={styles.noGoalsText}>
+                선택한 날짜에 목표가 없습니다. 목표를 추가해주세요 😊
+              </p>
+            )}
 
-    {/* ✅ 스크롤되는 영역만 따로 분리 */}
-    <div className={styles.goalListWrapper}>
-      <div className={styles.goalList}>
-        {sortedTodayGoals.map((goal) => (
-          <div key={goal.id} className={styles.goalItem}>
-            <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={goal.isCompleted}
-              onChange={() => handleToggle(goal.id)}
-            />
-            <input
-              type="text"
-              className={`${styles.goalText} ${goal.isCompleted ? styles.isCompleted : ""}`}
-              value={goal.content}
-              onChange={(e) => handleEdit(goal.id, e.target.value)}
-            />
-            <span className={`${styles.priorityTag} ${styles[goal.priority?.toLowerCase()]}`}>
-              {goal.priority?.toLowerCase() === "high" && "높음"}
-              {goal.priority?.toLowerCase() === "medium" && "중간"}
-              {goal.priority?.toLowerCase() === "low" && "낮음"}
-            </span>
-            <button className={styles.deleteButton} onClick={() => handleDelete(goal.id)}>
-              X
-            </button>
+            {/* ✅ 스크롤되는 영역만 따로 분리 */}
+            <div className={styles.goalListWrapper}>
+              <div className={styles.goalList}>
+                {sortedTodayGoals.map((goal) => (
+                  <div key={goal.id} className={styles.goalItem}>
+                    <input
+                      type="checkbox"
+                      className={styles.checkbox}
+                      checked={goal.isCompleted}
+                      onChange={() => handleToggle(goal.id)}
+                    />
+                    <input
+                      type="text"
+                      className={`${styles.goalText} ${goal.isCompleted ? styles.isCompleted : ""}`}
+                      value={goal.content}
+                      onChange={(e) => handleEdit(goal.id, e.target.value)}
+                    />
+                    <span
+                      className={`${styles.priorityTag} ${styles[goal.priority?.toLowerCase()]}`}
+                    >
+                      {goal.priority?.toLowerCase() === "high" && "높음"}
+                      {goal.priority?.toLowerCase() === "medium" && "중간"}
+                      {goal.priority?.toLowerCase() === "low" && "낮음"}
+                    </span>
+                    <button className={styles.deleteButton} onClick={() => handleDelete(goal.id)}>
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ✅ 고정 입력창 */}
+            <div className={styles.inputBox}>
+              <input
+                type="text"
+                placeholder="새 목표 입력"
+                className={styles.input}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className={styles.select}
+              >
+                <option value="">중요도 선택</option>
+                <option value="high">상</option>
+                <option value="medium">중</option>
+                <option value="low">하</option>
+              </select>
+              <button className={styles.addButton} onClick={handleAddGoal}>
+                +
+              </button>
+            </div>
           </div>
-        ))}
+        </div>
       </div>
-    </div>
-
-    {/* ✅ 고정 입력창 */}
-    <div className={styles.inputBox}>
-      <input
-        type="text"
-        placeholder="새 목표 입력"
-        className={styles.input}
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-      <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-        className={styles.select}
-      >
-        <option value="">중요도 없음</option>
-        <option value="high">상</option>
-        <option value="medium">중</option>
-        <option value="low">하</option>
-      </select>
-      <button className={styles.addButton} onClick={handleAddGoal}>
-        +
-      </button>
-    </div>
-  </div>
-</div>
-
-              {/* 여기는 예정된 목표 */}
+      <div className={styles.bottomSection}>
+        {/* 여기는 예정된 목표 */}
         <div className={styles.longGoalsBox}>
           <div className={styles.positionGoalsBox}>
-          <div className={styles.sectionHeader}>
-            <h3 className={styles.sectionTitle}>예정된 목표</h3>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className={styles.select}
-            >
-              <option value="priority">중요도 순</option>
-              <option value="date">날짜 순</option>
-            </select>
-          </div>
+            <div className={styles.sectionHeader}>
+              <h3 className={styles.sectionTitle}>예정된 목표</h3>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className={styles.select}
+              >
+                <option value="priority">중요도 순</option>
+                <option value="date">날짜 순</option>
+              </select>
+            </div>
 
-          {totalLongTermGoals > 0 ? (
-            <>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{ width: `${longTermProgressPercentage}%` }}
-                />
-              </div>
-              <div className={styles.progressText}>
-                <span>진행 상황</span>
-                <span>
-                  {completedLongTermGoals}/{totalLongTermGoals} 완료
-                </span>
-              </div>
-            </>
-            
-          ) : (
-            <p className={styles.noGoalsText}>
-              아직 등록된 장기 목표가 없습니다. 목표를 추가해주세요 🎯
-            </p>
-          )}
+            {totalLongTermGoals > 0 ? (
+              <>
+                <div className={styles.progressBar}>
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${longTermProgressPercentage}%` }}
+                  />
+                </div>
+                <div className={styles.progressText}>
+                  <span>진행 상황</span>
+                  <span>
+                    {completedLongTermGoals}/{totalLongTermGoals} 완료
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p className={styles.noGoalsText}>
+                아직 등록된 장기 목표가 없습니다. 목표를 추가해주세요 🎯
+              </p>
+            )}
           </div>
           <div className={styles.longTermGoalListHorizontal}>
             {sortedLongTermGoals.map((goal) => (
               <div key={goal.id} className={styles.longTermGoalItemHorizontal}>
-                
                 <input
                   type="text"
                   className={`${styles.goalText} ${goal.isCompleted ? styles.done : ""}`}
@@ -520,15 +559,24 @@ const [isComposing, setIsComposing] = useState(false);
                 />
 
                 {/* ✅ 중요도 아이콘 */}
-                <span className={`${styles.priorityTag} ${goal.content?.startsWith("[없음]") ? styles.none : styles[goal.priority?.toLowerCase()]}`}>
-                  {goal.content?.startsWith("[없음]") ? "없음" : (
-                    goal.priority?.toLowerCase() === "high" ? "높음" :
-                    goal.priority?.toLowerCase() === "medium" ? "중간" : "낮음"
-                  )}
+                <span
+                  className={`${styles.priorityTag} ${
+                    goal.content?.startsWith("[없음]")
+                      ? styles.none
+                      : styles[goal.priority?.toLowerCase()]
+                  }`}
+                >
+                  {goal.content?.startsWith("[없음]")
+                    ? "없음"
+                    : goal.priority?.toLowerCase() === "high"
+                    ? "높음"
+                    : goal.priority?.toLowerCase() === "medium"
+                    ? "중간"
+                    : "낮음"}
                 </span>
-                
+
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
-              <div className={styles.buttonGroup}>  
+                <div className={styles.buttonGroup}>
                   <input
                     type="checkbox"
                     className={styles.checkbox}
@@ -542,12 +590,9 @@ const [isComposing, setIsComposing] = useState(false);
                     X
                   </button>
                 </div>
-                
               </div>
-              
             ))}
           </div>
-        
         </div>
         {/* 여기는 달의 목표 */}
         <div className={styles.monthlyGoalsSection}>
@@ -556,7 +601,7 @@ const [isComposing, setIsComposing] = useState(false);
             <button onClick={handlePrevMonth}>◀ 이전 달</button>
 
             <span>
-            📅{selectedYear}년 {selectedMonth}월 전체 목표
+              📅{selectedYear}년 {selectedMonth}월 전체 목표
             </span>
 
             <button onClick={handleNextMonth}>다음 달 ▶</button>
@@ -581,8 +626,6 @@ const [isComposing, setIsComposing] = useState(false);
           ) : (
             <p className={styles.noGoalsText}>해당 월에 등록된 목표가 없습니다 🗓️</p>
           )}
-
-          
 
           {/* ✅ 목표 리스트 */}
           <div className={styles.goalList}>
@@ -630,12 +673,20 @@ const [isComposing, setIsComposing] = useState(false);
                   }}
                 />
 
-
-                <span className={`${styles.priorityTag} ${goal.content?.startsWith("[없음]") ? styles.none : styles[goal.priority?.toLowerCase()]}`}>
-                  {goal.content?.startsWith("[없음]") ? "없음" : (
-                    goal.priority?.toLowerCase() === "high" ? "높음" :
-                    goal.priority?.toLowerCase() === "medium" ? "중간" : "낮음"
-                  )}
+                <span
+                  className={`${styles.priorityTag} ${
+                    goal.content?.startsWith("[없음]")
+                      ? styles.none
+                      : styles[goal.priority?.toLowerCase()]
+                  }`}
+                >
+                  {goal.content?.startsWith("[없음]")
+                    ? "없음"
+                    : goal.priority?.toLowerCase() === "high"
+                    ? "높음"
+                    : goal.priority?.toLowerCase() === "medium"
+                    ? "중간"
+                    : "낮음"}
                 </span>
                 <span className={styles.dueDate}>마감: {goal.dueDate}</span>
               </div>
